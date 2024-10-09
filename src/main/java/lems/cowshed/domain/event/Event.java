@@ -1,12 +1,10 @@
 package lems.cowshed.domain.event;
 
 import jakarta.persistence.*;
-import lems.cowshed.domain.category.Category;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Entity
@@ -42,19 +40,21 @@ public class Event {
     @Column(name = "capacity", nullable = false)
     private int capacity;
 
+    @Column(name = "applicants")
+    private int applicants;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "availability", nullable = false)
     private Availability availability;
 
     @Column(name = "created_date", nullable = false)
-    private String createdDate;
+    private Date createdDate;
 
     @Column(name = "last_modified_date", nullable = false)
-    private String lastModifiedDate;
+    private Date lastModifiedDate;
 
-    @ManyToOne
-    @JoinColumn(name = "event")
-    private List<Category> categories;
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sorting_method")
+    private SortingMethod sortingMethod;
 
 }
