@@ -1,57 +1,55 @@
 package lems.cowshed.api.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-/*import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Gender;
-import lems.cowshed.domain.user.User;*/
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Tag(name="user-controller", description="회원 API")
-@RestController
-@RequestMapping("/users")
-public class UserApiController implements UserSpecification{
+public interface UserSpecification {
+    @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 회원을 조회한다. [이벤트 상세 > 참여자 목록]")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
+                    content = {@Content(mediaType = "application/json", array=@ArraySchema(schema=@Schema(implementation = EventUserDto.class)))})})
 
-    @GetMapping("/event/{eventId}")
-    public List<EventUserDto> getUserByEvent(@Parameter(name="eventId", description = "모임 ID", example = "1") @PathVariable("eventID") Long eventId){
-        //return List<EventUserDto>
-        EventUserDto eventUserDto = new EventUserDto();
-        eventUserDto.setName("kim");
-        eventUserDto.setGender(Gender.W);
-        eventUserDto.setIntroduction("안녕하세요 kim 입니다.");
+    List<EventUserDto> getUserByEvent(Long eventId);
 
-        List<EventUserDto> list = new ArrayList<>();
-        list.add(eventUserDto);
+    @Operation(summary = "마이페이지 회원 조회", description = "본인 정보를 가져온다. [마이페이지]")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
+                    content = {@Content(mediaType = "application/json", schema=@Schema(implementation = MyInfoDto.class))})})
+    void getMyInfoById(Long userId);
 
-        return list;
+    @Operation(summary = "회원 등록", description = "새로운 회원 정보를 저장한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
+                    content = {@Content(mediaType = "application/json", schema=@Schema(implementation = UserSaveRequestDto.class))})})
+    void saveUser(UserSaveRequestDto userSaveRequestDto);
+
+    @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [프로필 편집]")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
+                    content = {@Content(mediaType = "application/json", schema=@Schema(implementation = UserUpdateRequestDto.class))})})
+    void editUser(Long userId, UserUpdateRequestDto userUpdateRequestDto);
+
+    @Getter
+    @Setter
+    @Schema(description="특정 모임에 속한 회원")
+    public static class EventUserDto{
+        @Schema(description = "이름", example = "김철수", required = true)
+        private String name;
+        @Schema(description = "성별", example = "M", required = true)
+        private Gender gender;
+        @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.", required = true)
+        private String introduction;
     }
-
-    @GetMapping("/my-page/{userId}")
-    public void getMyInfoById(@Parameter(name = "userId", description = "회원 ID", example = "1") @PathVariable("userId") Long userId){
-        //return MyInfoDto
-    }
-
-    @PostMapping("/")
-    public void saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto){
-        //return Long
-    }
-
-   @PatchMapping("/{userId}")
-    public void editUser(@Parameter(name = "userId", description = "회원 ID", example = "1") @PathVariable("userId") Long userId, @RequestBody UserUpdateRequestDto userUpdateDto){
-        //return Long
-    }
-
     @Getter
     @Setter
     @Schema(description = "마이페이지 회원 정보")
@@ -69,7 +67,6 @@ public class UserApiController implements UserSpecification{
         @Schema(description = "북마크 모임", example = "김철수")
         private List<Event> bookmarkEvents;
     }
-
     @Getter
     @Setter
     @Schema(description = "회원 등록")
@@ -89,7 +86,6 @@ public class UserApiController implements UserSpecification{
         @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.")
         private String introduction;
     }
-
     @Getter
     @Setter
     @Schema(description = "회원 수정")

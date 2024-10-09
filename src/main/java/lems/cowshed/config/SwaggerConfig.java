@@ -29,23 +29,23 @@ public class SwaggerConfig {
     @Value("${lems.openapi.prod-url}")
     private String prodUrl;
 
-    @Bean
-    public GroupedOpenApi userApi(){
-        return GroupedOpenApi.builder()
-                .group("user")
-                .pathsToMatch("/users/**")
+//    @Bean
+//    public GroupedOpenApi userApi(){
+//        return GroupedOpenApi.builder()
+//                .group("user")
+//                .pathsToMatch("/users/**")
 //                .addOpenApiCustomizer(apiResponsesCustomizer())
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi eventApi(){
-        return GroupedOpenApi.builder()
-                .group("event")
-                .pathsToMatch("/events/**")
+//                .build();
+//    }
+//
+//    @Bean
+//    public GroupedOpenApi eventApi(){
+//        return GroupedOpenApi.builder()
+//                .group("event")
+//                .pathsToMatch("/events/**")
 //                .addOpenApiCustomizer(apiResponsesCustomizer())
-                .build();
-    }
+//                .build();
+//    }
 
     @Bean
     public OpenAPI metaData() {
