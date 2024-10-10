@@ -1,100 +1,67 @@
 package lems.cowshed.api.controller.event;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import lems.cowshed.api.dto.event.EventDto;
+import lems.cowshed.api.dto.event.EventListDto;
+import lems.cowshed.api.dto.event.EventSaveDto;
+import lems.cowshed.api.dto.event.EventUpdateDto;
+import lems.cowshed.service.EventService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/events")
 public class EventController implements EventSpecification {
 
+    @Autowired
+    private EventService eventService;
+    
+    //모든 모임 목록 조회
+    @GetMapping("/")
+    public List<EventListDto> findAll() { 
+        return eventService.findAll();
+    }
+    
+    //카테고리별 조회
+    @GetMapping("/{category}")
+    public List<EventListDto> findByCategory(@PathVariable String category) { 
+        return eventService.findByCategory(category);
+    }
+
+    //검색어로 조회
+    @GetMapping("/{keyword}")
+    public List<EventListDto> findByKeyword(@PathVariable String keyword) { 
+        return eventService.findByKeyword(keyword);
+    }
+
+    //모임 상세 조회
     @GetMapping("/{id}")
-    public eventDto event(@PathVariable Long id) {
-        return new eventDto("축구 모임", LocalDate.of(2024, 12, 25),"광화문 센터",37.5,126.9, 100,10);
+    public EventDto findById(@PathVariable Long id) { 
+        return eventService.findById(id);
     }
 
+    //등록
     @PostMapping
-    public void saveEvent(@RequestBody @Validated saveEventDto event) {}
+    public void save(@RequestBody @Validated EventSaveDto eventSaveDto) {
+        eventService.save(eventSaveDto);
+    }
 
+    //수정
     @PatchMapping("/{id}")
-    public void editEvent(@PathVariable Long id){
-
+    public void edit(@PathVariable Long id, @RequestBody @Validated EventUpdateDto eventUpdateDto){
+        eventService.edit(id);
     }
 
+    //삭제
     @DeleteMapping("/{id}")
-    public void deleteEvent(@PathVariable Long id){
-
-    }
-
-    @Schema(description = "모임 저장")
-    @Data
-    @AllArgsConstructor
-    public static class saveEventDto {
-
-        @NotBlank
-        @Schema(description = "이름", example = "자전거 모임")
-        String name;
-
-        @NotBlank
-        @Schema(description = "카테고리 이름", example = "취미")
-        String categoryName;
-
-        @NotBlank
-        @Schema(description = "장소", example = "광화문 센터")
-        String locationName;
-
-        @Schema(description = "위도", example = "37.7")
-        double latitude;
-
-        @Schema(description = "경도", example = "126.9")
-        double longitude;
-
-        @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "날짜 형식은 yyyy-MM-dd 입니다.")
-        @Schema(description = "시간", example = "2024-09-12")
-        String date;
-
-        @Max(value = 200)
-        @Schema(description = "최대 참여자 수", example = "50")
-        int maxParticipants;
-
-        @NotBlank
-        @Schema(description = "내용", example = "자전거 모임은 체력을 기르기 위한 모임 입니다.")
-        String content;
-    }
-
-
-    @Schema(description = "단건 모임 조회 결과")
-    @Data
-    @AllArgsConstructor
-    public static class eventDto {
-
-        @Schema(description = "이름", example = "농구 모임")
-        String name;
-
-        @Schema(description = "시간", example = "2024-09-12")
-        LocalDate date;
-
-        @Schema(description = "장소", example = "광화문 센터")
-        String locationName;
-
-        @Schema(description = "위도", example = "37.7")
-        double latitude;
-
-        @Schema(description = "경도", example = "126.9")
-        double longitude;
-
-        @Schema(description = "정원", example = "100")
-        int capacity;
-
-        @Schema(description = "참여자 수", example = "50")
-        int participants;
+    public void delete(@PathVariable Long id){
+        eventService.delete(id);
     }
 }
