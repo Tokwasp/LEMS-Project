@@ -30,7 +30,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        String username = null;
+        String email = null;
         String password = null;
 
         if(request.getContentType().equals("application/json")) {
@@ -38,7 +38,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 BufferedReader reader = request.getReader();
                 Map<String, String> jsonMap = objectMapper.readValue(reader, Map.class);
 
-                username = jsonMap.get("username");
+                email = jsonMap.get("email");
                 password = jsonMap.get("password");
 
             } catch (IOException e) {
@@ -50,7 +50,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         }
 
         // username, password, roll 값을 통해 token 만들고 authenticationManager 인증 요청
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
         return authenticationManager.authenticate(authToken);
     }
@@ -62,13 +62,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String username = customUserDetails.getUsername();
+        String email = customUserDetails.getUserEmail();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
 
         String role = auth.getAuthority();
-        String token = jwtUtil.createJwt(username, role, 60 * 60 * 1000L);
+        String token = jwtUtil.createJwt(username, email,  role, 60 * 60 * 1000L);
 
         response.addHeader("Authorization", "Bearer " + token);
 

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Gender;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,11 +20,11 @@ public interface UserSpecification {
 
     List<EventUserDto> getUserByEvent(Long eventId);
 
-    @Operation(summary = "마이페이지 회원 조회", description = "본인 정보를 가져온다. [마이페이지]")
+  /*  @Operation(summary = "마이페이지 회원 조회", description = "본인 정보를 가져온다. [마이페이지]")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
                     content = {@Content(mediaType = "application/json", schema=@Schema(implementation = MyInfoDto.class))})})
-    void getMyInfoById(Long userId);
+    void getMyInfoById(Long userId);*/
 
     @Operation(summary = "회원 등록", description = "새로운 회원 정보를 저장한다.")
     @ApiResponses(value = {
@@ -50,6 +49,7 @@ public interface UserSpecification {
         @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.", required = true)
         private String introduction;
     }
+    /*
     @Getter
     @Setter
     @Schema(description = "마이페이지 회원 정보")
@@ -67,6 +67,7 @@ public interface UserSpecification {
         @Schema(description = "북마크 모임", example = "김철수")
         private List<Event> bookmarkEvents;
     }
+     */
     @Getter
     @Setter
     @Schema(description = "회원 등록")
@@ -100,3 +101,4 @@ public interface UserSpecification {
         private String character;
     }
 }
+

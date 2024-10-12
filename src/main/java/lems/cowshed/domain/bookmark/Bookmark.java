@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Getter
+/*@Getter
 @Entity
 @NoArgsConstructor
 public class Bookmark {
@@ -29,4 +29,4 @@ public class Bookmark {
     @JoinColumn(name = "user_id")
     private User user;
 
-}
+}*/

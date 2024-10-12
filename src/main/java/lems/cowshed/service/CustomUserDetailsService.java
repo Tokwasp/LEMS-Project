@@ -19,12 +19,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        Optional<User> optionalUser = userRepository.findByName(username);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
 
         User user = optionalUser.orElseThrow(
-                () -> new IllegalStateException("user not exist"));
+                () -> new IllegalArgumentException("user not exist " + email));
 
         return new CustomUserDetails(user);
     }

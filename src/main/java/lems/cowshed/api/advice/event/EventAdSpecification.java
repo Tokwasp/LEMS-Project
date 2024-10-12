@@ -8,10 +8,8 @@ import lems.cowshed.api.advice.GeneralAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 public interface EventAdSpecification  {
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "400", description = "❌ 모임 객체가 검증에 실패 했습니다.",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
-    })
+    @ApiResponse(responseCode = "400", description = "❌ 모임 객체가 검증에 실패 했습니다.",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
     public EventAdvice.EventErrorResult eventNotValidHandler(MethodArgumentNotValidException ex);
 }

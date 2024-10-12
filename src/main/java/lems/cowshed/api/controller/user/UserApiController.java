@@ -8,15 +8,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-/*import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Gender;
-import lems.cowshed.domain.user.User;*/
+import lems.cowshed.domain.user.User;
+import lems.cowshed.domain.user.Gender;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Tag(name="user-controller", description="회원 API")
 @RestController
@@ -42,6 +43,16 @@ public class UserApiController implements UserSpecification{
         //return MyInfoDto
     }
 
+    @Override
+    public void saveUser(UserSpecification.UserSaveRequestDto userSaveRequestDto) {
+
+    }
+
+    @Override
+    public void editUser(Long userId, UserSpecification.UserUpdateRequestDto userUpdateRequestDto) {
+
+    }
+
     @PostMapping("/")
     public void saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto){
         //return Long
@@ -52,7 +63,7 @@ public class UserApiController implements UserSpecification{
         //return Long
     }
 
-    @Getter
+    /*@Getter
     @Setter
     @Schema(description = "마이페이지 회원 정보")
     public static class MyInfoDto{
@@ -68,7 +79,7 @@ public class UserApiController implements UserSpecification{
         private List<Event> joinEvents;
         @Schema(description = "북마크 모임", example = "김철수")
         private List<Event> bookmarkEvents;
-    }
+    }*/
 
     @Getter
     @Setter

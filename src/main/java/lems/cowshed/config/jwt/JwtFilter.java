@@ -36,7 +36,6 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("authorization now");
         //Bearer 부분 제거 후 순수 토큰만 획득
         String token = authorization.split(" ")[1];
 
@@ -50,11 +49,12 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         //토큰에서 username과 role 획득
+        String email = jwtUtil.getUserEmail(token);
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 
         //userEntity를 생성하여 값 set
-        User user = User.createUser(username,"tempPass",role);
+        User user = User.createUser(email, username,"tempPass",role);
 
         //UserDetails에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
