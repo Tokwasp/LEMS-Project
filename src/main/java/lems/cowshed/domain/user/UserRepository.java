@@ -32,9 +32,15 @@ public class UserRepository {
         em.persist(user);
     }
 
-    public Optional<User> findByName(String name){
-        return em.createQuery("select u from User u where u.name = :name", User.class)
-                .setParameter("name", name)
+    public Optional<User> findByEmail(String email){
+        return em.createQuery("select u from User u where u.email = :email", User.class)
+                .setParameter("email", email)
+                .getResultStream().findAny();
+    }
+
+    public Optional<User> findByName(String username){
+        return em.createQuery("select u from User u where u.username = :username", User.class)
+                .setParameter("username", username)
                 .getResultStream().findAny();
     }
 }

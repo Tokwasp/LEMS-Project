@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Getter
+/*@Getter
 @Entity
 @NoArgsConstructor
 public class Event {
@@ -56,5 +56,4 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @Column(name = "sorting_method")
     private SortingMethod sortingMethod;
-
-}
+}*/

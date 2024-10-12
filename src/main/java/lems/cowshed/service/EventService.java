@@ -1,17 +1,8 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.event.EventController;
-import lems.cowshed.api.dto.event.EventDto;
-import lems.cowshed.api.dto.event.EventListDto;
-import lems.cowshed.api.dto.event.EventSaveDto;
-import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+//import lems.cowshed.api.controller.event.EventController;
 
-import java.util.List;
-
-@Service
+/*@Service
 public class EventService {
 
     @Autowired
@@ -39,4 +30,4 @@ public class EventService {
 
     public EventDto findById(Long id) {
     }
-}
+}*/

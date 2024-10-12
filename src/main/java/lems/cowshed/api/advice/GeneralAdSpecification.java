@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lems.cowshed.api.advice.GeneralAdvice;
 import org.hibernate.TypeMismatchException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,4 +21,5 @@ public interface GeneralAdSpecification {
                             schema = @Schema(implementation = GeneralAdvice.Result.class)))
     })
     public GeneralAdvice.Result handleExceptionFromAPIMethod(Exception ex);
+
 }

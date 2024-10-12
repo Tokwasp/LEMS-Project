@@ -3,7 +3,7 @@ package lems.cowshed.domain.event;
 import java.util.List;
 import java.util.Optional;
 
-public interface EventRepository {
+/*public interface EventRepository {
     void save(Event event);
     Optional<Event> findById(Long id);
     List<Event> findAll();
@@ -13,4 +13,4 @@ public interface EventRepository {
     void delete(Event event);
     void edit(Event event);
 
-}
+}*/
