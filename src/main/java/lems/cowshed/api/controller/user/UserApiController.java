@@ -1,117 +1,41 @@
 package lems.cowshed.api.controller.user;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lems.cowshed.domain.user.Gender;
-import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.Gender;
-import lombok.Getter;
-import lombok.Setter;
+import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
+import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.api.controller.dto.user.query.UserEventQueryDto;
+import lems.cowshed.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-
-@Tag(name="user-controller", description="회원 API")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserApiController implements UserSpecification{
 
-    @GetMapping("/event/{eventId}")
-    public List<EventUserDto> getUserByEvent(@Parameter(name="eventId", description = "모임 ID", example = "1") @PathVariable("eventID") Long eventId){
-        //return List<EventUserDto>
-        EventUserDto eventUserDto = new EventUserDto();
-        eventUserDto.setName("kim");
-        eventUserDto.setGender(Gender.W);
-        eventUserDto.setIntroduction("안녕하세요 kim 입니다.");
+    private final UserService userService;
 
-        List<EventUserDto> list = new ArrayList<>();
-        list.add(eventUserDto);
-
-        return list;
+    @GetMapping
+    public CommonResponse<UserMyPageResponseDto> userMyPage(){
+        return null;
     }
 
-    @GetMapping("/my-page/{userId}")
-    public void getMyInfoById(@Parameter(name = "userId", description = "회원 ID", example = "1") @PathVariable("userId") Long userId){
-        //return MyInfoDto
+    @PostMapping("/register")
+    public CommonResponse<Void> saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto) {
+        userService.JoinProcess(userSaveRequestDto);
+        return null;
     }
 
-    @Override
-    public void saveUser(UserSpecification.UserSaveRequestDto userSaveRequestDto) {
-
+    @PatchMapping
+    public CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto){
+        return null;
     }
 
-    @Override
-    public void editUser(Long userId, UserSpecification.UserUpdateRequestDto userUpdateRequestDto) {
-
-    }
-
-    @PostMapping("/")
-    public void saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto){
-        //return Long
-    }
-
-   @PatchMapping("/{userId}")
-    public void editUser(@Parameter(name = "userId", description = "회원 ID", example = "1") @PathVariable("userId") Long userId, @RequestBody UserUpdateRequestDto userUpdateDto){
-        //return Long
-    }
-
-    /*@Getter
-    @Setter
-    @Schema(description = "마이페이지 회원 정보")
-    public static class MyInfoDto{
-        @Schema(description = "이름", example = "김철수", required=true)
-        private String name;
-        @Schema(description = "성별", example = "M", required=true)
-        private Gender gender;
-        @Schema(description = "생년월일", example = "1999-05-22", required=true)
-        private String birth;
-        @Schema(description = "성격유형", example = "ISTP")
-        private String character;
-        @Schema(description = "참여 모임", example = "")
-        private List<Event> joinEvents;
-        @Schema(description = "북마크 모임", example = "김철수")
-        private List<Event> bookmarkEvents;
-    }*/
-
-    @Getter
-    @Setter
-    @Schema(description = "회원 등록")
-    public static class UserSaveRequestDto {
-        @Schema(description = "이름", example = "김철수", required=true)
-        private String name;
-        @Schema(description = "성별", example = "M", required=true)
-        private Gender gender;
-        @Schema(description = "이메일", example = "cheolsukim@lems.com")
-        private String email;
-        @Schema(description = "생년월일", example = "1999-05-22", required=true)
-        private String birth;
-        @Schema(description = "지역명", example = "서울시", required=true)
-        private String local_name;
-        @Schema(description = "성격유형", example = "ISTP")
-        private String character;
-        @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.")
-        private String introduction;
-    }
-
-    @Getter
-    @Setter
-    @Schema(description = "회원 수정")
-    public static class UserUpdateRequestDto {
-        @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.")
-        private String introduction;
-        @Schema(description = "지역명", example = "서울시", required=true)
-        private String local_name;
-        @Schema(description = "생년월일", example = "1999-05-22", required=true)
-        private String birth;
-        @Schema(description = "성격유형", example = "ISTP")
-        private String character;
+    @GetMapping("/{eventId}")
+    public CommonResponse<List<UserEventQueryDto>> getUserByEvent(@PathVariable("eventID") Long eventId){
+        return null;
     }
 }

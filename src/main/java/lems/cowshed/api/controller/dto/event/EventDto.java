@@ -37,6 +37,7 @@ public class EventDto {
     @Schema(description = "참여 신청 인원", example = "50")
     int applicants;
 
+
 //    @Schema(description = "위도", example = "37.7")
 //    double latitude;
 //

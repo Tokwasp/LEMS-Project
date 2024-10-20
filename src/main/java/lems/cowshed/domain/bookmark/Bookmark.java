@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-/*@Getter
+@Getter
 @Entity
-@NoArgsConstructor
 public class Bookmark {
+
     @Id
     @Column(name = "bookmark_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +25,8 @@ public class Bookmark {
     @Column(name = "last_modified_date", nullable = false)
     private String lastModifiedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-}*/
+}
