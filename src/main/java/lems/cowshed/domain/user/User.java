@@ -1,9 +1,12 @@
 package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
+import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.userevent.UserEvent;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,40 +19,33 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", length = 45, nullable = false)
+    @Column(name = "name", length = 45)
     private String username;
 
-    @Column(nullable = false)
     private String password;
 
     private String role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
     private Gender gender;
 
     private String email;
 
-    @Column(name = "birth")
     private LocalDateTime birth;
 
-    @Column(name = "location", length = 100)
+    @Column(length = 100)
     private String location;
 
-    @Column(name = "characters", length = 45)
-    private String character;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 45)
+    private Mbti personality;
 
-    @Column(name = "introduction", length = 200)
+    @Column(length = 200)
     private String introduction;
 
-    @Column(name = "created_date")
     private LocalDateTime createdDate;
 
-    @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
-
-   /* @OneToMany(mappedBy = "userId")
-    private List<Bookmark> bookmarks;*/
 
     protected User() {}
 

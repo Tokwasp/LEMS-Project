@@ -1,6 +1,6 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.dto.user.join.JoinDto;
+import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class JoinService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public void JoinProcess(JoinDto joinDto) {
+    public void JoinProcess(UserSaveRequestDto joinDto) {
         String email = joinDto.getEmail();
         String username = joinDto.getUsername();
         String password = joinDto.getPassword();
