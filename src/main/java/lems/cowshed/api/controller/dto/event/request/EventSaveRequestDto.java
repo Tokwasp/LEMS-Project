@@ -1,17 +1,22 @@
-package lems.cowshed.api.controller.dto.event;
+package lems.cowshed.api.controller.dto.event.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lems.cowshed.domain.event.Category;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.Date;
 
+@Builder
+@AllArgsConstructor
+@Getter
 @Schema(description = "모임 등록")
-@Data
-public class EventSaveDto {
+public class EventSaveRequestDto {
 
     @NotBlank
     @Schema(description = "모임 이름", example = "새벽 한강 러닝 모임")
@@ -37,9 +42,4 @@ public class EventSaveDto {
     @Schema(description = "내용", example = "출근 전에 한강에서 같이 뛰실 분 구해요!!")
     String content;
 
-//    @Schema(description = "위도", example = "37.7")
-//    double latitude;
-//
-//    @Schema(description = "경도", example = "126.9")
-//    double longitude;
 }

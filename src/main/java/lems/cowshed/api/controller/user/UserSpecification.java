@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lems.cowshed.api.advice.event.EventAdvice;
 import lems.cowshed.api.advice.user.UserAdvice;
 import lems.cowshed.api.controller.dto.CommonResponse;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
@@ -48,4 +47,3 @@ public interface UserSpecification {
             @ApiResponse(responseCode = "200", description = "⭕ 모임 회원 조회에 성공 했습니다.")})
     CommonResponse<List<UserEventQueryDto>> getUserByEvent(@Parameter(name="eventId", description = "모임 ID", example = "1") @PathVariable Long eventId);
 }
-

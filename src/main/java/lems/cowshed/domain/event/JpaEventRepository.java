@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/*@Repository
+@Repository
 public class JpaEventRepository implements EventRepository{
     @PersistenceContext
     private EntityManager em;
@@ -60,4 +60,4 @@ public class JpaEventRepository implements EventRepository{
     public void edit(Event event) {
 
     }
-}*/
+}

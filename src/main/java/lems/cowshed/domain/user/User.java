@@ -2,16 +2,14 @@ package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.userevent.UserEvent;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Getter
 @Entity
+@Table(name = "Users")
 public class User {
 
     @Id
@@ -46,6 +44,9 @@ public class User {
     private LocalDateTime createdDate;
 
     private LocalDateTime lastModifiedDate;
+
+   @OneToMany(mappedBy = "id")
+    private List<Bookmark> bookmarks;
 
     protected User() {}
 
