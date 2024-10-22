@@ -26,7 +26,7 @@ class EventServiceTest {
 //        int applicants = 3;
 //        Date createdDate = new Date();
 //
-//        EventListResponseDto dto = EventListResponseDto.builder()
+//        EventPreviewResponseDto dto = EventPreviewResponseDto.builder()
 //                .eventId(eventId)
 //                .name(name)
 //                .content(content)

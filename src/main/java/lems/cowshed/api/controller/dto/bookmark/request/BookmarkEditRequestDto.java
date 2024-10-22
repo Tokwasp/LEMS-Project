@@ -14,5 +14,5 @@ public class BookmarkEditRequestDto{
     Long bookmarkId;
 
     @Schema(description = "새로운 북마크 폴더 이름", example = "새로운 폴더")
-    String NewBookmarkFolderName;
+    String newBookmarkFolderName;
 }

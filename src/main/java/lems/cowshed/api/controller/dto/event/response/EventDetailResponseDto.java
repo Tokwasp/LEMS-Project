@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.event.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 import java.util.Date;
@@ -12,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Schema(description = "모임 상세")
-public class EventResponseDto {
+public class EventDetailResponseDto {
     @Schema(description = "모임 id", example = "1")
     Long eventId;
     @Schema(description = "모임 이름", example = "농구 모임")

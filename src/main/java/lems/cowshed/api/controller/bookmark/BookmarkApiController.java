@@ -1,7 +1,11 @@
 package lems.cowshed.api.controller.bookmark;
 
 import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.dto.bookmark.request.BookmarkDeleteRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkEditRequestDto;
+import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
+import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,24 +15,22 @@ import java.util.List;
 public class BookmarkApiController implements BookmarkSpecification{
 
     @GetMapping
-    public CommonResponse<List<String>> findAllBookmarkFolders() {
+    public CommonResponse<BookmarkResponseDto> findAllBookmarks() {
         return null;
     }
 
     @PostMapping
-    public CommonResponse<Void> saveBookmarkFolder(@RequestBody String folderName) {
+    public CommonResponse<Void> saveBookmark(@RequestBody BookmarkSaveRequestDto requestDto) {
         return null;
     }
 
     @PutMapping
-    public CommonResponse<Void> editBookmarkFolder(@RequestBody BookmarkEditRequestDto requestDto) {
+    public CommonResponse<Void> editBookmark(@RequestBody BookmarkEditRequestDto requestDto) {
         return null;
     }
 
     @DeleteMapping
-    public CommonResponse<Void> deleteBookmarkFolder(@RequestBody Long bookmarkId) {
+    public CommonResponse<Void> deleteBookmark(@RequestBody BookmarkDeleteRequestDto requestDto) {
         return null;
     }
-
-
 }
