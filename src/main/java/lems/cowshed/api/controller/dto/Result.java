@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Result {
 
-    OK(200, "성공"),
-    FAIL(-1, "실패");
+    OK("성공");
 
-    private final int code;
     private final String message;
 }

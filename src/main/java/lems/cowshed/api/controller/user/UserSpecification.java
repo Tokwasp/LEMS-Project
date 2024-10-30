@@ -1,104 +1,55 @@
 package lems.cowshed.api.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lems.cowshed.domain.user.Gender;
-import lombok.Getter;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lems.cowshed.api.advice.user.UserAdvice;
+import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
+import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
+import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
-
+@Tag(name="user-controller", description="회원 API")
 public interface UserSpecification {
-    @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 회원을 조회한다. [이벤트 상세 > 참여자 목록]")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
-                    content = {@Content(mediaType = "application/json", array=@ArraySchema(schema=@Schema(implementation = EventUserDto.class)))})})
 
-    List<EventUserDto> getUserByEvent(Long eventId);
+    @Operation(summary = "회원 가입", description = "이메일/비밀번호 + 닉네임을 통해 회원 가입을 합니다. [회원 가입]",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "⭕ 회원 가입에 성공 했습니다."),
+                    @ApiResponse(responseCode = "400", description = "❌ 유효 하지 않은 회원 가입 요청 입니다. ",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAdvice.UserErrorResult.class)))
+    })
+    CommonResponse<Void> saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto);
 
-  /*  @Operation(summary = "마이페이지 회원 조회", description = "본인 정보를 가져온다. [마이페이지]")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
-                    content = {@Content(mediaType = "application/json", schema=@Schema(implementation = MyInfoDto.class))})})
-    void getMyInfoById(Long userId);*/
+    @Operation(summary = "로그인", description = "이메일/비밀번호을 통해 로그인을 합니다. [로그인]",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "⭕ 로그인에 성공 했습니다."),
+                    @ApiResponse(responseCode = "400", description = "❌ 아이디 혹은 비밀번호가 틀렸습니다.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAdvice.UserErrorResult.class)))
+            })
+    CommonResponse<Void> login (@RequestBody UserLoginRequestDto UserLoginRequestDto);
 
-    @Operation(summary = "회원 등록", description = "새로운 회원 정보를 저장한다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
-                    content = {@Content(mediaType = "application/json", schema=@Schema(implementation = UserSaveRequestDto.class))})})
-    void saveUser(UserSaveRequestDto userSaveRequestDto);
+    @Operation(summary = "마이페이지 회원 조회", description = "자신의 마이 페이지 정보를 가져 옵니다. [마이 페이지]",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "⭕ 마이 페이지 조회에 성공 했습니다.")})
+    CommonResponse<UserMyPageResponseDto> userMyPage();
 
-    @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [프로필 편집]")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "200 ok 요청이 성공적으로 처리되었습니다.",
-                    content = {@Content(mediaType = "application/json", schema=@Schema(implementation = UserUpdateRequestDto.class))})})
-    void editUser(Long userId, UserUpdateRequestDto userUpdateRequestDto);
+    @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [마이 페이지 -> 프로필 편집]",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "⭕ 회원 수정에 성공 했습니다."),
+                    @ApiResponse(responseCode = "400", description = "❌ 유효 하지 않은 회원 수정 요청 입니다. ",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAdvice.UserErrorResult.class)))
 
-    @Getter
-    @Setter
-    @Schema(description="특정 모임에 속한 회원")
-    public static class EventUserDto{
-        @Schema(description = "이름", example = "김철수", required = true)
-        private String name;
-        @Schema(description = "성별", example = "M", required = true)
-        private Gender gender;
-        @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.", required = true)
-        private String introduction;
-    }
-    /*
-    @Getter
-    @Setter
-    @Schema(description = "마이페이지 회원 정보")
-    public static class MyInfoDto{
-        @Schema(description = "이름", example = "김철수", required=true)
-        private String name;
-        @Schema(description = "성별", example = "M", required=true)
-        private Gender gender;
-        @Schema(description = "생년월일", example = "1999-05-22", required=true)
-        private String birth;
-        @Schema(description = "성격유형", example = "ISTP")
-        private String character;
-        @Schema(description = "참여 모임", example = "")
-        private List<Event> joinEvents;
-        @Schema(description = "북마크 모임", example = "김철수")
-        private List<Event> bookmarkEvents;
-    }
-     */
-    @Getter
-    @Setter
-    @Schema(description = "회원 등록")
-    public static class UserSaveRequestDto {
-        @Schema(description = "이름", example = "김철수", required=true)
-        private String name;
-        @Schema(description = "성별", example = "M", required=true)
-        private Gender gender;
-        @Schema(description = "이메일", example = "cheolsukim@lems.com")
-        private String email;
-        @Schema(description = "생년월일", example = "1999-05-22", required=true)
-        private String birth;
-        @Schema(description = "지역명", example = "서울시", required=true)
-        private String local_name;
-        @Schema(description = "성격유형", example = "ISTP")
-        private String character;
-        @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.")
-        private String introduction;
-    }
-    @Getter
-    @Setter
-    @Schema(description = "회원 수정")
-    public static class UserUpdateRequestDto {
-        @Schema(description = "소개", example = "성남시 분당구에 사는 직장인입니다.")
-        private String introduction;
-        @Schema(description = "지역명", example = "서울시", required=true)
-        private String local_name;
-        @Schema(description = "생년월일", example = "1999-05-22", required=true)
-        private String birth;
-        @Schema(description = "성격유형", example = "ISTP")
-        private String character;
-    }
+    })
+    CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto);
+
+    @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 다수 회원을 조회 합니다. [이벤트 상세 > 참여자 목록]",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "⭕ 모임 회원 조회에 성공 했습니다.")})
+    CommonResponse<UserEventResponseDto> findUserEvent();
 }
 

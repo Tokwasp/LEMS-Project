@@ -5,15 +5,15 @@ import lems.cowshed.api.controller.dto.event.EventDto;
 import lems.cowshed.api.controller.dto.event.EventSaveDto;
 import lems.cowshed.api.controller.dto.event.EventUpdateDto;
 //import lems.cowshed.service.EventService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/events")
 public class EventController implements EventSpecification {
 
-   /* @Autowired
+ /*   @Autowired
     private EventService eventService;*/
     
    /* //모든 모임 목록 조회
@@ -40,25 +40,25 @@ public class EventController implements EventSpecification {
     //모임 상세 조회
     @GetMapping("/{id}")
     public CommonResponse<EventDto> findById(@PathVariable Long id) {
-        EventDto EventDto = null;
-        return CommonResponse.success(EventDto);
+        EventDto eventDto = new EventDto();
+        return CommonResponse.customMessage(eventDto, "조회 성공");
     }
 
     //등록
     @PostMapping
-    public void save(@RequestBody @Validated EventSaveDto eventSaveDto) {
-//        eventService.save(eventSaveDto);
+    public CommonResponse<Void> save(@RequestBody @Validated EventSaveDto eventSaveDto) {
+        return CommonResponse.customMessage("등록 성공");
     }
 
     //수정
     @PatchMapping("/{id}")
-    public void edit(@PathVariable Long id, @RequestBody @Validated EventUpdateDto eventUpdateDto){
-//        eventService.edit(id);
+    public CommonResponse<Void> edit(@PathVariable Long id, @RequestBody @Validated EventUpdateDto eventUpdateDto){
+        return CommonResponse.customMessage("수정 성공");
     }
 
     //삭제
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){
-//        eventService.delete(id);
+    public CommonResponse<Void> delete(@PathVariable Long id){
+        return CommonResponse.customMessage("삭제 성공");
     }
 }

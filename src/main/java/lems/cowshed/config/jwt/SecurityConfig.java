@@ -4,6 +4,7 @@ import lems.cowshed.config.jwt.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +28,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
         return configuration.getAuthenticationManager();
     }
+
 
     // 암호화
     @Bean
@@ -67,7 +69,8 @@ public class SecurityConfig {
         // http 인증 url
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/users/register", "/users/login").permitAll()
+                        .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated());
 
         /*
@@ -76,8 +79,11 @@ public class SecurityConfig {
          Post 방식의 /login 요청을 받아 username, password 파라미터 처리
          AuthenticationManager 통해 자격 증명 인증 -> 성공 시 SecurityContextHolder 인증 객체를 저장 하여 세션 생성
          */
+        UsernamePasswordAuthenticationFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
+        loginFilter.setFilterProcessesUrl("/users/login");
+
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         /*
          기본 제공 필터x -> 사용자 직접 구현 하는 필터
@@ -94,5 +100,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
 }

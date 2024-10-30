@@ -9,19 +9,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class GeneralAdvice implements GeneralAdSpecification {
+public class GeneralAdvice {
 
     @ExceptionHandler(value = {Exception.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result handleExceptionFromAPIMethod(Exception ex){
-        return new Result(400, ex.getMessage());
+        return new Result(ex.getClass().getSimpleName(), ex.getMessage());
     }
 
     @Data
     @AllArgsConstructor
     public static class Result {
-        @Schema(description = "에러 코드", example = "500")
-        Integer errorCode;
+        @Schema(description = "에러명", example = "nullPointerException")
+        String errorName;
+
         @Schema(description = "메시지", example = "예상치 못한 예외 입니다.")
         String message;
     }
