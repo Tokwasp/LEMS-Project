@@ -41,17 +41,14 @@ public class InitTestData {
         @Transactional
         public void init() {
             for(int i = 1; i <= 3; i++) {
-                User user = User.builder()
-                        .username("테스트" + i)
-                        .email("test" + i + "@naver.com")
-                        .role("ROLE_USER")
-                        .birth(LocalDate.parse("2000-01-01"))
-                        .location("대구광역시 동구")
-                        .mbti(Mbti.ENFJ)
-                        .password(bCryptPasswordEncoder.encode("1234"))
-                        .gender(Gender.M)
-                        .introduction("안녕하세요")
-                        .build();
+                User user = new User(null,"테스트" + i,
+                        bCryptPasswordEncoder.encode("1234"),
+                        "ROLE_USER", Gender.M,
+                        "test" + i + "@naver.com",
+                        LocalDate.parse("2000-01-01"),
+                        "대구광역시 동구", Mbti.ENFJ,
+                        "안녕하세요",
+                        LocalDateTime.now(), LocalDateTime.now());
                 em.persist(user);
 
                 UserEvent userEvent = new UserEvent();
