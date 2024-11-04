@@ -12,9 +12,12 @@ import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -25,7 +28,7 @@ public interface EventSpecification {
                     @ApiResponse(responseCode = "400", description = "❌ 요청이 잘못되었습니다.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
             })
-    CommonResponse<EventListResponseDto> findAll();
+    CommonResponse<Slice<EventPreviewResponseDto>> findAll(@RequestParam Long lastEventId, Pageable pageable);
 
     @Operation(summary = "카테고리별 조회", description = "category에 해당하는 모임을 반환합니다.",
             responses = {

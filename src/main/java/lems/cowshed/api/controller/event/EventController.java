@@ -6,33 +6,38 @@ import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
 public class EventController implements EventSpecification {
 
+    private final EventService eventService;
+
     //모든 모임 조회
     @GetMapping
-    public CommonResponse<EventListResponseDto> findAll() {
-        return null;
+    public CommonResponse<Slice<EventPreviewResponseDto>> findAll(@RequestParam Long lastEventId, @PageableDefault(size = 30)Pageable pageable) {
+        Slice<EventPreviewResponseDto> slice = eventService.findAll(lastEventId, pageable);
+        return new CommonResponse<>(slice, "success");
     }
 
     //카테고리별 조회
     @GetMapping("/category/{category}")
-    public CommonResponse<EventListResponseDto>  findByCategory(@PathVariable String category) {
+    public CommonResponse<EventListResponseDto> findByCategory(@PathVariable String category) {
         return null;
     }
 
     //키워드로 조회
     @GetMapping("/keyword/{keyword}")
-    public CommonResponse<EventListResponseDto>  findByKeyword(@PathVariable String keyword) {
+    public CommonResponse<EventListResponseDto> findByKeyword(@PathVariable String keyword) {
         return null;
     }
 
