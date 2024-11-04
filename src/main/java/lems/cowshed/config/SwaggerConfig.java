@@ -78,8 +78,8 @@ public class SwaggerConfig {
         );
 
         // 제외할 경로를 리스트로 정의
-        var excludedPaths = List.of("/login", "/join");
-        var registerPath = List.of("/user/register");
+        var excludedPaths = List.of("/login", "/users/register");
+        var registerPath = List.of("/users/register");
 
         return openApi -> {
             var paths = openApi.getPaths();
@@ -92,10 +92,12 @@ public class SwaggerConfig {
                 for (var operation : operations) {
                     ApiResponses responses = operation.getResponses();
 
-                    responses.addApiResponse("403", new ApiResponse().description("인증 되지 않은 사용자 입니다."));
+                    if(registerPath.stream().noneMatch(pathName::matches)) {
+                        responses.addApiResponse("403", new ApiResponse().description("인증 되지 않은 사용자 입니다."));
+                    }
 
                     // 경로가 제외 리스트에 포함되어 있는지 확인
-                    if (excludedPaths.stream().noneMatch(pathName::startsWith)) {
+                    if (excludedPaths.stream().noneMatch(pathName::matches)) {
                         for (var parameter : parameters) {
                             operation.addParametersItem(parameter);
                         }

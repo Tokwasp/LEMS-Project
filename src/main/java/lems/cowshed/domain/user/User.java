@@ -1,10 +1,15 @@
 package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
+import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.userevent.UserEvent;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,6 +17,9 @@ import java.util.List;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -31,14 +39,14 @@ public class User {
 
     private String email;
 
-    private LocalDateTime birth;
+    private LocalDate birth;
 
     @Column(length = 100)
     private String location;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 45)
-    private Mbti personality;
+    private Mbti mbti;
 
     @Column(length = 200)
     private String introduction;
@@ -47,15 +55,12 @@ public class User {
 
     private LocalDateTime lastModifiedDate;
 
-    protected User() {}
-
-    public static User createUser(String email, String username, String password, String role) {
-        User user = new User();
-        user.email = email;
-        user.username = username;
-        user.password = password;
-        user.role = role;
-
-        return user;
+    public void setEditUser(UserEditRequestDto userEditRequestDto){
+        this.username = userEditRequestDto.getUsername();
+        this.introduction = userEditRequestDto.getIntroduction();
+        this.location = userEditRequestDto.getLocalName();
+        this.birth = userEditRequestDto.getBirth();
+        this.mbti = userEditRequestDto.getCharacter();
     }
+
 }
