@@ -1,4 +1,6 @@
 application.properties
-out/
-generated/
-.gitignore
+out
+generated
+.idea
+.gradle
+
