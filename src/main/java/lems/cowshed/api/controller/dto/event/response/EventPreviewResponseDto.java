@@ -1,15 +1,15 @@
 package lems.cowshed.api.controller.dto.event.response;
 
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.event.Event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-
 @Builder
-@AllArgsConstructor
 @Getter
 @Schema(description = "메인 페이지의 모임 리스트 중 한 개의 모임 정보")
 public class EventPreviewResponseDto {
@@ -28,6 +28,16 @@ public class EventPreviewResponseDto {
     @Schema(description = "등록일", example = "yyyy-mm-dd hh:mm:ss")
     LocalDateTime createdDate;
 
+    @QueryProjection
+    public EventPreviewResponseDto(Long eventId, String name, String content, LocalDateTime eventDate, int capacity, int applicants, LocalDateTime createdDate){
+        this.eventId = eventId;
+        this.name = name;
+        this.content = content;
+        this.eventDate = eventDate;
+        this.capacity = capacity;
+        this.applicants = applicants;
+        this.createdDate = createdDate;
+    }
     public EventPreviewResponseDto(Event event) {
         this.eventId = event.getId();
         this.name = event.getName();
