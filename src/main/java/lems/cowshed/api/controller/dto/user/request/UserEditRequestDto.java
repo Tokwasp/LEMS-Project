@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Mbti;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter @Setter
-@AllArgsConstructor
 @Schema(description = "회원 수정")
 public class UserEditRequestDto {
 
@@ -29,6 +29,15 @@ public class UserEditRequestDto {
 
     @Schema(description = "성격 유형", example = "ISTP")
     private Mbti character;
+
+    @Builder
+    private UserEditRequestDto(String username, String introduction, String localName, LocalDate birth, Mbti character) {
+        this.username = username;
+        this.introduction = introduction;
+        this.localName = localName;
+        this.birth = birth;
+        this.character = character;
+    }
 
     public UserEditRequestDto(){}
 }

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 public class UserSaveRequestDto {
     @Schema(description = "이메일", example = "test1234@naver.com")

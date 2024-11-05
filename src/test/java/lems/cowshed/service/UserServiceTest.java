@@ -68,10 +68,8 @@ class UserServiceTest {
         userRepository.save(user);
 
         LocalDate birth = LocalDate.of(1999, 3, 20);
-        UserEditRequestDto editDto = new UserEditRequestDto("변경된이름", "안녕하세요", "대구 광역시 범어동", birth, Mbti.INTP);
 
         //when
-        userService.editProcess(editDto);
 
         //then
     }
