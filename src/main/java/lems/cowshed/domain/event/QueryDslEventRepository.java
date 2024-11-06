@@ -2,6 +2,7 @@ package lems.cowshed.domain.event;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +14,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static lems.cowshed.domain.event.QEvent.*;
-
 @RequiredArgsConstructor
 @Repository
 public class QueryDslEventRepository implements EventRepository{
     private final JPAQueryFactory qf;
+
     //private final QEvent event = QEvent.event;
 
-    //List<EventPreviewResponseDto>를 반환
     public Slice<EventPreviewResponseDto> findAll(Long lastEventId, Pageable pageable){
         List<EventPreviewResponseDto> results = qf
                 .select(new QEventPreviewResponseDto(
