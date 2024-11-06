@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.dto.user;
+package lems.cowshed.api.controller;
 
 import lems.cowshed.service.CustomUserDetails;
 import org.springframework.security.core.Authentication;

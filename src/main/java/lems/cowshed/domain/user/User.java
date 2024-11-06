@@ -2,24 +2,16 @@ package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
-import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.userevent.UserEvent;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Getter
 @Entity
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id
@@ -54,6 +46,26 @@ public class User {
     private LocalDateTime createdDate;
 
     private LocalDateTime lastModifiedDate;
+
+    // 정적 팩토리 매서드 패턴
+    public static User registerUser(String username, String password, String email, String role) {
+        return User.builder()
+                .username(username)
+                .password(password)
+                .email(email)
+                .role(role)
+                .build();
+    }
+
+    public static User createUserForDetails(Long id, String username, String password, String role, String email) {
+        return User.builder()
+                .id(id)
+                .username(username)
+                .password(password)
+                .role(role)
+                .email(email)
+                .build();
+    }
 
     public void setEditUser(UserEditRequestDto userEditRequestDto){
         this.username = userEditRequestDto.getUsername();

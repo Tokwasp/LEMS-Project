@@ -1,6 +1,6 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.dto.user.UserUtils;
+import lems.cowshed.api.controller.UserUtils;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
@@ -35,7 +35,7 @@ public class UserService {
             throw new UserNotFoundException("User name or email equals exist ");
         }
 
-        User user = registeUser(email, username, password);
+        User user = User.registerUser(username, bCryptPasswordEncoder.encode(password), email, "ROLE_USER");
         userRepository.save(user);
     }
 
@@ -52,12 +52,4 @@ public class UserService {
         return new UserEventResponseDto(userEventDto);
     }
 
-    private User registeUser(String email, String username, String password) {
-        return User.builder()
-                .email(email)
-                .username(username)
-                .password(bCryptPasswordEncoder.encode(password))
-                .role("ROLE_USER")
-                .build();
-    }
 }
