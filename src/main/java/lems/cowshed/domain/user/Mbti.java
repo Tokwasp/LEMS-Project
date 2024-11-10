@@ -1,6 +1,8 @@
 package lems.cowshed.domain.user;
 
 public enum Mbti {
-    INTJ, INTP, INFJ, INFP, ISFP, ISFJ,
-    ENTJ, ENTP, ENFJ, ENFP
+    ISTJ, ISFJ, INFJ, INTJ,
+    ISTP, ISFP, INFP, INTP,
+    ESTP, ESFP, ENFP, ENTP,
+    ESTJ, ESFJ, ENFJ, ENTJ
 }

@@ -1,6 +1,8 @@
-application.properties
-out
-generated
+application.*
+out/
+build/
+Q*.java
+.gradle/
 .idea
-.gradle
+.gitignore
 
