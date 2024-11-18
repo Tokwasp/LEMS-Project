@@ -45,3 +45,4 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.customMessage(userEvent, "유저 이벤트 조회 성공");
     }
 }
+

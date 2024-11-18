@@ -1,17 +1,12 @@
 package lems.cowshed.domain.event;
 
 import jakarta.persistence.*;
-import lems.cowshed.domain.userevent.UserEvent;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 @Getter
 @Entity
-@NoArgsConstructor
 public class Event {
 
     @Id
@@ -56,7 +51,4 @@ public class Event {
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
 
-    /*@Enumerated(EnumType.STRING)
-    @Column(name = "sorting_method")
-    private SortingMethod sortingMethod;*/
 }
