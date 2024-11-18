@@ -54,7 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 
-        User user = User.createUserDetails(userId, username, "tempPass", role, email);
+        User user = User.createUserForDetails(userId, username, "tempPass", role, email);
 
         //UserDetails에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(user);

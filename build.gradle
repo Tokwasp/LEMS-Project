@@ -31,13 +31,14 @@ dependencies {
 
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
+	//runtimeOnly 'com.h2database:h2'
 
 	//시큐리티 테스트
 	testImplementation 'org.springframework.security:spring-security-test'
 
 	//MySql
 	//runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation 'mysql:mysql-connector-java:8.0.30'
 
 	//JWT 의존성
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
@@ -66,4 +67,3 @@ tasks.named('test') {
 clean {
 	delete file('src/main/generated')
 }
-
