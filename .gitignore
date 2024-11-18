@@ -1,5 +1,15 @@
+<<<<<<< HEAD
 application.properties
 out
 generated
 .idea
 .gradle
+=======
+application.*
+out/
+build/
+Q*.java
+.gradle/
+.idea
+.gitignore
+>>>>>>> 09adac2c529c9894a869565e6f333574efc57032

@@ -1,15 +1,18 @@
 package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
-import lems.cowshed.domain.bookmark.Bookmark;
-import lombok.Getter;
 
+import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
+import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "Users")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id
@@ -29,14 +32,14 @@ public class User {
 
     private String email;
 
-    private LocalDateTime birth;
+    private LocalDate birth;
 
     @Column(length = 100)
     private String location;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 45)
-    private Mbti personality;
+    private Mbti mbti;
 
     @Column(length = 200)
     private String introduction;
@@ -45,18 +48,32 @@ public class User {
 
     private LocalDateTime lastModifiedDate;
 
-   @OneToMany(mappedBy = "id")
-    private List<Bookmark> bookmarks;
-
-    protected User() {}
-
-    public static User createUser(String email, String username, String password, String role) {
-        User user = new User();
-        user.email = email;
-        user.username = username;
-        user.password = password;
-        user.role = role;
-
-        return user;
+    // 정적 팩토리 매서드 패턴
+    public static User registerUser(String username, String password, String email, String role) {
+        return User.builder()
+                .username(username)
+                .password(password)
+                .email(email)
+                .role(role)
+                .build();
     }
+
+    public static User createUserForDetails(Long id, String username, String password, String role, String email) {
+        return User.builder()
+                .id(id)
+                .username(username)
+                .password(password)
+                .role(role)
+                .email(email)
+                .build();
+    }
+
+    public void setEditUser(UserEditRequestDto userEditRequestDto){
+        this.username = userEditRequestDto.getUsername();
+        this.introduction = userEditRequestDto.getIntroduction();
+        this.location = userEditRequestDto.getLocalName();
+        this.birth = userEditRequestDto.getBirth();
+        this.mbti = userEditRequestDto.getCharacter();
+    }
+
 }

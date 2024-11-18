@@ -14,11 +14,15 @@ public class GeneralAdvice {
     @ExceptionHandler(value = {Exception.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result handleExceptionFromAPIMethod(Exception ex){
-        return new Result(ex.getMessage());}
+        return new Result(ex.getClass().getSimpleName(), ex.getMessage());
+    }
 
     @Data
     @AllArgsConstructor
     public static class Result {
+        @Schema(description = "에러명", example = "nullPointerException")
+        String errorName;
+
         @Schema(description = "메시지", example = "예상치 못한 예외 입니다.")
         String message;
     }

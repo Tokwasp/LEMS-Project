@@ -33,6 +33,9 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 
+	//시큐리티 테스트
+	testImplementation 'org.springframework.security:spring-security-test'
+
 	//MySql
 	//runtimeOnly 'com.mysql:mysql-connector-j'
 
@@ -41,7 +44,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-	//QueryDSL 의존성
+	// Sql 쿼리 파라미터
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+
+	//Querydsl 추가
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
@@ -57,11 +63,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-
-def querydslSrcDir = 'src/main/generated'
 clean {
-	delete file(querydslSrcDir)
+	delete file('src/main/generated')
 }
-tasks.withType(JavaCompile) {
-	options.generatedSourceOutputDirectory = file(querydslSrcDir)
-}
+
