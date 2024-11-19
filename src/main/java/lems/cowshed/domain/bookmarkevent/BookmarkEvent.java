@@ -1,10 +1,12 @@
 package lems.cowshed.domain.bookmarkevent;
 
 import jakarta.persistence.*;
+import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.event.Event;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/*
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -16,10 +18,10 @@ public class BookmarkEvent {
 
     @ManyToOne
     @JoinColumn(name = "event_id")
-    private int eventId;
+    private Event event;
 
     @ManyToOne
     @JoinColumn(name = "bookmark_id")
-    private int bookmarkId;
+    private Bookmark bookmark;
 }
-*/
+

@@ -52,4 +52,3 @@ public interface UserSpecification {
             @ApiResponse(responseCode = "200", description = "⭕ 모임 회원 조회에 성공 했습니다.")})
     CommonResponse<UserEventResponseDto> findUserEvent();
 }
-

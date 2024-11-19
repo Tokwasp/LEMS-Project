@@ -4,13 +4,10 @@ import jakarta.persistence.*;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.User;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import static jakarta.persistence.FetchType.*;
 
 @Getter
 @Entity
-@NoArgsConstructor
 public class UserEvent {
 
     @Id

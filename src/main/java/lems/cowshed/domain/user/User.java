@@ -1,6 +1,7 @@
 package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
+
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lombok.*;
 
