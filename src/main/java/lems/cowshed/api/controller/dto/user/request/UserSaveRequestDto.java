@@ -3,13 +3,10 @@ package lems.cowshed.api.controller.dto.user.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor
 public class UserSaveRequestDto {
     @Schema(description = "이메일", example = "test1234@naver.com")
     @NotBlank
@@ -22,4 +19,11 @@ public class UserSaveRequestDto {
     @Schema(description = "비밀번호", example = "****")
     @NotBlank
     private String password;
+
+    @Builder
+    private UserSaveRequestDto(String email, String username, String password) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+    }
 }

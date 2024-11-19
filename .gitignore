@@ -1,9 +1,0 @@
-
-application.*
-out/
-build/
-Q*.java
-.gradle/
-.idea
-.gitignore
-

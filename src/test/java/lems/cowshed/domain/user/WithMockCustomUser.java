@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 @WithSecurityContext(factory = CustomSecurityContextFactory.class)
 public @interface WithMockCustomUser {
     long id() default 1L;
-    String username() default "김길동";
-    String password() default "1234";
+    String email() default "test@naver.com";
+    String username() default "테스트";
+    String password() default "test";
 }

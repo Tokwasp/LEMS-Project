@@ -10,6 +10,8 @@ import lems.cowshed.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -41,7 +43,8 @@ public class UserApiController implements UserSpecification{
 
     @GetMapping("/events")
     public CommonResponse<UserEventResponseDto> findUserEvent(){
-        UserEventResponseDto userEvent = userService.getUserEvent();
+        LocalDate now = LocalDate.now();
+        UserEventResponseDto userEvent = userService.getUserEvent(now);
         return CommonResponse.customMessage(userEvent, "유저 이벤트 조회 성공");
     }
 }

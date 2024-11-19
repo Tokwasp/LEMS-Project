@@ -1,42 +1,120 @@
 package lems.cowshed.domain.user;
 
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
+@SpringBootTest
 class UserRepositoryTest {
 
-    private final String TEMP_PASSWORD = "1234";
-
-    @Autowired
-    EntityManager em;
     @Autowired
     UserRepository userRepository;
 
+    @DisplayName("유저 이메일로 유저를 조회 한다.")
     @Test
-    public void basicTest(){
-        User user1 = createUser("test1", "test2@naver.com", TEMP_PASSWORD);
-        userRepository.save(user1);
+    void findByEmail(){
+        //given
+        String targetEmail = "test@naver.com";
+        User user = createUser("테스트", targetEmail);
+        userRepository.save(user);
 
-        em.flush();
-        em.clear();
+        //when
+        User findUser = userRepository.findByEmail(targetEmail).orElseThrow();
 
-        User user = userRepository.findByName(user1.getUsername()).get();
-        assertThat(user.getUsername()).isEqualTo(user1.getUsername());
-
+        //then
+        assertThat(findUser).isNotNull()
+                .extracting("username", "email")
+                .containsExactly("테스트", targetEmail);
     }
 
-    private User createUser(String username, String mail, String password) {
+    @DisplayName("유저 이메일로 유저를 조회 할 때, 유저가 없을 경우에는 예외가 발생 한다.")
+    @Test
+    void findByEmailWhenNotFoundUser(){
+        //given
+        String targetEmail = "test@naver.com";
+        User user = createUser("테스트", targetEmail);
+        userRepository.save(user);
+
+        //when
+        //then
+        assertThatThrownBy(() -> userRepository.findByEmail("noRegist@naver.com").orElseThrow())
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @DisplayName("유저의 이름으로 유저를 조회 한다.")
+    @Test
+    void findByUsername() {
+        //given
+        String targetName = "테스트";
+        User user = createUser(targetName, "test@naver.com");
+        userRepository.save(user);
+
+        //when
+        User findUser = userRepository.findByUsername(targetName).orElseThrow();
+
+        //then
+        assertThat(findUser).isNotNull()
+                .extracting("username", "email")
+                .containsExactly(targetName, "test@naver.com");
+    }
+
+    @DisplayName("유저 이름으로 유저를 조회 할 때, 유저가 없을 경우에는 예외가 발생 한다.")
+    @Test
+    void findByNameWhenNotFoundUser(){
+        //given
+        String targetName = "테스트";
+        User user = createUser(targetName, "test@naver.com");
+        userRepository.save(user);
+
+        //when
+        //then
+        assertThatThrownBy(() -> userRepository.findByUsername("등록안된유저").orElseThrow())
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @DisplayName("동일한 이름 혹은 이메일을 조회 하고 있다면 true를 반환 한다")
+    @CsvSource(value = {"noreg@naver.com-등록", "reg@naver.com-비등록", "reg@naver.com-등록"}, delimiter = '-')
+    @ParameterizedTest
+    void existsByEmailOrUsernameWhenExist(String email, String username){
+        //given
+        User user = createUser("등록", "reg@naver.com");
+        userRepository.save(user);
+
+        //when
+        boolean result = userRepository.existsByEmailOrUsername(email, username);
+
+        //then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("동일한 이름 혹은 이메일을 조회 한다.")
+    @Test
+    void existsByEmailOrUsername() {
+        //given
+        User user = createUser("테스트", "test@naver.com");
+        userRepository.save(user);
+
+        //when
+        boolean result = userRepository.existsByEmailOrUsername("new@naver.com", "신규");
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    private User createUser(String username, String mail) {
         return User.builder()
                 .username(username)
                 .email(mail)
-                .password(password)
                 .build();
     }
 }

@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
@@ -48,7 +46,15 @@ public class User {
 
     private LocalDateTime lastModifiedDate;
 
-    // 정적 팩토리 매서드 패턴
+    @Builder
+    private User(Long id, String username, String password, String role, String email) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.email = email;
+    }
+
     public static User registerUser(String username, String password, String email, String role) {
         return User.builder()
                 .username(username)
@@ -68,7 +74,7 @@ public class User {
                 .build();
     }
 
-    public void setEditUser(UserEditRequestDto userEditRequestDto){
+    public void modifyDetails(UserEditRequestDto userEditRequestDto){
         this.username = userEditRequestDto.getUsername();
         this.introduction = userEditRequestDto.getIntroduction();
         this.location = userEditRequestDto.getLocalName();
