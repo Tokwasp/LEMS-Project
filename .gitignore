@@ -1,0 +1,7 @@
+out/
+build/
+.idea/
+.gradle/
+application.yml
+application.properties
+src/main/generated/
