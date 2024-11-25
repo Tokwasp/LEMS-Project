@@ -2,22 +2,25 @@ package lems.cowshed.api.controller.dto.user.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import lems.cowshed.domain.user.Role;
+import lems.cowshed.domain.user.User;
 import lombok.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Getter @Setter
 @NoArgsConstructor
 public class UserSaveRequestDto {
+
     @Schema(description = "이메일", example = "test1234@naver.com")
-    @NotBlank
+    @NotBlank(message = "이메일 값은 필수 입니다.")
     private String email;
 
     @Schema(description = "닉네임", example = "외양간")
-    @NotBlank
+    @NotBlank(message = "유저 닉네임은 필수 입니다.")
     private String username;
 
     @Schema(description = "비밀번호", example = "****")
-    @NotBlank
+    @NotBlank(message = "패스워드는 필수 입니다.")
     private String password;
 
     @Builder
@@ -25,5 +28,14 @@ public class UserSaveRequestDto {
         this.email = email;
         this.username = username;
         this.password = password;
+    }
+
+    public User toEntityForRegister(BCryptPasswordEncoder bCryptPasswordEncoder, Role role){
+        return User.builder()
+                .username(username)
+                .password(bCryptPasswordEncoder.encode(password))
+                .email(email)
+                .role(role)
+                .build();
     }
 }

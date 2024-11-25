@@ -3,15 +3,13 @@ package lems.cowshed.api.controller.dto.user.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Mbti;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter @Setter
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "회원 수정")
 public class UserEditRequestDto {
 
@@ -39,5 +37,4 @@ public class UserEditRequestDto {
         this.character = character;
     }
 
-    public UserEditRequestDto(){}
 }
