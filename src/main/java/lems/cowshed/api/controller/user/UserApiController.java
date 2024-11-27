@@ -1,5 +1,7 @@
 package lems.cowshed.api.controller.user;
 
+import jakarta.validation.Valid;
+import lems.cowshed.api.controller.SecurityContextUtil;
 import lems.cowshed.api.controller.dto.CommonResponse;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
@@ -18,26 +20,29 @@ import java.time.LocalDate;
 public class UserApiController implements UserSpecification{
 
     private final UserService userService;
+    private final Long userId = SecurityContextUtil.getUserId();
 
     @PostMapping("/login")
     public CommonResponse<Void> login(@RequestBody UserLoginRequestDto userLoginRequestDto){
+        userService.login(userLoginRequestDto);
         return CommonResponse.customMessage("로그인 성공");
     }
 
+    //TODO
     @GetMapping
     public CommonResponse<UserMyPageResponseDto> userMyPage(){
         return null;
     }
 
     @PostMapping("/register")
-    public CommonResponse<Void> saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto) {
+    public CommonResponse<Void> saveUser(@Valid @RequestBody UserSaveRequestDto userSaveRequestDto) {
         userService.JoinProcess(userSaveRequestDto);
         return CommonResponse.success();
     }
 
     @PatchMapping
     public CommonResponse<Void> editUser(@RequestBody UserEditRequestDto userEditRequestDto){
-        userService.editProcess(userEditRequestDto);
+        userService.editProcess(userEditRequestDto, userId);
         return CommonResponse.customMessage("유저 변경 성공");
     }
 

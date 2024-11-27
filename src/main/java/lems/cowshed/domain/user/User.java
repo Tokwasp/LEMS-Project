@@ -23,7 +23,8 @@ public class User {
 
     private String password;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -47,7 +48,7 @@ public class User {
     private LocalDateTime lastModifiedDate;
 
     @Builder
-    private User(Long id, String username, String password, String role, String email) {
+    private User(Long id, String username, String password, Role role, String email) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -55,16 +56,7 @@ public class User {
         this.email = email;
     }
 
-    public static User registerUser(String username, String password, String email, String role) {
-        return User.builder()
-                .username(username)
-                .password(password)
-                .email(email)
-                .role(role)
-                .build();
-    }
-
-    public static User createUserForDetails(Long id, String username, String password, String role, String email) {
+    public static User createUserForDetails(Long id, String username, String password, Role role, String email) {
         return User.builder()
                 .id(id)
                 .username(username)
@@ -74,12 +66,13 @@ public class User {
                 .build();
     }
 
-    public void modifyDetails(UserEditRequestDto userEditRequestDto){
-        this.username = userEditRequestDto.getUsername();
-        this.introduction = userEditRequestDto.getIntroduction();
-        this.location = userEditRequestDto.getLocalName();
-        this.birth = userEditRequestDto.getBirth();
-        this.mbti = userEditRequestDto.getCharacter();
+    //TODO
+    public void modifyContents(UserEditRequestDto userEditRequestDto){
+        if(userEditRequestDto.getUsername() != null) {this.username = userEditRequestDto.getUsername();}
+        if(userEditRequestDto.getIntroduction() != null) {this.introduction = userEditRequestDto.getIntroduction();}
+        if(userEditRequestDto.getLocalName() != null) {this.location = userEditRequestDto.getLocalName();}
+        if(userEditRequestDto.getBirth() != null) {this.birth = userEditRequestDto.getBirth();}
+        if(userEditRequestDto.getCharacter() != null) {this.mbti = userEditRequestDto.getCharacter();}
     }
 
 }

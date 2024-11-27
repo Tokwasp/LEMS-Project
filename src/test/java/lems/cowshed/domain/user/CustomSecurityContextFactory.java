@@ -18,7 +18,7 @@ public class CustomSecurityContextFactory implements WithSecurityContextFactory<
                 .id(annotation.id())
                 .username(annotation.username())
                 .password(annotation.password())
-                .role("ROLE_USER")
+                .role(Role.ROLE_USER)
                 .build();
 
         CustomUserDetails principal = new CustomUserDetails(user);
