@@ -1,12 +1,16 @@
 package lems.cowshed.domain.event;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Event {
 
     @Id
@@ -50,5 +54,9 @@ public class Event {
 
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
+
+    public static Event of(String name, LocalDateTime eventDate, String location, String address, String author, String email, String content, int capacity, int applicants, Availability availability){
+        return new Event(null, name, eventDate, location, address, author, email, content, capacity, applicants, availability, LocalDateTime.now(), LocalDateTime.now());
+    }
 
 }
