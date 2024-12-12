@@ -3,6 +3,7 @@ package lems.cowshed.domain.event;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -46,11 +47,6 @@ public class QueryDslEventRepository implements EventRepository{
         return slicePage(pageable, results);
     }
 
-    /**
-     *lastEventId==null이면 처음 조회하는 것이므로 where절에 null을 주고 desc로 정렬된 id 중 첫 번째 event부터 조회한다.
-     * lastEventId!=null이면 eventId 중 lastEventId보다 작은 값부터 조회한다.
-     * (QueryDsl의 .lt() less than을 사용하여 'where event.id < lastEventId' 생성)
-     */
     private BooleanExpression ifExistNextPage(Long lastEventId) {
         return lastEventId == null ? null : event.id.lt(lastEventId);
     }
@@ -63,4 +59,35 @@ public class QueryDslEventRepository implements EventRepository{
         }
         return new SliceImpl(results, pageable, hasNext);
     }
+
+    //TODO; paging, refactoring to QueryDSL
+    public List<EventPreviewResponseDto> findAllByCategory(String category){
+        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "WHERE category=:category", EventPreviewResponseDto.class);
+        query.setParameter("category", category);
+        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
+        return eventPreviewResponseDtos;
+    }
+
+    //TODO; paging, refactoring to QueryDSL
+    public List<EventPreviewResponseDto> findAllOrderByApplicants(){
+        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "ORDER BY e.applicants ASC", EventPreviewResponseDto.class);
+        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
+        return eventPreviewResponseDtos;
+    }
+
+    //TODO; paging, refactoring to QueryDSL
+    public List<EventPreviewResponseDto> findAllOrderByCreatedDate(){
+        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "ORDER BY e.createdDate DESC", EventPreviewResponseDto.class);
+        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
+        return eventPreviewResponseDtos;
+    }
+    //TODO; paging, refactoring to QueryDSL
+    public List<EventPreviewResponseDto> findAllByKeyword(String keyword){
+        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "WHERE e.title LIKE CONCAT('%', :keyword, '%')" + "OR e.content LIKE CONCAT('%', :keyword, '%')", EventPreviewResponseDto.class);
+        query.setParameter("keyword", keyword);
+        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
+        return eventPreviewResponseDtos;
+    }
+    //TODO; add findAllByDistance method
 }
+
