@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -16,10 +17,14 @@ import java.util.List;
 import static lems.cowshed.domain.event.QEvent.*;
 @RequiredArgsConstructor
 @Repository
+@Slf4j
 public class QueryDslEventRepository implements EventRepository{
     private final JPAQueryFactory qf;
+    private final EntityManager em;
 
-    //private final QEvent event = QEvent.event;
+    public void save(Event event){
+        em.persist(event);
+    }
 
     public Slice<EventPreviewResponseDto> findAll(Long lastEventId, Pageable pageable){
         List<EventPreviewResponseDto> results = qf
