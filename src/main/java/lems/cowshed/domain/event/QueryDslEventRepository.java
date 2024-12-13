@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -89,5 +90,14 @@ public class QueryDslEventRepository implements EventRepository{
         return eventPreviewResponseDtos;
     }
     //TODO; add findAllByDistance method
+
+    //TODO; refactoring to QueryDSL
+    public List<EventDetailResponseDto> findOneById(Long eventId){
+        TypedQuery<EventDetailResponseDto> query = em.createQuery("SELECT e FROM Event e WHERE e.id=:eventId", EventDetailResponseDto.class);
+        query.setParameter("eventId", eventId);
+        List<EventDetailResponseDto> eventDetailResponseDtos = query.getResultList();
+        return eventDetailResponseDtos;
+    }
+
 }
 
