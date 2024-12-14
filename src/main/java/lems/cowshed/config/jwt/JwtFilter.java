@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.service.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -52,9 +53,9 @@ public class JwtFilter extends OncePerRequestFilter {
         Long userId = jwtUtil.getUserId(token);
         String email = jwtUtil.getUserEmail(token);
         String username = jwtUtil.getUsername(token);
-        String role = jwtUtil.getRole(token);
+        Role role = jwtUtil.getRole(token);
 
-        User user = User.createUserForDetails(userId, username, "tempPass", role, email);
+        User user = User.createUserForDetails(userId, username, "tempPass", Role.ROLE_USER, email);
 
         //UserDetails에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(user);

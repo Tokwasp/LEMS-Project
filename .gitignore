@@ -1,9 +1,7 @@
-
-application.*
 out/
 build/
-Q*.java
+.idea/
 .gradle/
-.idea
-.gitignore
-
+application.yml
+application.properties
+src/main/generated/

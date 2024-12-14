@@ -4,7 +4,7 @@ import lems.cowshed.service.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class UserUtils {
+public class SecurityContextUtil {
     public static Long getUserId(){
         CustomUserDetails principal = getCurrentUserDetails();
         return (principal != null) ? principal.getUserId() : null;

@@ -1,6 +1,7 @@
 package lems.cowshed.config.jwt;
 
 import io.jsonwebtoken.Jwts;
+import lems.cowshed.domain.user.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +31,8 @@ public class JwtUtil {
         return  Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
-    public String getRole(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+    public Role getRole(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", Role.class);
     }
 
     public Boolean isExpired(String token) {
