@@ -62,41 +62,41 @@ public class QueryDslEventRepository implements EventRepository{
     }
 
     //TODO; paging, refactoring to QueryDSL
-    public List<EventPreviewResponseDto> findAllByCategory(String category){
-        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "WHERE category=:category", EventPreviewResponseDto.class);
+    public List<Event> findAllByCategory(String category){
+        TypedQuery<Event> query = em.createQuery("SELECT e FROM Event e" + "WHERE category=:category", Event.class);
         query.setParameter("category", category);
-        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
-        return eventPreviewResponseDtos;
+        List<Event> events = query.getResultList();
+        return events;
     }
 
     //TODO; paging, refactoring to QueryDSL
-    public List<EventPreviewResponseDto> findAllOrderByApplicants(){
-        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "ORDER BY e.applicants ASC", EventPreviewResponseDto.class);
-        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
-        return eventPreviewResponseDtos;
+    public List<Event> findAllOrderByApplicants(){
+        TypedQuery<Event> query = em.createQuery("SELECT e FROM Event e" + "ORDER BY e.applicants ASC", Event.class);
+        List<Event> events = query.getResultList();
+        return events;
     }
 
     //TODO; paging, refactoring to QueryDSL
-    public List<EventPreviewResponseDto> findAllOrderByCreatedDate(){
-        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "ORDER BY e.createdDate DESC", EventPreviewResponseDto.class);
-        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
-        return eventPreviewResponseDtos;
+    public List<Event> findAllOrderByCreatedDate(){
+        TypedQuery<Event> query = em.createQuery("SELECT e FROM Event e" + "ORDER BY e.createdDate DESC", Event.class);
+        List<Event> events = query.getResultList();
+        return events;
     }
     //TODO; paging, refactoring to QueryDSL
-    public List<EventPreviewResponseDto> findAllByKeyword(String keyword){
-        TypedQuery<EventPreviewResponseDto> query = em.createQuery("SELECT new lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto(e.id, e.name, e.content, e.eventDate, e.capacity, e.applicants, e.createdDate)" + "FROM Event e" + "WHERE e.title LIKE CONCAT('%', :keyword, '%')" + "OR e.content LIKE CONCAT('%', :keyword, '%')", EventPreviewResponseDto.class);
+    public List<Event> findAllByKeyword(String keyword){
+        TypedQuery<Event> query = em.createQuery("SELECT e FROM Event e" + "WHERE e.title LIKE CONCAT('%', :keyword, '%')" + "OR e.content LIKE CONCAT('%', :keyword, '%')", Event.class);
         query.setParameter("keyword", keyword);
-        List<EventPreviewResponseDto> eventPreviewResponseDtos = query.getResultList();
-        return eventPreviewResponseDtos;
+        List<Event> events = query.getResultList();
+        return events;
     }
     //TODO; add findAllByDistance method
 
     //TODO; refactoring to QueryDSL
-    public List<EventDetailResponseDto> findOneById(Long eventId){
-        TypedQuery<EventDetailResponseDto> query = em.createQuery("SELECT e FROM Event e WHERE e.id=:eventId", EventDetailResponseDto.class);
+    public List<Event> findOneById(Long eventId){
+        TypedQuery<Event> query = em.createQuery("SELECT e FROM Event e WHERE e.id=:eventId", Event.class);
         query.setParameter("eventId", eventId);
-        List<EventDetailResponseDto> eventDetailResponseDtos = query.getResultList();
-        return eventDetailResponseDtos;
+        List<Event> events = query.getResultList();
+        return events;
     }
 
 }
