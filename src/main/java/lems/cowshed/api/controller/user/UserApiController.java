@@ -23,7 +23,7 @@ public class UserApiController implements UserSpecification{
     private final Long userId = SecurityContextUtil.getUserId();
 
     @PostMapping("/login")
-    public CommonResponse<Void> login(@RequestBody UserLoginRequestDto userLoginRequestDto){
+    public CommonResponse<Void> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto){
         userService.login(userLoginRequestDto);
         return CommonResponse.customMessage("로그인 성공");
     }
