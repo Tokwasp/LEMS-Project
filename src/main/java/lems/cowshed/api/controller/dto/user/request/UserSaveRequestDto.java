@@ -8,7 +8,7 @@ import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Getter @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserSaveRequestDto {
 
     @Schema(description = "이메일", example = "test1234@naver.com")

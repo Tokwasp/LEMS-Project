@@ -1,30 +1,57 @@
 package lems.cowshed.api.advice;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.exception.UserLoginException;
+import jakarta.servlet.http.HttpServletResponse;
+import lems.cowshed.api.controller.dto.ErrorResponse;
+import lems.cowshed.exception.BusinessException;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.List;
+
+//TODO
 @RestControllerAdvice
 public class GeneralAdvice {
 
+    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse<List<ErrorContent>> userNotValidHandler(MethodArgumentNotValidException ex){
+        BindingResult bindingResult = ex.getBindingResult();
+
+        List<ErrorContent> ErrorContents = bindingResult.getFieldErrors().stream()
+                .map(FieldError -> new ErrorContent(FieldError.getField(), FieldError.getDefaultMessage()))
+                .toList();
+
+        return ErrorResponse.of(HttpStatus.BAD_REQUEST, ErrorContents);
+    }
+
+    @ExceptionHandler(value = {BusinessException.class})
+    public ErrorResponse<ErrorContent> userNotValidHandler(BusinessException ex, HttpServletResponse response){
+        HttpStatus httpStatus = ex.getHttpStatus();
+        response.setStatus(httpStatus.value());
+        return ErrorResponse.of(httpStatus, new ErrorContent(ex.getReason(), ex.getMessage()));
+    }
+
     @ExceptionHandler(value = {Exception.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result handleExceptionFromAPIMethod(Exception ex){
-        return new Result(ex.getClass().getSimpleName(), ex.getMessage());
+    public ErrorResponse<String> handleExceptionFromAPIMethod(Exception ex){
+        return ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 예외 입니다.");
     }
 
-    @Data
+    @Getter
     @AllArgsConstructor
-    public static class Result {
-        @Schema(description = "에러명", example = "nullPointerException")
-        String errorName;
-
-        @Schema(description = "메시지", example = "예상치 못한 예외 입니다.")
+    @Schema(description = "에러 내용")
+    public static class ErrorContent{
+        @Schema(description = "에러 필드", example = "name")
+        String field;
+        @Schema(description = "에러 메시지", example = "null 값은 사용 할수 없습니다.")
         String message;
     }
+
 }

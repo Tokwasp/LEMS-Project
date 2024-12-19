@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lems.cowshed.api.advice.event.EventAdvice;
 import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.dto.ErrorResponse;
 import lems.cowshed.api.controller.dto.event.response.EventListResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
@@ -26,7 +26,7 @@ public interface EventSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ SUCCESS 조회 성공"),
                     @ApiResponse(responseCode = "400", description = "❌ 요청이 잘못되었습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
     CommonResponse<Slice<EventPreviewResponseDto>> findAll(@RequestParam Long lastEventId, Pageable pageable);
 
@@ -34,7 +34,7 @@ public interface EventSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ SUCCESS 조회 성공"),
                     @ApiResponse(responseCode = "400", description = "❌ 요청이 잘못되었습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
     CommonResponse<EventListResponseDto> findByCategory(@Parameter(name="category", description = "카테고리", example = "스포츠") @PathVariable String category);
 
@@ -42,7 +42,7 @@ public interface EventSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ SUCCESS 조회 성공"),
                     @ApiResponse(responseCode = "400", description = "❌ 요청이 잘못되었습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
     CommonResponse<EventListResponseDto> findByKeyword(@Parameter(name="keyword", description = "키워드", example = "축구") @PathVariable String keyword);
 
@@ -50,7 +50,7 @@ public interface EventSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ SUCCESS 조회 성공"),
                     @ApiResponse(responseCode = "400", description = "❌ 요청이 잘못되었습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
     CommonResponse<EventDetailResponseDto> findById(@Parameter(name="eventId", description = "모임 ID", example = "1") @PathVariable Long eventId);
 
@@ -58,7 +58,7 @@ public interface EventSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ SUCCESS 모임 등록에 성공했습니다!"),
                     @ApiResponse(responseCode = "400", description = "❌ 모임 등록 값 검증에 실패했습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
     CommonResponse<Void> save(@RequestBody EventSaveRequestDto requestDto);
 
@@ -66,7 +66,7 @@ public interface EventSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ SUCCESS 모임 수정에 성공했습니다!"),
                     @ApiResponse(responseCode = "400", description = "❌ 모임 수정 요청이 잘못되었습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     )
             })
     CommonResponse<Void> edit(@Parameter(name="eventId", description = "모임 ID", example = "1") @PathVariable Long eventId, @RequestBody @Validated EventUpdateRequestDto eventUpdateDto);
@@ -75,7 +75,7 @@ public interface EventSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ SUCCESS 모임 삭제에 성공했습니다!"),
                     @ApiResponse(responseCode = "400", description = "❌ 모임 삭제 요청이 잘못되었습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventAdvice.EventErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
     CommonResponse<Void> delete(@Parameter(name="eventId", description = "모임 ID", example = "1") @PathVariable Long eventId);
 
