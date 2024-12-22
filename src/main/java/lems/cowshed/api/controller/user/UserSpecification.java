@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lems.cowshed.api.advice.user.UserAdvice;
 import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.dto.ErrorResponse;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
@@ -21,7 +21,7 @@ public interface UserSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ 회원 가입에 성공 했습니다."),
                     @ApiResponse(responseCode = "400", description = "❌ 유효 하지 않은 회원 가입 요청 입니다. ",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAdvice.UserErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     CommonResponse<Void> saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto);
 
@@ -29,7 +29,7 @@ public interface UserSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ 로그인에 성공 했습니다."),
                     @ApiResponse(responseCode = "400", description = "❌ 아이디 혹은 비밀번호가 틀렸습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAdvice.UserErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             })
     CommonResponse<Void> login (@RequestBody UserLoginRequestDto UserLoginRequestDto);
 
@@ -42,7 +42,7 @@ public interface UserSpecification {
             responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ 회원 수정에 성공 했습니다."),
                     @ApiResponse(responseCode = "400", description = "❌ 유효 하지 않은 회원 수정 요청 입니다. ",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAdvice.UserErrorResult.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
 
     })
     CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto);
