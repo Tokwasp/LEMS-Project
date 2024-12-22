@@ -7,12 +7,18 @@ import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.exception.Message;
+import lems.cowshed.exception.NotFoundException;
+import lems.cowshed.exception.Reason;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static lems.cowshed.exception.Message.*;
+import static lems.cowshed.exception.Reason.*;
 
 @RequiredArgsConstructor
 @Transactional
@@ -24,7 +30,7 @@ public class BookmarkService {
 
     public void createBookmark(Long userId, BookmarkSaveRequestDto request) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("유저를 찾지 못했습니다.")
+                () -> new NotFoundException(USER_ID, USER_NOT_FOUND)
         );
         bookmarkRepository.save(request.toEntity(user, request));
     }
@@ -36,7 +42,7 @@ public class BookmarkService {
 
     public void editBookmarkName(BookmarkEditRequestDto request, Long bookmarkId) {
         Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(
-                () -> new IllegalArgumentException("북마크를 찾지 못했습니다.")
+                () -> new NotFoundException(BOOKMARK_ID, BOOKMARK_NOT_FOUND)
         );
         bookmark.editName(request.getNewBookmarkFolderName());
     }
