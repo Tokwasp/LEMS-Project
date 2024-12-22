@@ -1,12 +1,9 @@
 package lems.cowshed.api.controller.bookmarkevent;
 
-import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmarkevent.request.BookmarkEventRequestDto;
 import lems.cowshed.api.controller.dto.bookmarkevent.response.BookmarkEventResponseDto;
-import lems.cowshed.api.controller.dto.user.response.BookmarkMyPageResponseDto;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/bookmarkEvent")
