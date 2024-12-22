@@ -2,7 +2,7 @@ package lems.cowshed.api.advice;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletResponse;
-import lems.cowshed.api.controller.dto.ErrorResponse;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,27 +21,27 @@ public class GeneralAdvice {
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse<List<ErrorContent>> userNotValidHandler(MethodArgumentNotValidException ex){
+    public CommonResponse<List<ErrorContent>> userNotValidHandler(MethodArgumentNotValidException ex){
         BindingResult bindingResult = ex.getBindingResult();
 
         List<ErrorContent> ErrorContents = bindingResult.getFieldErrors().stream()
                 .map(FieldError -> new ErrorContent(FieldError.getField(), FieldError.getDefaultMessage()))
                 .toList();
 
-        return ErrorResponse.of(HttpStatus.BAD_REQUEST, ErrorContents);
+        return CommonResponse.of(HttpStatus.BAD_REQUEST, ErrorContents);
     }
 
     @ExceptionHandler(value = {BusinessException.class})
-    public ErrorResponse<ErrorContent> userNotValidHandler(BusinessException ex, HttpServletResponse response){
+    public CommonResponse<ErrorContent> userNotValidHandler(BusinessException ex, HttpServletResponse response){
         HttpStatus httpStatus = ex.getHttpStatus();
         response.setStatus(httpStatus.value());
-        return ErrorResponse.of(httpStatus, new ErrorContent(ex.getReason(), ex.getMessage()));
+        return CommonResponse.of(httpStatus, new ErrorContent(ex.getReason(), ex.getMessage()));
     }
 
     @ExceptionHandler(value = {Exception.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse<String> handleExceptionFromAPIMethod(Exception ex){
-        return ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 예외 입니다.");
+    public CommonResponse<String> handleExceptionFromAPIMethod(Exception ex){
+        return CommonResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 예외 입니다.");
     }
 
     @Getter

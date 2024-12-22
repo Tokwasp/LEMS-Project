@@ -2,7 +2,7 @@ package lems.cowshed.api.controller.bookmark;
 
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.SecurityContextUtil;
-import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkEditRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
