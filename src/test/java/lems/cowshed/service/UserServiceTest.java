@@ -7,9 +7,8 @@ import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.user.query.UserQueryRepository;
-import lems.cowshed.exception.UserEditException;
-import lems.cowshed.exception.UserLoginException;
-import lems.cowshed.exception.UserRegisterException;
+import lems.cowshed.exception.BusinessException;
+import lems.cowshed.exception.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -62,9 +61,9 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.JoinProcess(request))
-                .isInstanceOf(UserRegisterException.class)
-                .hasMessage(request.getEmail() + " " + request.getUsername() + "은 이미 존재 하는 이름 혹은 이메일 입니다.")
-                .extracting(e -> ((UserRegisterException) e).getHttpStatus())
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.")
+                .extracting(e -> ((BusinessException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -93,9 +92,9 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.login(request))
-                .isInstanceOf(UserLoginException.class)
-                .hasMessage(request.getEmail() + " 유저를 찾을수 없습니다.")
-                .extracting(e -> ((UserLoginException) e).getHttpStatus())
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("유저를 찾지 못했습니다.")
+                .extracting(e -> ((NotFoundException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
@@ -112,9 +111,9 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.login(request))
-                .isInstanceOf(UserLoginException.class)
+                .isInstanceOf(BusinessException.class)
                 .hasMessage("아이디와 비밀번호를 다시 확인 해주세요")
-                .extracting(e -> ((UserLoginException) e).getHttpStatus())
+                .extracting(e -> ((BusinessException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -152,9 +151,9 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.editProcess(request, user.getId()))
-                .isInstanceOf(UserEditException.class)
-                .hasMessage(request.getUsername() + " 는 이미 존재 하는 닉네임 입니다.")
-                .extracting(e -> ((UserEditException) e).getHttpStatus())
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("이미 존재하는 닉네임 입니다.")
+                .extracting(e -> ((BusinessException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -169,9 +168,9 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.editProcess(request, 2L))
-                .isInstanceOf(UserEditException.class)
-                .hasMessage("해당하는 유저를 찾을수 없습니다.")
-                .extracting(e -> ((UserEditException) e).getHttpStatus())
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("유저를 찾지 못했습니다.")
+                .extracting(e -> ((NotFoundException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 

@@ -1,13 +1,13 @@
-package lems.cowshed.api.controller.dto;
+package lems.cowshed.api.controller;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Result {
+public enum ResponseMessage {
 
-    OK("성공");
+    SUCCESS("성공");
 
     private final String message;
 }
