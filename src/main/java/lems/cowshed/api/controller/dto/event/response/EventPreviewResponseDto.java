@@ -45,6 +45,5 @@ public class EventPreviewResponseDto {
         this.eventDate = event.getEventDate();
         this.capacity = event.getCapacity();
         this.applicants = event.getApplicants();
-        this.createdDate = event.getCreatedDate();
     }
 }

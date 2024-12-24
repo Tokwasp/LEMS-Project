@@ -1,6 +1,7 @@
 package lems.cowshed.domain.userevent;
 
 import jakarta.persistence.*;
+import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.User;
 import lombok.Getter;
@@ -8,7 +9,7 @@ import static jakarta.persistence.FetchType.*;
 
 @Getter
 @Entity
-public class UserEvent {
+public class UserEvent extends BaseEntity {
 
     @Id
     @Column(name = "user_event_id")
