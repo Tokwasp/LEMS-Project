@@ -2,7 +2,7 @@ package lems.cowshed.api.controller.bookmark;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkEditRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;

@@ -40,7 +40,7 @@ class BookmarkApiControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("성공"));
+                .andExpect(jsonPath("$.message").value("OK"));
     }
 
     @DisplayName("회원이 북마크 폴더를 등록 합니다.")

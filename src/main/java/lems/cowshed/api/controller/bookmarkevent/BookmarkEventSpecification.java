@@ -3,14 +3,11 @@ package lems.cowshed.api.controller.bookmarkevent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmarkevent.request.BookmarkEventRequestDto;
 import lems.cowshed.api.controller.dto.bookmarkevent.response.BookmarkEventResponseDto;
-import lems.cowshed.api.controller.dto.user.response.BookmarkMyPageResponseDto;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.List;
 
 public interface BookmarkEventSpecification {
     @Operation(summary = "북마크 상세 조회", description = "특정 폴더 내에 속한 북마크들을 조회합니다.",
