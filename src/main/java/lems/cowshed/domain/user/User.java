@@ -3,18 +3,18 @@ package lems.cowshed.domain.user;
 import jakarta.persistence.*;
 
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
+import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @Column(name = "user_id")
@@ -48,10 +48,6 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Bookmark> bookmarks = new ArrayList<>();
-
-    private LocalDateTime createdDate;
-
-    private LocalDateTime lastModifiedDate;
 
     @Builder
     private User(Long id, String username, String password, Role role, String email) {
