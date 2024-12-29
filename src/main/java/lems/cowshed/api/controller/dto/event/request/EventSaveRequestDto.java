@@ -5,11 +5,13 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lems.cowshed.domain.event.Category;
+import lems.cowshed.domain.event.Event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Builder
@@ -32,7 +34,7 @@ public class EventSaveRequestDto {
 
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "날짜 형식은 yyyy-MM-dd 입니다.")
     @Schema(description = "모임 날짜", example = "yyyy-mm-dd")
-    Date eventDate;
+    LocalDateTime eventDate;
 
     @Max(value = 200)
     @Schema(description = "수용 인원", example = "50")
@@ -42,4 +44,14 @@ public class EventSaveRequestDto {
     @Schema(description = "내용", example = "출근 전에 한강에서 같이 뛰실 분 구해요!!")
     String content;
 
+    public Event toEntity() {
+        return Event.builder()
+                .name(this.name)
+                .category(this.category)
+                .location(this.location)
+                .eventDate(this.eventDate)
+                .capacity(this.capacity)
+                .content(this.content)
+                .build();
+    }
 }

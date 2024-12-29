@@ -37,7 +37,7 @@ public class QueryDslEventRepository implements EventRepository{
                         event.eventDate,
                         event.capacity,
                         event.applicants,
-                        event.createdDate
+                        event.createdDateTime
                         ))
                 .from(event)
                 .where(ifExistNextPage(lastEventId)) //no-offset paging
@@ -92,12 +92,12 @@ public class QueryDslEventRepository implements EventRepository{
     //TODO; add findAllByDistance method
 
     //TODO; refactoring to QueryDSL
-    public List<Event> findOneById(Long eventId){
+
+    public Event findOneById(Long eventId){
         TypedQuery<Event> query = em.createQuery("SELECT e FROM Event e WHERE e.id=:eventId", Event.class);
         query.setParameter("eventId", eventId);
-        List<Event> events = query.getResultList();
-        return events;
+        Event event = query.getSingleResult();
+        return event;
     }
-
 }
 

@@ -5,6 +5,7 @@ import lems.cowshed.domain.BaseEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Entity
@@ -23,6 +24,8 @@ public class Event extends BaseEntity {
 
     @Column(name = "event_date")
     private LocalDateTime eventDate;
+    @Column(name = "category")
+    private Category category;
 
     @Column(name = "location", length = 20)
     private String location;
@@ -48,9 +51,17 @@ public class Event extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "availability")
     private Availability availability;
-
-    public static Event of(String name, LocalDateTime eventDate, String location, String address, String author, String email, String content, int capacity, int applicants, Availability availability){
-        return new Event(null, name, eventDate, location, address, author, email, content, capacity, applicants, availability);
+    
+    public static Event of(String name, LocalDateTime eventDate, Category category, String location, String address, String author, String email, String content, int capacity, int applicants, Availability availability){
+        return new Event(null, name, eventDate, category, location, address, author, email, content, capacity, applicants, availability);
     }
 
+    public void update(String name, Category category, String location, LocalDateTime eventDate, int capacity, String content) {
+        this.name = name;
+        this.category = category;
+        this.location = location;
+        this.eventDate = eventDate;
+        this.capacity = capacity;
+        this.content = content;
+    }
 }

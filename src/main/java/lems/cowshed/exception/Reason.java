@@ -12,7 +12,9 @@ public enum Reason {
     USER_PASSWORD("user_password"),
     USERNAME_OR_EMAIL("usernameOrEmail"),
 
-    BOOKMARK_ID("boomark_id");
+    BOOKMARK_ID("boomark_id"),
+
+    EVENT_ID("event_id");
 
     private final String text;
 }
