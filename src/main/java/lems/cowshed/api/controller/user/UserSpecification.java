@@ -50,4 +50,20 @@ public interface UserSpecification {
         responses = {
             @ApiResponse(responseCode = "200", description = "⭕ 모임 회원 조회에 성공 했습니다.")})
     CommonResponse<UserEventResponseDto> findUserEvent();
+
+    @Operation(summary = "내 정보 조회", description = "내 정보, 북마크 목록, 참가한 이벤트 조회",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "⭕ 내 정보 조회에 성공 했습니다."),
+                    @ApiResponse(responseCode = "400", description = "❌ 내 정보 조회에 실패 했습니다.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
+            })
+    CommonResponse<UserMyPageResponseDto> findMyPage();
+
+    @Operation(summary = "북마크 폴더 모임 추가", description = "북마크 폴더에 모임을 추가 합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "⭕ 북마크 폴더 모임 추가 성공 했습니다."),
+                    @ApiResponse(responseCode = "400", description = "❌ 북마크 폴더 모임 추가 실패 했습니다.",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
+            })
+    CommonResponse<Void> saveBookmarkEvent(Long eventId, Long bookmarkId);
 }

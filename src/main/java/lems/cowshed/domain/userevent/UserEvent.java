@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.User;
+import lombok.Builder;
 import lombok.Getter;
 import static jakarta.persistence.FetchType.*;
 
@@ -24,10 +25,17 @@ public class UserEvent extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    //연관 관계 메서드
-    public void relationSetter(User user, Event event){
-        this.event = event;
+    @Builder
+    private UserEvent(User user, Event event) {
         this.user = user;
+        this.event = event;
     }
 
+    public UserEvent of(User user, Event event){
+        user.getUserEvents().add(this);
+        return UserEvent.builder()
+                .user(user)
+                .event(event)
+                .build();
+    }
 }
