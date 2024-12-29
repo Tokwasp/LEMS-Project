@@ -51,7 +51,7 @@ public class Event extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "availability")
     private Availability availability;
-    
+
     public static Event of(String name, LocalDateTime eventDate, Category category, String location, String address, String author, String email, String content, int capacity, int applicants, Availability availability){
         return new Event(null, name, eventDate, category, location, address, author, email, content, capacity, applicants, availability);
     }
