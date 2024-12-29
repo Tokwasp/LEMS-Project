@@ -3,15 +3,12 @@ package lems.cowshed.service;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.user.WithMockCustomUser;
 import lems.cowshed.domain.user.query.UserQueryRepository;
-import lems.cowshed.exception.UserEditException;
-import lems.cowshed.exception.UserLoginException;
-import lems.cowshed.exception.UserRegisterException;
+import lems.cowshed.exception.BusinessException;
+import lems.cowshed.exception.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -52,7 +49,7 @@ class UserServiceTest {
                 .containsExactly("테스트", "test@naver.com");
     }
 
-    @DisplayName("신규 회원을 등록 할 때 이미 등록된 이름 혹은 이메일이 있을 경우 예외가 발생 한다.")
+    @DisplayName("신규 회원을 등록 할 때 이미 등록된 닉네임 혹은 이메일이 있을 경우 예외가 발생 한다.")
     @CsvSource(value = {"PriorRegister@naver.com-비등록", "NonRegister@naver.com-사전등록", "PriorRegister@naver.com-사전등록"}, delimiter = '-')
     @ParameterizedTest
     void JoinProcessWhenDuplicateNameOrEmail(String email, String username) {
@@ -64,13 +61,13 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.JoinProcess(request))
-                .isInstanceOf(UserRegisterException.class)
-                .hasMessage(request.getEmail() + " " + request.getUsername() + "은 이미 존재 하는 이름 혹은 이메일 입니다.")
-                .extracting(e -> ((UserRegisterException) e).getHttpStatus())
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.")
+                .extracting(e -> ((BusinessException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-    @DisplayName("회원 가입을 한 유저가 로그인을 한다.")
+    @DisplayName("회원이 로그인을 한다.")
     @Test
     void login() {
         //given
@@ -87,7 +84,7 @@ class UserServiceTest {
         userService.login(request);
     }
 
-    @DisplayName("회원이 로그인을 할때 등록 안된 이메일의 경우 예외가 발생한다.")
+    @DisplayName("회원이 로그인을 할때 회원 가입을 안한 이메일인 경우 예외가 발생한다.")
     @Test
     void loginWhenNotFoundUserByEmail() {
         //given
@@ -95,13 +92,13 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.login(request))
-                .isInstanceOf(UserLoginException.class)
-                .hasMessage(request.getEmail() + " 유저를 찾을수 없습니다.")
-                .extracting(e -> ((UserLoginException) e).getHttpStatus())
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("유저를 찾지 못했습니다.")
+                .extracting(e -> ((NotFoundException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
-    @DisplayName("회원가입을 한 유저가 로그인 할때 비밀번호가 틀리면 예외가 발생한다.")
+    @DisplayName("회원이 로그인 할때 비밀번호가 틀리면 예외가 발생한다.")
     @Test
     void loginWhenNotValidationPassword() {
         //given
@@ -114,9 +111,9 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.login(request))
-                .isInstanceOf(UserLoginException.class)
+                .isInstanceOf(BusinessException.class)
                 .hasMessage("아이디와 비밀번호를 다시 확인 해주세요")
-                .extracting(e -> ((UserLoginException) e).getHttpStatus())
+                .extracting(e -> ((BusinessException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -139,7 +136,7 @@ class UserServiceTest {
                 .containsExactly(editName, "안녕하세요!", Mbti.INTP);
     }
 
-    @DisplayName("회원의 세부 정보를 수정 할때 같은 닉네임을 가진 사람이 있다면 예외가 발생 한다.")
+    @DisplayName("회원의 세부 정보를 수정 할때 같은 닉네임을 가진 회원이 있다면 예외가 발생 한다.")
     @Test
     void editProcessWhenDuplicateUsername() {
         //given
@@ -154,13 +151,13 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.editProcess(request, user.getId()))
-                .isInstanceOf(UserEditException.class)
-                .hasMessage(request.getUsername() + " 는 이미 존재 하는 닉네임 입니다.")
-                .extracting(e -> ((UserEditException) e).getHttpStatus())
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("이미 존재하는 닉네임 입니다.")
+                .extracting(e -> ((BusinessException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-    @DisplayName("회원의 세부 정보를 수정 할때 조회할 유저의 식별자 값이 저장소에 없다면 예외가 발생 한다")
+    @DisplayName("회원의 세부 정보를 수정 할때 조회할 회원의 식별자 값이 저장소에 없다면 예외가 발생 한다")
     @Test
     void editProcessWhenNotFoundUserById() {
         //given
@@ -171,9 +168,9 @@ class UserServiceTest {
 
         //when //then
         assertThatThrownBy(() -> userService.editProcess(request, 2L))
-                .isInstanceOf(UserEditException.class)
-                .hasMessage("해당하는 유저를 찾을수 없습니다.")
-                .extracting(e -> ((UserEditException) e).getHttpStatus())
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("유저를 찾지 못했습니다.")
+                .extracting(e -> ((NotFoundException) e).getHttpStatus())
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 

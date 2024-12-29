@@ -1,17 +1,18 @@
 package lems.cowshed.domain.event;
 
 import jakarta.persistence.*;
+import lems.cowshed.domain.BaseEntity;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Event {
+public class Event extends BaseEntity {
 
     @Id
     @Column(name = "event_id")
@@ -23,6 +24,8 @@ public class Event {
 
     @Column(name = "event_date")
     private LocalDateTime eventDate;
+    @Column(name = "category")
+    private Category category;
 
     @Column(name = "location", length = 20)
     private String location;
@@ -48,15 +51,17 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @Column(name = "availability")
     private Availability availability;
-
-    @Column(name = "created_date")
-    private LocalDateTime createdDate;
-
-    @Column(name = "last_modified_date")
-    private LocalDateTime lastModifiedDate;
-
-    public static Event of(String name, LocalDateTime eventDate, String location, String address, String author, String email, String content, int capacity, int applicants, Availability availability){
-        return new Event(null, name, eventDate, location, address, author, email, content, capacity, applicants, availability, LocalDateTime.now(), LocalDateTime.now());
+    
+    public static Event of(String name, LocalDateTime eventDate, Category category, String location, String address, String author, String email, String content, int capacity, int applicants, Availability availability){
+        return new Event(null, name, eventDate, category, location, address, author, email, content, capacity, applicants, availability);
     }
 
+    public void update(String name, Category category, String location, LocalDateTime eventDate, int capacity, String content) {
+        this.name = name;
+        this.category = category;
+        this.location = location;
+        this.eventDate = eventDate;
+        this.capacity = capacity;
+        this.content = content;
+    }
 }

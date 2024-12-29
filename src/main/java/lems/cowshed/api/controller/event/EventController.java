@@ -1,6 +1,6 @@
 package lems.cowshed.api.controller.event;
 
-import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.event.response.EventListResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
@@ -10,7 +10,6 @@ import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,7 @@ public class EventController implements EventSpecification {
     @GetMapping
     public CommonResponse<Slice<EventPreviewResponseDto>> findAll(@RequestParam Long lastEventId, @PageableDefault(size = 30)Pageable pageable) {
         Slice<EventPreviewResponseDto> slice = eventService.findAll(lastEventId, pageable);
-        return new CommonResponse<>(slice, "success");
+        return CommonResponse.success(slice);
     }
 
     //카테고리별 조회

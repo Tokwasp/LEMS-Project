@@ -1,36 +1,42 @@
 package lems.cowshed.api.controller.bookmark;
 
-import lems.cowshed.api.controller.dto.CommonResponse;
-import lems.cowshed.api.controller.dto.bookmark.request.BookmarkDeleteRequestDto;
+import jakarta.validation.Valid;
+import lems.cowshed.api.controller.SecurityContextUtil;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkEditRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
-import org.springframework.security.core.parameters.P;
+import lems.cowshed.service.BookmarkService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/bookmark")
 public class BookmarkApiController implements BookmarkSpecification{
 
+    private final BookmarkService bookmarkService;
+
     @GetMapping
-    public CommonResponse<BookmarkResponseDto> findAllBookmarks() {
-        return null;
+    public CommonResponse<BookmarkResponseDto> getAllBookmarks() {
+        return CommonResponse.success(bookmarkService.getAllBookmarks(SecurityContextUtil.getUserId()));
     }
 
     @PostMapping
-    public CommonResponse<Void> saveBookmark(@RequestBody BookmarkSaveRequestDto requestDto) {
-        return null;
+    public CommonResponse<Void> createBookmark(@RequestBody @Valid BookmarkSaveRequestDto request) {
+        bookmarkService.createBookmark(SecurityContextUtil.getUserId(), request);
+        return CommonResponse.success();
     }
 
-    @PutMapping
-    public CommonResponse<Void> editBookmark(@RequestBody BookmarkEditRequestDto requestDto) {
-        return null;
+    @PutMapping("/{bookmarkId}")
+    public CommonResponse<Void> editBookmarkName(@RequestBody @Valid BookmarkEditRequestDto request, @PathVariable long bookmarkId) {
+        bookmarkService.editBookmarkName(request, bookmarkId);
+        return CommonResponse.success();
     }
 
-    @DeleteMapping
-    public CommonResponse<Void> deleteBookmark(@RequestBody BookmarkDeleteRequestDto requestDto) {
-        return null;
+    @DeleteMapping("/{bookmarkId}")
+    public CommonResponse<Void> deleteBookmark(@PathVariable long bookmarkId) {
+        bookmarkService.deleteBookmark(bookmarkId);
+        return CommonResponse.success();
     }
 }

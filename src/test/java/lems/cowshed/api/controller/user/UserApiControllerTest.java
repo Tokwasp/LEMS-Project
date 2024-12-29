@@ -1,7 +1,7 @@
 package lems.cowshed.api.controller.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -12,14 +12,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WithMockUser
@@ -73,9 +70,10 @@ class UserApiControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf())
                 )
+                .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error[0].field").value("username"))
-                .andExpect(jsonPath("$.error[0].message").value("유저 닉네임은 필수 입니다."));
+                .andExpect(jsonPath("$.data[0].field").value("username"))
+                .andExpect(jsonPath("$.data[0].message").value("유저 닉네임은 필수 입니다."));
     }
 
     @DisplayName("신규 회원이 회원 가입을 할 때 이메일 값은 필수 입니다.")
@@ -95,8 +93,8 @@ class UserApiControllerTest {
                                 .with(csrf())
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error[0].field").value("email"))
-                .andExpect(jsonPath("$.error[0].message").value("이메일 값은 필수 입니다."));
+                .andExpect(jsonPath("$.data[0].field").value("email"))
+                .andExpect(jsonPath("$.data[0].message").value("이메일 값은 필수 입니다."));
     }
 
     @DisplayName("신규 회원이 회원 가입을 할 때 패스워드 값은 필수 입니다.")
@@ -116,7 +114,49 @@ class UserApiControllerTest {
                                 .with(csrf())
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error[0].field").value("password"))
-                .andExpect(jsonPath("$.error[0].message").value("패스워드는 필수 입니다."));
+                .andExpect(jsonPath("$.data[0].field").value("password"))
+                .andExpect(jsonPath("$.data[0].message").value("패스워드는 필수 입니다."));
+    }
+
+    @DisplayName("회원이 로그인 할 때 이메일 값은 빈값일 수 없습니다.")
+    @Test
+    void loginWhenEmailIsEmpty() throws Exception {
+        //given
+        UserLoginRequestDto request = UserLoginRequestDto.builder()
+                .email(" ")
+                .password("tempPassword")
+                .build();
+
+        //when //then
+        mockMvc.perform(
+                        post("/users/login")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("email"))
+                .andExpect(jsonPath("$.data[0].message").value("이메일 값은 필수 입니다."));
+    }
+
+    @DisplayName("회원이 로그인 할 때 비밀번호 값은 null일 수 없습니다.")
+    @Test
+    void loginWhenPasswordIsNull() throws Exception {
+        //given
+        UserLoginRequestDto request = UserLoginRequestDto.builder()
+                .email("test@naver.com")
+                .password(null)
+                .build();
+
+        //when //then
+        mockMvc.perform(
+                        post("/users/login")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("password"))
+                .andExpect(jsonPath("$.data[0].message").value("패스워드는 필수 입니다."));
     }
 }

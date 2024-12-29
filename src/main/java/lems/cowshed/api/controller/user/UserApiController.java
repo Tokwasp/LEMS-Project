@@ -2,7 +2,7 @@ package lems.cowshed.api.controller.user;
 
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.SecurityContextUtil;
-import lems.cowshed.api.controller.dto.CommonResponse;
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
@@ -23,9 +23,9 @@ public class UserApiController implements UserSpecification{
     private final Long userId = SecurityContextUtil.getUserId();
 
     @PostMapping("/login")
-    public CommonResponse<Void> login(@RequestBody UserLoginRequestDto userLoginRequestDto){
+    public CommonResponse<Void> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto){
         userService.login(userLoginRequestDto);
-        return CommonResponse.customMessage("로그인 성공");
+        return CommonResponse.success();
     }
 
     //TODO
@@ -43,14 +43,14 @@ public class UserApiController implements UserSpecification{
     @PatchMapping
     public CommonResponse<Void> editUser(@RequestBody UserEditRequestDto userEditRequestDto){
         userService.editProcess(userEditRequestDto, userId);
-        return CommonResponse.customMessage("유저 변경 성공");
+        return CommonResponse.success();
     }
 
     @GetMapping("/events")
     public CommonResponse<UserEventResponseDto> findUserEvent(){
         LocalDate now = LocalDate.now();
         UserEventResponseDto userEvent = userService.getUserEvent(now);
-        return CommonResponse.customMessage(userEvent, "유저 이벤트 조회 성공");
+        return CommonResponse.success(userEvent, "유저 이벤트 조회 성공");
     }
 }
 
