@@ -37,7 +37,7 @@ public class QueryDslEventRepository implements EventRepository{
                         event.eventDate,
                         event.capacity,
                         event.applicants,
-                        event.createdDate
+                        event.createdDateTime
                         ))
                 .from(event)
                 .where(ifExistNextPage(lastEventId)) //no-offset paging
