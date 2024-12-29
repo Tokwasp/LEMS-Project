@@ -4,13 +4,14 @@ import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.event.Event;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@NoArgsConstructor
 public class BookmarkEvent extends BaseEntity {
     @Id
     @Column(name = "bookmark_event_id")
@@ -24,5 +25,10 @@ public class BookmarkEvent extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "bookmark_id")
     private Bookmark bookmark;
+
+    public BookmarkEvent(Event event, Bookmark bookmark) {
+        this.event = event;
+        this.bookmark = bookmark;
+    }
 }
 
