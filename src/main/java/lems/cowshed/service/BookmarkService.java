@@ -5,6 +5,9 @@ import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.domain.bookmarkevent.BookmarkEvent;
+import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.exception.Message;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static lems.cowshed.domain.bookmarkevent.BookmarkEvent.*;
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
 
@@ -26,6 +30,7 @@ import static lems.cowshed.exception.Reason.*;
 public class BookmarkService {
 
     private final BookmarkRepository bookmarkRepository;
+    private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
     public void createBookmark(Long userId, BookmarkSaveRequestDto request) {
@@ -51,6 +56,18 @@ public class BookmarkService {
     public void deleteBookmark(Long bookmarkId) {
         // boomarkEventRepository.deleteByBoomarkId();
         bookmarkRepository.deleteById(bookmarkId);
+    }
+
+    public void saveBookmarkEvent(long eventId, long bookmarkId) {
+        Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(
+                () -> new NotFoundException(BOOKMARK_ID, BOOKMARK_NOT_FOUND)
+        );
+        Event event = eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND)
+        );
+
+        bookmark.addBookmarkEvent(event);
+        bookmarkRepository.save(bookmark);
     }
 
     private List<String> toBookmarkNameList(List<Bookmark> bookmarks) {

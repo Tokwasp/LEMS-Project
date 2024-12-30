@@ -3,13 +3,16 @@ package lems.cowshed.domain.bookmark;
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmarkevent.BookmarkEvent;
+import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -27,19 +30,31 @@ public class Bookmark extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "bookmark")
-    private List<BookmarkEvent> bookmarkEvent;
+    @OneToMany(mappedBy = "bookmark" , cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookmarkEvent> bookmarkEvent = new ArrayList<>();
 
     @Builder
     private Bookmark(String name, User user) {
-        this.name = name;
         this.user = user;
+        this.name = name;
+    }
+
+    public static Bookmark create(String name, User user){
+        return Bookmark.builder()
+                .name(name)
+                .user(user)
+                .build();
     }
 
     //연관관계 메서드
     public void setUser(User user){
         this.user = user;
-        user.addBookmark(List.of(this));
+        user.getBookmarks().add(this);
+    }
+
+    //연관관계 메서드
+    public void addBookmarkEvent(Event event){
+        getBookmarkEvent().add(new BookmarkEvent(event,this));
     }
 
     public void editName(String newBookmarkFolderName) {

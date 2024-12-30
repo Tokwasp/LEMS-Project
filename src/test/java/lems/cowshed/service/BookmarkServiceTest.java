@@ -4,6 +4,9 @@ import lems.cowshed.api.controller.dto.bookmark.request.BookmarkEditRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.domain.bookmarkevent.BookmarkEvent;
+import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -25,6 +29,9 @@ class BookmarkServiceTest {
 
     @Autowired
     BookmarkRepository bookmarkRepository;
+
+    @Autowired
+    EventRepository eventRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -55,7 +62,9 @@ class BookmarkServiceTest {
         Bookmark bookmark1 = createBookmark("운동", user);
         Bookmark bookmark2 = createBookmark("산책", user);
         Bookmark bookmark3 = createBookmark("수영", user);
-        user.addBookmark(List.of(bookmark1, bookmark2, bookmark3));
+        bookmark1.setUser(user);
+        bookmark2.setUser(user);
+        bookmark3.setUser(user);
         userRepository.save(user);
 
         //when
@@ -68,14 +77,14 @@ class BookmarkServiceTest {
 
     @DisplayName("새로운 폴더명을 받아 기존 북마크 폴더의 폴더명을 수정 합니다.")
     @Test
-    void test() {
+    void editBookmarkName() {
         //given
         String oldFolderName = "폴더";
         String newFolderName = "새폴더";
 
         User user = createUser();
         Bookmark bookmark = createBookmark(oldFolderName, user);
-        user.addBookmark(List.of(bookmark));
+        bookmark.setUser(user);
         userRepository.save(user);
         BookmarkEditRequestDto request = createEditRequest(bookmark, newFolderName);
 
@@ -89,6 +98,27 @@ class BookmarkServiceTest {
         assertThat(findBookmark).isNotNull()
                 .extracting("name")
                 .isEqualTo(newFolderName);
+    }
+
+    @DisplayName("북마크 폴더에 모임을 추가 합니다.")
+    @Test
+    void saveBookmarkEvent() {
+        //given
+        User user = createUser();
+        Bookmark bookmark = createBookmark("자전거 모임 폴더", user);
+        Event event = createEvent("자전거 소모임", "전국 일주");
+        bookmarkRepository.save(bookmark);
+        eventRepository.save(event);
+
+        //when
+        bookmarkService.saveBookmarkEvent(event.getId(), bookmark.getId());
+
+        //then
+        Bookmark findBookmark = bookmarkRepository.findById(bookmark.getId()).orElseThrow();
+        List<BookmarkEvent> bookmarkEvent = findBookmark.getBookmarkEvent();
+        assertThat(bookmarkEvent).isNotNull()
+                .extracting("event")
+                .containsExactly(event);
     }
 
     private Bookmark createBookmark(String folderName, User user) {
@@ -110,6 +140,13 @@ class BookmarkServiceTest {
         return BookmarkEditRequestDto.builder()
                 .bookmarkId(bookmark.getId())
                 .newBookmarkFolderName(folderName)
+                .build();
+    }
+
+    private Event createEvent(String name, String content){
+        return Event.builder()
+                .name(name)
+                .content(content)
                 .build();
     }
 }

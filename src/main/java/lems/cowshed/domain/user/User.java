@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.userevent.UserEvent;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -46,8 +47,11 @@ public class User extends BaseEntity {
     @Column(length = 200)
     private String introduction;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserEvent> userEvents = new ArrayList<>();
 
     @Builder
     private User(Long id, String username, String password, Role role, String email) {
@@ -56,11 +60,6 @@ public class User extends BaseEntity {
         this.password = password;
         this.role = role;
         this.email = email;
-    }
-
-    //연관관계 메서드
-    public void addBookmark(List<Bookmark> bookmarks){
-        this.bookmarks.addAll(bookmarks);
     }
 
     public static User createUserForDetails(Long id, String username, String password, Role role, String email) {
