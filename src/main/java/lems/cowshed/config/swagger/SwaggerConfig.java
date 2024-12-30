@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static lems.cowshed.api.controller.ErrorCode.*;
+
 @Configuration
 public class SwaggerConfig {
     //metadata for API documentation
@@ -77,7 +79,24 @@ public class SwaggerConfig {
                     ApiResponses responses = operation.getResponses();
 
                     if(registerPath.stream().noneMatch(pathName::matches)) {
-                        responses.addApiResponse("403", new ApiResponse().description("인증 되지 않은 사용자 입니다."));
+                        ErrorCode errorCode = CERTIFICATION_ERROR;
+                        ExampleHolder exampleHolder = ExampleHolder.builder()
+                                .holder(getSwaggerExample(errorCode))
+                                .code(errorCode.getHttpStatus().value())
+                                .name(errorCode.name())
+                                .build();
+
+                        Content content = new Content();
+                        MediaType mediaType = new MediaType();
+                        ApiResponse apiResponse = new ApiResponse();
+
+                        mediaType.addExamples(
+                                exampleHolder.getName(),
+                                exampleHolder.getHolder());
+
+                        content.addMediaType("application/json", mediaType);
+                        apiResponse.setContent(content);
+                        responses.addApiResponse(String.valueOf(errorCode.getCode()), apiResponse);
                     }
 
                     // 경로가 제외 리스트에 포함되어 있는지 확인

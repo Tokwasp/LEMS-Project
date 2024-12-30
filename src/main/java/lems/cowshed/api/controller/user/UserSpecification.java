@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
@@ -16,59 +17,32 @@ import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import org.springframework.web.bind.annotation.RequestBody;
 
+
 @Tag(name="user-controller", description="회원 API")
 public interface UserSpecification {
 
-    @Operation(summary = "회원 가입", description = "이메일/비밀번호 + 닉네임을 통해 회원 가입을 합니다. [회원 가입]"
-            /*responses = {
-                    @ApiResponse(responseCode = "200", description = "⭕ 회원 가입에 성공 했습니다."),
-                    @ApiResponse(responseCode = "400", description = "❌ 유효 하지 않은 회원 가입 요청 입니다. ",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
-    }*/)
-    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR, ErrorCode.INTERNAL_ERROR})
+    @Operation(summary = "회원 가입", description = "이메일/비밀번호 + 닉네임을 통해 회원 가입을 합니다. [회원 가입]")
+    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR })
     CommonResponse<Void> saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto);
 
-    @Operation(summary = "로그인", description = "이메일/비밀번호을 통해 로그인을 합니다. [로그인]"
-            /*responses = {
-                    @ApiResponse(responseCode = "200", description = "⭕ 로그인에 성공 했습니다."),
-                    @ApiResponse(responseCode = "400", description = "❌ 아이디 혹은 비밀번호가 틀렸습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
-            }*/)
-    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR, ErrorCode.INTERNAL_ERROR})
+    @Operation(summary = "로그인", description = "이메일/비밀번호을 통해 로그인을 합니다. [로그인]")
+    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> login (@RequestBody UserLoginRequestDto UserLoginRequestDto);
 
-    @Operation(summary = "마이페이지 회원 조회", description = "자신의 마이 페이지 정보를 가져 옵니다. [마이 페이지]",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "⭕ 마이 페이지 조회에 성공 했습니다.")})
+    @Operation(summary = "마이페이지 회원 조회", description = "자신의 마이 페이지 정보를 가져 옵니다. [마이 페이지]")
     CommonResponse<UserMyPageResponseDto> userMyPage();
 
-    @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [마이 페이지 -> 프로필 편집]",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "⭕ 회원 수정에 성공 했습니다."),
-                    @ApiResponse(responseCode = "400", description = "❌ 유효 하지 않은 회원 수정 요청 입니다. ",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
-
-    })
+    @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [마이 페이지 -> 프로필 편집]")
+    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto);
 
-    @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 다수 회원을 조회 합니다. [이벤트 상세 > 참여자 목록]",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "⭕ 모임 회원 조회에 성공 했습니다.")})
+    @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 다수 회원을 조회 합니다. [이벤트 상세 > 참여자 목록]")
     CommonResponse<UserEventResponseDto> findUserEvent();
 
-    @Operation(summary = "내 정보 조회", description = "내 정보, 북마크 목록, 참가한 이벤트 조회",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "⭕ 내 정보 조회에 성공 했습니다."),
-                    @ApiResponse(responseCode = "400", description = "❌ 내 정보 조회에 실패 했습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
-            })
+    @Operation(summary = "내 정보 조회", description = "내 정보, 북마크 목록, 참가한 이벤트 조회")
     CommonResponse<UserMyPageResponseDto> findMyPage();
 
-    @Operation(summary = "북마크 폴더 모임 추가", description = "북마크 폴더에 모임을 추가 합니다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "⭕ 북마크 폴더 모임 추가 성공 했습니다."),
-                    @ApiResponse(responseCode = "400", description = "❌ 북마크 폴더 모임 추가 실패 했습니다.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
-            })
+    @Operation(summary = "북마크 폴더 모임 추가", description = "북마크 폴더에 모임을 추가 합니다.")
+    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR })
     CommonResponse<Void> saveBookmarkEvent(Long eventId, Long bookmarkId);
 }

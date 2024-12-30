@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Collections;
 import java.util.List;
 
-//TODO
 @RestControllerAdvice
 public class GeneralAdvice {
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse<List<ErrorContent>> userNotValidHandler(MethodArgumentNotValidException ex){
         BindingResult bindingResult = ex.getBindingResult();
 
@@ -35,13 +33,12 @@ public class GeneralAdvice {
     }
 
     @ExceptionHandler(value = {BusinessException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse<ErrorContent> handleBusinessException(BusinessException ex){
         return ErrorResponse.of(ErrorCode.BUSINESS_ERROR, new ErrorContent(ex.getReason(), ex.getMessage()));
     }
 
+    //TODO 데이터 == null 이면
     @ExceptionHandler(value = {Exception.class})
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse<String> handleExceptionFromAPIMethod(Exception ex){
         return ErrorResponse.of(ErrorCode.INTERNAL_ERROR, "");
     }
