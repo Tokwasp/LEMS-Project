@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 @Builder
 @AllArgsConstructor
@@ -28,10 +29,9 @@ public class EventUpdateRequestDto {
     @Schema(description = "모임 장소", example = "여의도 한강공원")
     String location;
 
-
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "날짜 형식은 yyyy-MM-dd 입니다.")
     @Schema(description = "모임 날짜", example = "yyyy-mm-dd")
-    Date eventDate;
+    LocalDateTime eventDate;
 
     @Max(value = 200)
     @Schema(description = "수용 인원", example = "50")
