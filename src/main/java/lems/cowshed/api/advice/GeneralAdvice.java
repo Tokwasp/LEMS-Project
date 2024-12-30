@@ -37,7 +37,7 @@ public class GeneralAdvice {
     @ExceptionHandler(value = {BusinessException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse<ErrorContent> handleBusinessException(BusinessException ex){
-        return ErrorResponse.of(ErrorCode.Business_ERROR, new ErrorContent(ex.getReason(), ex.getMessage()));
+        return ErrorResponse.of(ErrorCode.BUSINESS_ERROR, new ErrorContent(ex.getReason(), ex.getMessage()));
     }
 
     @ExceptionHandler(value = {Exception.class})

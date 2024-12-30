@@ -4,8 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.api.controller.CommonResponse;
+import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
@@ -16,20 +19,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name="user-controller", description="회원 API")
 public interface UserSpecification {
 
-    @Operation(summary = "회원 가입", description = "이메일/비밀번호 + 닉네임을 통해 회원 가입을 합니다. [회원 가입]",
-            responses = {
+    @Operation(summary = "회원 가입", description = "이메일/비밀번호 + 닉네임을 통해 회원 가입을 합니다. [회원 가입]"
+            /*responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ 회원 가입에 성공 했습니다."),
                     @ApiResponse(responseCode = "400", description = "❌ 유효 하지 않은 회원 가입 요청 입니다. ",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
-    })
+    }*/)
+    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR, ErrorCode.INTERNAL_ERROR})
     CommonResponse<Void> saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto);
 
-    @Operation(summary = "로그인", description = "이메일/비밀번호을 통해 로그인을 합니다. [로그인]",
-            responses = {
+    @Operation(summary = "로그인", description = "이메일/비밀번호을 통해 로그인을 합니다. [로그인]"
+            /*responses = {
                     @ApiResponse(responseCode = "200", description = "⭕ 로그인에 성공 했습니다."),
                     @ApiResponse(responseCode = "400", description = "❌ 아이디 혹은 비밀번호가 틀렸습니다.",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommonResponse.class)))
-            })
+            }*/)
+    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR, ErrorCode.INTERNAL_ERROR})
     CommonResponse<Void> login (@RequestBody UserLoginRequestDto UserLoginRequestDto);
 
     @Operation(summary = "마이페이지 회원 조회", description = "자신의 마이 페이지 정보를 가져 옵니다. [마이 페이지]",
