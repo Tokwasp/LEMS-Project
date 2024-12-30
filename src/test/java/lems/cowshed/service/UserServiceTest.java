@@ -8,6 +8,7 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.exception.BusinessException;
+import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+import static lems.cowshed.exception.Message.*;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
@@ -62,9 +64,7 @@ class UserServiceTest {
         //when //then
         assertThatThrownBy(() -> userService.JoinProcess(request))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.")
-                .extracting(e -> ((BusinessException) e).getHttpStatus())
-                .isEqualTo(HttpStatus.BAD_REQUEST);
+                .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.");
     }
 
     @DisplayName("회원이 로그인을 한다.")
@@ -93,9 +93,7 @@ class UserServiceTest {
         //when //then
         assertThatThrownBy(() -> userService.login(request))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("유저를 찾지 못했습니다.")
-                .extracting(e -> ((NotFoundException) e).getHttpStatus())
-                .isEqualTo(HttpStatus.NOT_FOUND);
+                .hasMessage("유저를 찾지 못했습니다.");
     }
 
     @DisplayName("회원이 로그인 할때 비밀번호가 틀리면 예외가 발생한다.")
@@ -112,9 +110,7 @@ class UserServiceTest {
         //when //then
         assertThatThrownBy(() -> userService.login(request))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("아이디와 비밀번호를 다시 확인 해주세요")
-                .extracting(e -> ((BusinessException) e).getHttpStatus())
-                .isEqualTo(HttpStatus.BAD_REQUEST);
+                .hasMessage("아이디와 비밀번호를 다시 확인 해주세요");
     }
 
     @DisplayName("회원의 세부 정보를 수정 한다.")
@@ -152,9 +148,7 @@ class UserServiceTest {
         //when //then
         assertThatThrownBy(() -> userService.editProcess(request, user.getId()))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("이미 존재하는 닉네임 입니다.")
-                .extracting(e -> ((BusinessException) e).getHttpStatus())
-                .isEqualTo(HttpStatus.BAD_REQUEST);
+                .hasMessage("이미 존재하는 닉네임 입니다.");
     }
 
     @DisplayName("회원의 세부 정보를 수정 할때 조회할 회원의 식별자 값이 저장소에 없다면 예외가 발생 한다")
@@ -169,9 +163,7 @@ class UserServiceTest {
         //when //then
         assertThatThrownBy(() -> userService.editProcess(request, 2L))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("유저를 찾지 못했습니다.")
-                .extracting(e -> ((NotFoundException) e).getHttpStatus())
-                .isEqualTo(HttpStatus.NOT_FOUND);
+                .hasMessage("유저를 찾지 못했습니다.");
     }
 
     //TODO

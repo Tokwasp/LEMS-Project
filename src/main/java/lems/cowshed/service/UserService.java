@@ -39,13 +39,13 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_NOT_FOUND));
 
         if(isPasswordValidationFail(loginDto, user)){
-            throw new BusinessException(BAD_REQUEST, USER_PASSWORD, USER_ID_PASSWORD_CHECK);
+            throw new BusinessException(USER_PASSWORD, USER_ID_PASSWORD_CHECK);
         }
     }
 
     public void JoinProcess(UserSaveRequestDto saveDto) {
         if(userRepository.existsByEmailOrUsername(saveDto.getEmail(), saveDto.getUsername())){
-            throw new BusinessException(BAD_REQUEST, USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
+            throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
         }
 
         User user = saveDto.toEntityForRegister(bCryptPasswordEncoder, Role.ROLE_USER);
@@ -54,7 +54,7 @@ public class UserService {
 
     public void editProcess(UserEditRequestDto editDto, Long userId){
         userRepository.findByUsername(editDto.getUsername())
-                .ifPresent(u -> {throw new BusinessException(BAD_REQUEST, USER_NAME, USERNAME_EXIST);});
+                .ifPresent(u -> {throw new BusinessException(USER_NAME, USERNAME_EXIST);});
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
