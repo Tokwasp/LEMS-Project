@@ -9,6 +9,7 @@ import lems.cowshed.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,19 +23,21 @@ import java.util.List;
 public class GeneralAdvice {
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    public ErrorResponse<List<ErrorContent>> userNotValidHandler(MethodArgumentNotValidException ex){
+    public ResponseEntity<ErrorResponse<List<ErrorContent>>> userNotValidHandler(MethodArgumentNotValidException ex){
         BindingResult bindingResult = ex.getBindingResult();
 
         List<ErrorContent> ErrorContents = bindingResult.getFieldErrors().stream()
                 .map(FieldError -> new ErrorContent(FieldError.getField(), FieldError.getDefaultMessage()))
                 .toList();
 
-        return ErrorResponse.of(ErrorCode.ARGUMENT_VALID_ERROR, ErrorContents);
+        ErrorResponse<List<ErrorContent>> errorResponse = ErrorResponse.of(ErrorCode.ARGUMENT_VALID_ERROR, ErrorContents);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(value = {BusinessException.class})
-    public ErrorResponse<ErrorContent> handleBusinessException(BusinessException ex){
-        return ErrorResponse.of(ErrorCode.BUSINESS_ERROR, new ErrorContent(ex.getReason(), ex.getMessage()));
+    public ResponseEntity<ErrorResponse<ErrorContent>> handleBusinessException(BusinessException ex){
+        ErrorResponse<ErrorContent> errorResponse = ErrorResponse.of(ErrorCode.BUSINESS_ERROR, new ErrorContent(ex.getReason(), ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     //TODO 데이터 == null 이면
@@ -52,5 +55,4 @@ public class GeneralAdvice {
         @Schema(description = "에러 메시지", example = "null 값은 사용 할수 없습니다.")
         String message;
     }
-
 }

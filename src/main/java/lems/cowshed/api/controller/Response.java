@@ -13,7 +13,7 @@ public class Response {
     @Schema(example = "200")
     private final int code;
     @Schema(example = "OK")
-    private String message;
+    private final String message;
 
     public Response(HttpStatus httpStatus, String message) {
         this.httpStatus = httpStatus;
@@ -21,7 +21,4 @@ public class Response {
         this.message = message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }
