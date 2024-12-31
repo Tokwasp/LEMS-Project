@@ -17,8 +17,8 @@ import java.util.List;
 @Schema(description = "마이 페이지 회원 정보")
 public class UserMyPageResponseDto {
 
-    @Schema(description = "이름", example = "하상록")
-    private UserMyPageQueryDto user;
+    @Schema(description = "유저 정보")
+    private UserMyPageQueryDto userDto;
 
     @Schema(description = "참여 모임")
     private List<UserEventMyPageQueryDto> userEventList;
@@ -26,8 +26,8 @@ public class UserMyPageResponseDto {
     @Schema(description = "북마크 모임")
     private List<UserBookmarkMyPageQueryDto> bookmarkList;
 
-    public UserMyPageResponseDto(UserMyPageQueryDto user, List<UserEventMyPageQueryDto> userEventList, List<UserBookmarkMyPageQueryDto> bookmarkList) {
-        this.user = user;
+    public UserMyPageResponseDto(UserMyPageQueryDto userDto, List<UserEventMyPageQueryDto> userEventList, List<UserBookmarkMyPageQueryDto> bookmarkList) {
+        this.userDto = userDto;
         this.userEventList = userEventList;
         this.bookmarkList = bookmarkList;
     }

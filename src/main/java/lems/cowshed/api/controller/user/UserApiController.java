@@ -31,8 +31,8 @@ public class UserApiController implements UserSpecification{
     }
 
     //TODO
-    @GetMapping
-    public CommonResponse<UserMyPageResponseDto> userMyPage(){
+    @GetMapping("/mypage")
+    public CommonResponse<UserMyPageResponseDto> findMyPage() {
         return null;
     }
 
@@ -53,11 +53,6 @@ public class UserApiController implements UserSpecification{
         LocalDate now = LocalDate.now();
         UserEventResponseDto userEvent = userService.getUserEvent(now);
         return CommonResponse.success(userEvent, "유저 이벤트 조회 성공");
-    }
-
-    @GetMapping("/mypage")
-    public CommonResponse<UserMyPageResponseDto> findMyPage() {
-        return null;
     }
 
     @PostMapping("/{eventId}/{bookmarkId}")
