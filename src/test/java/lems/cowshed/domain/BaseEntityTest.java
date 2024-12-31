@@ -36,7 +36,7 @@ class BaseEntityTest {
         UserSaveRequestDto request = createSaveDto(email, "테스트", "tempPassword");
 
         //when
-        userService.JoinProcess(request);
+        userService.signUp(request);
 
         //then
         LocalDateTime afterSave = LocalDateTime.now();
@@ -59,7 +59,7 @@ class BaseEntityTest {
         UserEditRequestDto request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
 
         //when
-        userService.editProcess(request, user.getId());
+        userService.editUser(request, user.getId());
 
         //then
         userRepository.flush();

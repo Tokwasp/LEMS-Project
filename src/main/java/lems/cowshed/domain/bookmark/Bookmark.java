@@ -49,7 +49,6 @@ public class Bookmark extends BaseEntity {
     //연관관계 메서드
     public void setUser(User user){
         this.user = user;
-        user.getBookmarks().add(this);
     }
 
     //연관관계 메서드

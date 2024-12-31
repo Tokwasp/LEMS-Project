@@ -62,9 +62,9 @@ class BookmarkServiceTest {
         Bookmark bookmark1 = createBookmark("운동", user);
         Bookmark bookmark2 = createBookmark("산책", user);
         Bookmark bookmark3 = createBookmark("수영", user);
-        bookmark1.setUser(user);
-        bookmark2.setUser(user);
-        bookmark3.setUser(user);
+        user.setBookmark(bookmark1);
+        user.setBookmark(bookmark2);
+        user.setBookmark(bookmark3);
         userRepository.save(user);
 
         //when
@@ -84,7 +84,7 @@ class BookmarkServiceTest {
 
         User user = createUser();
         Bookmark bookmark = createBookmark(oldFolderName, user);
-        bookmark.setUser(user);
+        user.setBookmark(bookmark);
         userRepository.save(user);
         BookmarkEditRequestDto request = createEditRequest(bookmark, newFolderName);
 
