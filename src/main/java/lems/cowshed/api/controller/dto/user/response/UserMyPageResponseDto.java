@@ -23,7 +23,7 @@ public class UserMyPageResponseDto {
     @Schema(description = "참여 모임")
     private List<UserEventMyPageQueryDto> userEventList;
 
-    @Schema(description = "북마크 모임")
+    @Schema(description = "북마크 폴더")
     private List<UserBookmarkMyPageQueryDto> bookmarkList;
 
     public UserMyPageResponseDto(UserMyPageQueryDto userDto, List<UserEventMyPageQueryDto> userEventList, List<UserBookmarkMyPageQueryDto> bookmarkList) {

@@ -42,7 +42,7 @@ class UserServiceTest {
         UserSaveRequestDto request = createSaveDto(email, "테스트", "tempPassword");
 
         //when
-        userService.JoinProcess(request);
+        userService.signUp(request);
 
         //then
         User findUser = userRepository.findByEmail(email).orElseThrow();
@@ -57,12 +57,12 @@ class UserServiceTest {
     void JoinProcessWhenDuplicateNameOrEmail(String email, String username) {
         //given
         UserSaveRequestDto oldRequest = createSaveDto("PriorRegister@naver.com", "사전등록");
-        userService.JoinProcess(oldRequest);
+        userService.signUp(oldRequest);
 
         UserSaveRequestDto request = createSaveDto(email, username);
 
         //when //then
-        assertThatThrownBy(() -> userService.JoinProcess(request))
+        assertThatThrownBy(() -> userService.signUp(request))
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.");
     }
@@ -75,7 +75,7 @@ class UserServiceTest {
         String validPassword = "validPassword";
         UserSaveRequestDto saveRequest = createSaveDto(email, "테스트", validPassword);
 
-        userService.JoinProcess(saveRequest);
+        userService.signUp(saveRequest);
 
         User user = userRepository.findByEmail(email).orElseThrow();
         UserLoginRequestDto request = createLoginDto(email, validPassword);
@@ -102,7 +102,7 @@ class UserServiceTest {
         //given
         String email = "test@naver.com";
         UserSaveRequestDto saveRequest = createSaveDto(email, "테스트", "validPassword");
-        userService.JoinProcess(saveRequest);
+        userService.signUp(saveRequest);
 
         User user = userRepository.findByEmail(email).orElseThrow();
         UserLoginRequestDto request = createLoginDto(user.getEmail(), "notValidPassword");
@@ -124,7 +124,7 @@ class UserServiceTest {
         UserEditRequestDto request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
 
         //when
-        userService.editProcess(request, user.getId());
+        userService.editUser(request, user.getId());
 
         //then
         User findUser = userRepository.findByUsername(editName).orElseThrow();
@@ -146,7 +146,7 @@ class UserServiceTest {
         UserEditRequestDto request = createEditDto(duplicateName, "안녕하세요!", Mbti.INTP);
 
         //when //then
-        assertThatThrownBy(() -> userService.editProcess(request, user.getId()))
+        assertThatThrownBy(() -> userService.editUser(request, user.getId()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("이미 존재하는 닉네임 입니다.");
     }
@@ -161,21 +161,9 @@ class UserServiceTest {
         UserEditRequestDto request = createEditDto("새닉네임", "안녕하세요!", Mbti.INTP);
 
         //when //then
-        assertThatThrownBy(() -> userService.editProcess(request, 2L))
+        assertThatThrownBy(() -> userService.editUser(request, 2L))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("유저를 찾지 못했습니다.");
-    }
-
-    //TODO
-    @DisplayName("회원이 참여 중인 소모임을 조회 한다.")
-    @Test
-    @Disabled
-    void test() {
-        //given
-
-        //when
-
-        //then
     }
 
     private User createUser(String username, String email) {

@@ -20,12 +20,12 @@ public class UserMyPageQueryDto {
     private LocalDate birth;
 
     @Schema(description = "성격유형", example = "ISTP")
-    private Mbti character;
+    private Mbti mbti;
 
     @QueryProjection
-    public UserMyPageQueryDto(String name, LocalDate birth, Mbti character) {
+    public UserMyPageQueryDto(String name, LocalDate birth, Mbti mbti) {
         this.name = name;
         this.birth = birth;
-        this.character = character;
+        this.mbti = mbti;
     }
 }

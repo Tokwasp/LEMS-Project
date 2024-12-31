@@ -3,12 +3,12 @@ package lems.cowshed.domain.user.query;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
-import lems.cowshed.domain.bookmark.QBookmark;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 import static lems.cowshed.domain.bookmark.QBookmark.*;
+import static lems.cowshed.domain.event.QEvent.*;
 import static lems.cowshed.domain.user.QUser.*;
 import static lems.cowshed.domain.userevent.QUserEvent.*;
 
@@ -23,8 +23,8 @@ public class UserQueryRepository {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    //TODO 확인이 필요
-    public List<UserEventQueryDto> findUserWithEvent(Long userId) {
+    // 유저가 참여한 모임
+    public List<UserEventQueryDto> findUserEvent(Long userId) {
         return queryFactory
                 .select(new QUserEventQueryDto(
                         user.username,
@@ -33,14 +33,14 @@ public class UserQueryRepository {
                         user.birth,
                         user.location
                 ))
-                .from(userEvent)
-                .join(userEvent.user, user)
-                .where(userEvent.user.id.eq(userId))
+                .from(user)
+                .join(user.userEvents, userEvent)
+                .join(userEvent.event, event)
+                .where(user.id.eq(userId))
                 .fetch();
     }
 
-    //TODO event 완성시 이벤트 추가
-    public UserMyPageResponseDto findUserForMyPage(Long userId){
+    public UserMyPageResponseDto findUserForMyPage(Long userId) {
         UserMyPageQueryDto userDto = queryFactory
                 .select(new QUserMyPageQueryDto(
                         user.username.as("name"),
@@ -51,18 +51,31 @@ public class UserQueryRepository {
                 .where(user.id.eq(userId))
                 .fetchOne();
 
+        List<UserEventMyPageQueryDto> userEventDto = queryFactory
+                .select(new QUserEventMyPageQueryDto(
+                        event.id,
+                        event.author,
+                        event.name.as("eventName"),
+                        event.eventDate
+                ))
+                .from(user)
+                .join(user.userEvents, userEvent)
+                .join(userEvent.event, event)
+                .where(user.id.eq(userId))
+                .fetch();
+
         List<UserBookmarkMyPageQueryDto> bookmarks = queryFactory
                 .select(new QUserBookmarkMyPageQueryDto(
                         bookmark.id,
                         bookmark.name.as("bookmarkName"),
                         bookmark.modifiedDateTime
                 ))
-                .from(bookmark)
-                .join(bookmark.user, user)
+                .from(user)
+                .join(user.bookmarks, bookmark)
                 .where(user.id.eq(userId))
                 .fetch();
 
-        return new UserMyPageResponseDto(userDto, null, bookmarks);
+        return new UserMyPageResponseDto(userDto, userEventDto, bookmarks);
     }
 
 }

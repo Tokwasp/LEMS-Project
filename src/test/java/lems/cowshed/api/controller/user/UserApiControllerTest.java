@@ -49,7 +49,7 @@ class UserApiControllerTest {
 
         //when //then
         mockMvc.perform(
-                post("/users/register")
+                post("/users/signUp")
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf())
@@ -69,7 +69,7 @@ class UserApiControllerTest {
 
         //when //then
         mockMvc.perform(
-                        post("/users/register")
+                        post("/users/signUp")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf())
@@ -91,7 +91,7 @@ class UserApiControllerTest {
 
         //when //then
         mockMvc.perform(
-                        post("/users/register")
+                        post("/users/signUp")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf())
@@ -112,7 +112,7 @@ class UserApiControllerTest {
 
         //when //then
         mockMvc.perform(
-                        post("/users/register")
+                        post("/users/signUp")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf())
