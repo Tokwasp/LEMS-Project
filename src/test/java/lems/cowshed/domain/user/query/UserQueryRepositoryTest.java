@@ -33,23 +33,39 @@ class UserQueryRepositoryTest {
     @Autowired
     UserQueryRepository userQueryRepository;
 
-    @DisplayName("회원이 참여한 모임을 조회 한다.")
+    @DisplayName("모임에 참여한 회원을 조회 한다.")
     @Test
-    void findUserEvent() {
+    void findUserParticipatingInEvent() {
         //given
         User user = createUser("테스터", INTP);
         Event event = createEvent("산책 모임", "산책회");
         eventJpaRepository.save(event);
-        UserEvent userEvent = user.of(user, event);
+        UserEvent userEvent = UserEvent.create(user, event);
         userRepository.save(user);
 
         //when
-        List<UserEventQueryDto> userEventDto = userQueryRepository.findUserEvent(user.getId());
+        List<UserEventQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
 
         //then
         assertThat(userEventDto.get(0))
                 .extracting("name", "mbti")
                 .containsExactly("테스터", INTP);
+    }
+
+    @DisplayName("모임에 참여한 회원을 조회 할때 참여한 회원이 없다면 빈 리스트를 반환 한다.")
+    @Test
+    void findUserParticipatingInEventWhenZeroParticipating() {
+        //given
+        User user = createUser("테스터", INTP);
+        Event event = createEvent("산책 모임", "산책회");
+        eventJpaRepository.save(event);
+        userRepository.save(user);
+
+        //when
+        List<UserEventQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
+
+        //then
+        assertThat(userEventDto).isEmpty();
     }
 
     @DisplayName("회원의 마이페이지 정보를 조회 한다.")
@@ -60,10 +76,9 @@ class UserQueryRepositoryTest {
         eventJpaRepository.save(event);
         
         User user = createUser("테스터", INTP);
-        Bookmark bookmark = createBookmark("소모임");
-        user.setBookmark(bookmark);
+        Bookmark bookmark = Bookmark.create("소모임", user);
 
-        UserEvent userEvent = user.of(user, event);
+        UserEvent userEvent = UserEvent.create(user, event);
         userRepository.save(user);
 
         //when
