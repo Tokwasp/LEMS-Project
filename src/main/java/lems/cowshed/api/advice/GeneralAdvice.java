@@ -3,6 +3,8 @@ package lems.cowshed.api.advice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletResponse;
 import lems.cowshed.api.controller.CommonResponse;
+import lems.cowshed.api.controller.ErrorCode;
+import lems.cowshed.api.controller.ErrorResponse;
 import lems.cowshed.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,35 +15,32 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Collections;
 import java.util.List;
 
-//TODO
 @RestControllerAdvice
 public class GeneralAdvice {
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public CommonResponse<List<ErrorContent>> userNotValidHandler(MethodArgumentNotValidException ex){
+    public ErrorResponse<List<ErrorContent>> userNotValidHandler(MethodArgumentNotValidException ex){
         BindingResult bindingResult = ex.getBindingResult();
 
         List<ErrorContent> ErrorContents = bindingResult.getFieldErrors().stream()
                 .map(FieldError -> new ErrorContent(FieldError.getField(), FieldError.getDefaultMessage()))
                 .toList();
 
-        return CommonResponse.of(HttpStatus.BAD_REQUEST, ErrorContents);
+        return ErrorResponse.of(ErrorCode.ARGUMENT_VALID_ERROR, ErrorContents);
     }
 
     @ExceptionHandler(value = {BusinessException.class})
-    public CommonResponse<ErrorContent> userNotValidHandler(BusinessException ex, HttpServletResponse response){
-        HttpStatus httpStatus = ex.getHttpStatus();
-        response.setStatus(httpStatus.value());
-        return CommonResponse.of(httpStatus, new ErrorContent(ex.getReason(), ex.getMessage()));
+    public ErrorResponse<ErrorContent> handleBusinessException(BusinessException ex){
+        return ErrorResponse.of(ErrorCode.BUSINESS_ERROR, new ErrorContent(ex.getReason(), ex.getMessage()));
     }
 
+    //TODO 데이터 == null 이면
     @ExceptionHandler(value = {Exception.class})
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public CommonResponse<String> handleExceptionFromAPIMethod(Exception ex){
-        return CommonResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 예외 입니다.");
+    public ErrorResponse<String> handleExceptionFromAPIMethod(Exception ex){
+        return ErrorResponse.of(ErrorCode.INTERNAL_ERROR, "");
     }
 
     @Getter
