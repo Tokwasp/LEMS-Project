@@ -31,9 +31,9 @@ public class UserApiController implements UserSpecification{
     }
 
     @GetMapping("/events")
-    public CommonResponse<UserEventResponseDto> findUserEvent(){
+    public CommonResponse<UserEventResponseDto> findUserParticipatingInEvent(){
         LocalDate now = LocalDate.now();
-        UserEventResponseDto userEvent = userService.findUserEvent(now);
+        UserEventResponseDto userEvent = userService.findUserParticipatingInEvent(now);
         return CommonResponse.success(userEvent);
     }
 

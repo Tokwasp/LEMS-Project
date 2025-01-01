@@ -66,8 +66,7 @@ public class BookmarkService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND)
         );
-
-        bookmark.addBookmarkEvent(event);
+        BookmarkEvent.create(event, bookmark);
         bookmarkRepository.save(bookmark);
     }
 

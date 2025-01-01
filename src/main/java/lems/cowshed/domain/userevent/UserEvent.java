@@ -30,4 +30,13 @@ public class UserEvent extends BaseEntity {
         this.user = user;
         this.event = event;
     }
+
+    public static UserEvent create(User user, Event event){
+        UserEvent userEvent = UserEvent.builder()
+                .user(user)
+                .event(event)
+                .build();
+        user.getUserEvents().add(userEvent);
+        return userEvent;
+    }
 }

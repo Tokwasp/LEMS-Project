@@ -34,7 +34,7 @@ public interface UserSpecification {
     CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto);
 
     @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 다수 회원을 조회 합니다. [이벤트 상세 > 참여자 목록]")
-    CommonResponse<UserEventResponseDto> findUserEvent();
+    CommonResponse<UserEventResponseDto> findUserParticipatingInEvent();
 
     @Operation(summary = "내 정보 조회", description = "내 정보, 북마크 목록, 참가한 이벤트 조회")
     CommonResponse<UserMyPageResponseDto> findMyPage();

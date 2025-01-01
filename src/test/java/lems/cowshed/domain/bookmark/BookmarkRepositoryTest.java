@@ -26,8 +26,7 @@ class BookmarkRepositoryTest {
     void findByUserId() {
         //given
         User user = createUser();
-        Bookmark bookmark = createBookmark("폴더", user);
-        user.setBookmark(bookmark);
+        Bookmark bookmark = Bookmark.create("폴더", user);
         userRepository.save(user);
 
         //when
