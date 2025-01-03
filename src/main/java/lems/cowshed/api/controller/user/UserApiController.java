@@ -24,45 +24,40 @@ public class UserApiController implements UserSpecification{
     private final BookmarkService bookmarkService;
     private final Long userId = SecurityContextUtil.getUserId();
 
+    @GetMapping("/myPage")
+    public CommonResponse<UserMyPageResponseDto> findMyPage() {
+        UserMyPageResponseDto myPage = userService.findMyPage(userId);
+        return CommonResponse.success(myPage);
+    }
+
+    @GetMapping("/events")
+    public CommonResponse<UserEventResponseDto> findUserEvent(){
+        LocalDate now = LocalDate.now();
+        UserEventResponseDto userEvent = userService.findUserEvent(now);
+        return CommonResponse.success(userEvent);
+    }
+
+    @PostMapping("/signUp")
+    public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequestDto userSaveRequestDto) {
+        userService.signUp(userSaveRequestDto);
+        return CommonResponse.success();
+    }
+
     @PostMapping("/login")
     public CommonResponse<Void> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto){
         userService.login(userLoginRequestDto);
         return CommonResponse.success();
     }
 
-    //TODO
-    @GetMapping
-    public CommonResponse<UserMyPageResponseDto> userMyPage(){
-        return null;
-    }
-
-    @PostMapping("/register")
-    public CommonResponse<Void> saveUser(@Valid @RequestBody UserSaveRequestDto userSaveRequestDto) {
-        userService.JoinProcess(userSaveRequestDto);
+    @PostMapping("/{eventId}/{bookmarkId}")
+    public CommonResponse<Void> saveBookmarkEvent(@PathVariable Long eventId, @PathVariable Long bookmarkId) {
+        bookmarkService.saveBookmarkEvent(eventId,bookmarkId);
         return CommonResponse.success();
     }
 
     @PatchMapping
     public CommonResponse<Void> editUser(@RequestBody UserEditRequestDto userEditRequestDto){
-        userService.editProcess(userEditRequestDto, userId);
-        return CommonResponse.success();
-    }
-
-    @GetMapping("/events")
-    public CommonResponse<UserEventResponseDto> findUserEvent(){
-        LocalDate now = LocalDate.now();
-        UserEventResponseDto userEvent = userService.getUserEvent(now);
-        return CommonResponse.success(userEvent, "유저 이벤트 조회 성공");
-    }
-
-    @GetMapping("/mypage")
-    public CommonResponse<UserMyPageResponseDto> findMyPage() {
-        return null;
-    }
-
-    @PostMapping("/{eventId}/{bookmarkId}")
-    public CommonResponse<Void> saveBookmarkEvent(@PathVariable Long eventId, @PathVariable Long bookmarkId) {
-        bookmarkService.saveBookmarkEvent(eventId,bookmarkId);
+        userService.editUser(userEditRequestDto, userId);
         return CommonResponse.success();
     }
 

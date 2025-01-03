@@ -27,7 +27,7 @@ class BookmarkRepositoryTest {
         //given
         User user = createUser();
         Bookmark bookmark = createBookmark("폴더", user);
-        bookmark.setUser(user);
+        user.setBookmark(bookmark);
         userRepository.save(user);
 
         //when

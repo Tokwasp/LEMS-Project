@@ -1,10 +1,12 @@
 package lems.cowshed.service;
 
+import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.SecurityContextUtil;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
@@ -33,6 +35,26 @@ public class UserService {
     private final UserQueryRepository userQueryRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    public UserMyPageResponseDto findMyPage(Long userId) {
+        return userQueryRepository.findUserForMyPage(userId);
+    }
+
+    public UserEventResponseDto findUserEvent(LocalDate currentYear){
+        List<UserEventQueryDto> userEventDtoList = userQueryRepository.findUserEvent(SecurityContextUtil.getUserId());
+        userEventDtoList.forEach(dto -> dto.setAge((int) ChronoUnit.YEARS.between(dto.getBirth(), currentYear) + 1));
+
+        return new UserEventResponseDto(userEventDtoList);
+    }
+
+    public void signUp(UserSaveRequestDto saveDto) {
+        if(userRepository.existsByEmailOrUsername(saveDto.getEmail(), saveDto.getUsername())){
+            throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
+        }
+
+        User user = saveDto.toEntityForRegister(bCryptPasswordEncoder, Role.ROLE_USER);
+        userRepository.save(user);
+    }
+
     public void login(UserLoginRequestDto loginDto){
          String email = loginDto.getEmail();
          User user = userRepository.findByEmail(email)
@@ -43,16 +65,7 @@ public class UserService {
         }
     }
 
-    public void JoinProcess(UserSaveRequestDto saveDto) {
-        if(userRepository.existsByEmailOrUsername(saveDto.getEmail(), saveDto.getUsername())){
-            throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
-        }
-
-        User user = saveDto.toEntityForRegister(bCryptPasswordEncoder, Role.ROLE_USER);
-        userRepository.save(user);
-    }
-
-    public void editProcess(UserEditRequestDto editDto, Long userId){
+    public void editUser(UserEditRequestDto editDto, Long userId){
         userRepository.findByUsername(editDto.getUsername())
                 .ifPresent(u -> {throw new BusinessException(USER_NAME, USERNAME_EXIST);});
 
@@ -62,15 +75,7 @@ public class UserService {
         user.modifyContents(editDto);
     }
 
-    public UserEventResponseDto getUserEvent(LocalDate currentYear){
-        List<UserEventQueryDto> userEventDtoList = userQueryRepository.findUserWithEvent(SecurityContextUtil.getUserId());
-        userEventDtoList.forEach(dto -> dto.setAge((int) ChronoUnit.YEARS.between(dto.getBirth(), currentYear) + 1));
-
-        return new UserEventResponseDto(userEventDtoList);
-    }
-
     private boolean isPasswordValidationFail(UserLoginRequestDto loginDto, User user) {
         return !bCryptPasswordEncoder.matches(loginDto.getPassword(), user.getPassword());
     }
-
 }

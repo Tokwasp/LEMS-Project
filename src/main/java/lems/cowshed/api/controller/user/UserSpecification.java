@@ -23,14 +23,11 @@ public interface UserSpecification {
 
     @Operation(summary = "회원 가입", description = "이메일/비밀번호 + 닉네임을 통해 회원 가입을 합니다. [회원 가입]")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR })
-    CommonResponse<Void> saveUser(@RequestBody UserSaveRequestDto userSaveRequestDto);
+    CommonResponse<Void> signUp(@RequestBody UserSaveRequestDto userSaveRequestDto);
 
     @Operation(summary = "로그인", description = "이메일/비밀번호을 통해 로그인을 합니다. [로그인]")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> login (@RequestBody UserLoginRequestDto UserLoginRequestDto);
-
-    @Operation(summary = "마이페이지 회원 조회", description = "자신의 마이 페이지 정보를 가져 옵니다. [마이 페이지]")
-    CommonResponse<UserMyPageResponseDto> userMyPage();
 
     @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [마이 페이지 -> 프로필 편집]")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})

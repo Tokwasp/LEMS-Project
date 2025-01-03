@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class UserEventResponseDto {
 
-    private List<UserEventQueryDto> user;
+    private List<UserEventQueryDto> userList;
 }
