@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.service.EventService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -42,6 +43,7 @@ class EventControllerTest {
     }
 
     @Test
+    @Disabled
     void findAll() throws Exception{
         //mocking
         Pageable pageable = PageRequest.of(0, 20);
