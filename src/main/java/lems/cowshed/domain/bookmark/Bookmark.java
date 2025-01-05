@@ -40,20 +40,12 @@ public class Bookmark extends BaseEntity {
     }
 
     public static Bookmark create(String name, User user){
-        return Bookmark.builder()
+        Bookmark bookmark = Bookmark.builder()
                 .name(name)
                 .user(user)
                 .build();
-    }
-
-    //연관관계 메서드
-    public void setUser(User user){
-        this.user = user;
-    }
-
-    //연관관계 메서드
-    public void addBookmarkEvent(Event event){
-        getBookmarkEvent().add(new BookmarkEvent(event,this));
+        user.getBookmarks().add(bookmark);
+        return bookmark;
     }
 
     public void editName(String newBookmarkFolderName) {

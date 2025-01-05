@@ -26,9 +26,19 @@ public class BookmarkEvent extends BaseEntity {
     @JoinColumn(name = "bookmark_id")
     private Bookmark bookmark;
 
-    public BookmarkEvent(Event event, Bookmark bookmark) {
+    @Builder
+    private BookmarkEvent(Event event, Bookmark bookmark) {
         this.event = event;
         this.bookmark = bookmark;
+    }
+
+    public static BookmarkEvent create(Event event, Bookmark bookmark){
+        BookmarkEvent bookmarkEvent = BookmarkEvent.builder()
+                .event(event)
+                .bookmark(bookmark)
+                .build();
+        bookmark.getBookmarkEvent().add(bookmarkEvent);
+        return bookmarkEvent;
     }
 }
 

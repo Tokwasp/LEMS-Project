@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.userevent.UserEvent;
 import lombok.*;
 
@@ -77,22 +76,6 @@ public class User extends BaseEntity {
                 .role(role)
                 .email(email)
                 .build();
-    }
-
-    public UserEvent of(User user, Event event){
-        UserEvent userEvent = UserEvent.builder()
-                .user(user)
-                .event(event)
-                .build();
-
-        user.getUserEvents().add(userEvent);
-        return userEvent;
-    }
-
-    //연관관계 메서드
-    public void setBookmark(Bookmark bookmark){
-        this.bookmarks.add(bookmark);
-        bookmark.setUser(this);
     }
 
     //TODO

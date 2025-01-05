@@ -23,8 +23,8 @@ public class UserQueryRepository {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    // 유저가 참여한 모임
-    public List<UserEventQueryDto> findUserEvent(Long userId) {
+    // 모임에 참가한 회원 정보
+    public List<UserEventQueryDto> findUserParticipatingInEvent (Long userId) {
         return queryFactory
                 .select(new QUserEventQueryDto(
                         user.username,
@@ -41,6 +41,8 @@ public class UserQueryRepository {
     }
 
     public UserMyPageResponseDto findUserForMyPage(Long userId) {
+        final int LIMIT_COUNT = 5;
+
         UserMyPageQueryDto userDto = queryFactory
                 .select(new QUserMyPageQueryDto(
                         user.username.as("name"),
@@ -62,6 +64,7 @@ public class UserQueryRepository {
                 .join(user.userEvents, userEvent)
                 .join(userEvent.event, event)
                 .where(user.id.eq(userId))
+                .limit(LIMIT_COUNT)
                 .fetch();
 
         List<UserBookmarkMyPageQueryDto> bookmarks = queryFactory
@@ -73,6 +76,7 @@ public class UserQueryRepository {
                 .from(user)
                 .join(user.bookmarks, bookmark)
                 .where(user.id.eq(userId))
+                .limit(LIMIT_COUNT)
                 .fetch();
 
         return new UserMyPageResponseDto(userDto, userEventDto, bookmarks);

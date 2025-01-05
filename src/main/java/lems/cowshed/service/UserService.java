@@ -39,8 +39,8 @@ public class UserService {
         return userQueryRepository.findUserForMyPage(userId);
     }
 
-    public UserEventResponseDto findUserEvent(LocalDate currentYear){
-        List<UserEventQueryDto> userEventDtoList = userQueryRepository.findUserEvent(SecurityContextUtil.getUserId());
+    public UserEventResponseDto findUserParticipatingInEvent(LocalDate currentYear){
+        List<UserEventQueryDto> userEventDtoList = userQueryRepository.findUserParticipatingInEvent(SecurityContextUtil.getUserId());
         userEventDtoList.forEach(dto -> dto.setAge((int) ChronoUnit.YEARS.between(dto.getBirth(), currentYear) + 1));
 
         return new UserEventResponseDto(userEventDtoList);

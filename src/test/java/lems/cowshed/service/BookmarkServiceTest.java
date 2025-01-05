@@ -9,6 +9,7 @@ import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.userevent.UserEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,12 +60,9 @@ class BookmarkServiceTest {
     void getAllBookmarks() {
         //given
         User user = createUser();
-        Bookmark bookmark1 = createBookmark("운동", user);
-        Bookmark bookmark2 = createBookmark("산책", user);
-        Bookmark bookmark3 = createBookmark("수영", user);
-        user.setBookmark(bookmark1);
-        user.setBookmark(bookmark2);
-        user.setBookmark(bookmark3);
+        Bookmark bookmark1 = Bookmark.create("운동", user);
+        Bookmark bookmark2 = Bookmark.create("산책", user);
+        Bookmark bookmark3 = Bookmark.create("수영", user);
         userRepository.save(user);
 
         //when
@@ -83,8 +81,8 @@ class BookmarkServiceTest {
         String newFolderName = "새폴더";
 
         User user = createUser();
-        Bookmark bookmark = createBookmark(oldFolderName, user);
-        user.setBookmark(bookmark);
+        Bookmark bookmark = Bookmark.create(oldFolderName, user);
+
         userRepository.save(user);
         BookmarkEditRequestDto request = createEditRequest(bookmark, newFolderName);
 
@@ -105,7 +103,7 @@ class BookmarkServiceTest {
     void saveBookmarkEvent() {
         //given
         User user = createUser();
-        Bookmark bookmark = createBookmark("자전거 모임 폴더", user);
+        Bookmark bookmark = Bookmark.create("자전거 모임 폴더", user);
         Event event = createEvent("자전거 소모임", "전국 일주");
         bookmarkRepository.save(bookmark);
         eventRepository.save(event);
