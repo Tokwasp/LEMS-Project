@@ -69,7 +69,7 @@ public class SecurityConfig {
         // http 인증 url
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/users/register", "/users/login").permitAll()
+                        .requestMatchers("/users/signUp", "/users/login").permitAll()
                         .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated());
 
