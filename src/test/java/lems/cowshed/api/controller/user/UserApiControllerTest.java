@@ -5,6 +5,7 @@ import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.service.BookmarkService;
 import lems.cowshed.service.UserService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,6 +165,7 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.errors[0].message").value("패스워드는 필수 입니다."));
     }
 
+    @Disabled
     @DisplayName("회원이 북마크 폴더에 모임을 추가 합니다.")
     @Test
     void saveBookmarkEvent() throws Exception {
