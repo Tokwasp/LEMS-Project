@@ -3,5 +3,6 @@ build/
 .idea/
 .gradle/
 application.yml
+*.yml
 application.properties
 src/main/generated/
