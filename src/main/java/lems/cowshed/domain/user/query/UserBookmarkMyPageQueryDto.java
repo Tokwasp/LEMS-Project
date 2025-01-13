@@ -7,13 +7,13 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Schema(description = "마이 페이지 북마크 폴더 정보")
+@Schema(description = "마이 페이지 북마크 모임 정보")
 public class UserBookmarkMyPageQueryDto {
 
     @Schema(description = "북마크 id", example = "1")
     private Long id;
 
-    @Schema(description = "북마크 폴더 이름", example = "자전거 모임")
+    @Schema(description = "북마크 모임 이름", example = "강아지 산책 모임")
     private String bookmarkName;
 
     @Schema(description = "북마크 수정 날짜", example = "2024-10-19")

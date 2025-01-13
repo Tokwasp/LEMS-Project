@@ -17,7 +17,7 @@ public class EventPreviewResponseDto {
     Long eventId;
     @Schema(description = "등록자", example = "김철수")
     String name;
-    @Schema(description = "내용(20자만 노출)", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
+    @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
     String content;
     @Schema(description = "모임 날짜", example = "2024-09-12")
     LocalDateTime eventDate;

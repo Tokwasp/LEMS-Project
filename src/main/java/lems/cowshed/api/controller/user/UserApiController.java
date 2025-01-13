@@ -21,7 +21,6 @@ import java.time.LocalDate;
 public class UserApiController implements UserSpecification{
 
     private final UserService userService;
-    private final BookmarkService bookmarkService;
     private final Long userId = SecurityContextUtil.getUserId();
 
     @GetMapping("/myPage")
@@ -30,8 +29,8 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success(myPage);
     }
 
-    @GetMapping("/events")
-    public CommonResponse<UserEventResponseDto> findUserParticipatingInEvent(){
+    @GetMapping("/{event-id}")
+    public CommonResponse<UserEventResponseDto> findUserParticipatingInEvent(@PathVariable("event-id") long eventId){
         LocalDate now = LocalDate.now();
         UserEventResponseDto userEvent = userService.findUserParticipatingInEvent(now);
         return CommonResponse.success(userEvent);
@@ -46,12 +45,6 @@ public class UserApiController implements UserSpecification{
     @PostMapping("/login")
     public CommonResponse<Void> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto){
         userService.login(userLoginRequestDto);
-        return CommonResponse.success();
-    }
-
-    @PostMapping("/{eventId}/{bookmarkId}")
-    public CommonResponse<Void> saveBookmarkEvent(@PathVariable Long eventId, @PathVariable Long bookmarkId) {
-        bookmarkService.saveBookmarkEvent(eventId,bookmarkId);
         return CommonResponse.success();
     }
 

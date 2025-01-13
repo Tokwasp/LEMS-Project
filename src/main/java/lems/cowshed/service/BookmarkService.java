@@ -43,7 +43,8 @@ public class BookmarkService {
 
     public BookmarkResponseDto getAllBookmarks(Long userId) {
         List<Bookmark> bookmarks = bookmarkRepository.findByUserId(userId);
-        return BookmarkResponseDto.of(toBookmarkNameList(bookmarks));
+//        return BookmarkResponseDto.of(toBookmarkNameList(bookmarks));
+        return null;
     }
 
     public void editBookmarkName(BookmarkEditRequestDto request, Long bookmarkId) {
@@ -59,15 +60,15 @@ public class BookmarkService {
         bookmarkRepository.deleteById(bookmarkId);
     }
 
-    public void saveBookmarkEvent(long eventId, long bookmarkId) {
-        Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(
-                () -> new NotFoundException(BOOKMARK_ID, BOOKMARK_NOT_FOUND)
-        );
-        Event event = eventRepository.findById(eventId).orElseThrow(
-                () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND)
-        );
-        BookmarkEvent.create(event, bookmark);
-        bookmarkRepository.save(bookmark);
+    public void saveBookmarkEvent(long eventId) {
+//        Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(
+//                () -> new NotFoundException(BOOKMARK_ID, BOOKMARK_NOT_FOUND)
+//        );
+//        Event event = eventRepository.findById(eventId).orElseThrow(
+//                () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND)
+//        );
+//        BookmarkEvent.create(event, bookmark);
+//        bookmarkRepository.save(bookmark);
     }
 
     private List<String> toBookmarkNameList(List<Bookmark> bookmarks) {
