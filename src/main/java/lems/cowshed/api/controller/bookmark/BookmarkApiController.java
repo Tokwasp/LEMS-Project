@@ -1,14 +1,11 @@
 package lems.cowshed.api.controller.bookmark;
 
-import jakarta.validation.Valid;
-import lems.cowshed.api.controller.SecurityContextUtil;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.bookmark.request.BookmarkEditRequestDto;
-import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventPageResponseDto;
+import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +16,7 @@ public class BookmarkApiController implements BookmarkSpecification{
     private final BookmarkService bookmarkService;
 
     @GetMapping
-    public CommonResponse<EventPageResponseDto> getPageBookmarks( @RequestParam int page, @RequestParam int size) {
+    public CommonResponse<BookmarkResponseDto> getPageBookmarks(Pageable pageable) {
         return null;
     }
 
