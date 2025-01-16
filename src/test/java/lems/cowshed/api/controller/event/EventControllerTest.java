@@ -72,7 +72,7 @@ class EventControllerTest {
 
         Slice<EventPreviewResponseDto> slice = new SliceImpl<>(results, pageable,true);
 
-        when(eventService.findAll(null, pageable)).thenReturn((Slice<EventPreviewResponseDto>) results);
+//        when(eventService.findAll(null, pageable)).thenReturn((Slice<EventPreviewResponseDto>) results);
 
         mockMvc.perform(request(HttpMethod.GET, "/events"))
                 .andExpect(status().isOk())

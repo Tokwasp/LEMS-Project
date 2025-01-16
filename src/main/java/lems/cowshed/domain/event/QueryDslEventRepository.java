@@ -17,12 +17,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static lems.cowshed.domain.event.QEvent.*;
-@RequiredArgsConstructor
+
 @Repository
-@Slf4j
-public class QueryDslEventRepository implements EventRepository{
+public class QueryDslEventRepository {
     private final JPAQueryFactory qf;
     private final EntityManager em;
+
+    public QueryDslEventRepository(EntityManager em) {
+        this.em = em;
+        this.qf = new JPAQueryFactory(em);
+    }
 
     public void save(Event event){
         em.persist(event);
@@ -33,6 +37,7 @@ public class QueryDslEventRepository implements EventRepository{
                 .select(new QEventPreviewResponseDto(
                         event.id,
                         event.name,
+                        event.author,
                         event.content,
                         event.eventDate,
                         event.capacity,

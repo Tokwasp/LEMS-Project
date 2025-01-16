@@ -11,8 +11,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-@Builder
-@AllArgsConstructor
+
 @Getter
 @Schema(description = "모임 수정")
 public class EventUpdateRequestDto {
@@ -41,4 +40,15 @@ public class EventUpdateRequestDto {
     @Schema(description = "내용", example = "출근 전에 한강에서 같이 뛰실 분 구해요!!")
     String content;
 
+    @Builder
+    private EventUpdateRequestDto(String name, Category category, String location, LocalDateTime eventDate, int capacity, String content) {
+        this.name = name;
+        this.category = category;
+        this.location = location;
+        this.eventDate = eventDate;
+        this.capacity = capacity;
+        this.content = content;
+    }
+
+    private EventUpdateRequestDto() {}
 }

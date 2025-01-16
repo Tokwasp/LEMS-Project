@@ -6,17 +6,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
-@Builder
-@AllArgsConstructor
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "모임 등록")
 public class EventSaveRequestDto {
 
@@ -44,13 +40,23 @@ public class EventSaveRequestDto {
     @Schema(description = "내용", example = "출근 전에 한강에서 같이 뛰실 분 구해요!!")
     String content;
 
+    @Builder
+    private EventSaveRequestDto(String name, Category category, String location, LocalDateTime eventDate, int capacity, String content) {
+        this.name = name;
+        this.category = category;
+        this.location = location;
+        this.eventDate = eventDate;
+        this.capacity = capacity;
+        this.content = content;
+    }
+
     public Event toEntity() {
         return Event.builder()
                 .name(this.name)
                 .category(this.category)
                 .location(this.location)
                 .eventDate(this.eventDate)
-                .capacity(this.capacity)
+                .capacity(this.getCapacity())
                 .content(this.content)
                 .build();
     }

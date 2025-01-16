@@ -1,14 +1,8 @@
 package lems.cowshed.api.controller.event;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
-import lems.cowshed.api.controller.dto.event.response.EventListResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventPageResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
@@ -27,10 +21,7 @@ import java.util.List;
 public interface EventSpecification {
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<EventPageResponseDto> findPagingEvents(
-            @Parameter(description = "page number (★ start 0 ★) 요청 : /events?page=0&size=0")
-            @RequestParam int page,
-            @RequestParam int size);
+    CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(Pageable pageable);
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR})
