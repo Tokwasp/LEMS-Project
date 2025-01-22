@@ -1,31 +1,28 @@
 package lems.cowshed.api.controller.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
+import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.domain.event.Category;
 import lems.cowshed.service.EventService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static lems.cowshed.domain.event.Category.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WithMockUser
 @WebMvcTest(EventController.class)
 class EventControllerTest {
 
@@ -35,51 +32,69 @@ class EventControllerTest {
     @MockBean
     private EventService eventService;
 
+    @Autowired
     private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setUp(){
-        objectMapper = new ObjectMapper(); //JSON 변환을 위한 ObjectMapper 초기화
-    }
-
+    @DisplayName("모임을 등록 합니다.")
     @Test
-    @Disabled
-    void findAll() throws Exception{
-        //mocking
-        Pageable pageable = PageRequest.of(0, 20);
+    void saveEvent() throws Exception {
+        //given
+        EventSaveRequestDto request = createEventSaveRequest("산책 모임", sports, 20);
 
-        List<EventPreviewResponseDto> results = new ArrayList<>();
-        EventPreviewResponseDto dto1 = EventPreviewResponseDto.builder()
-                .eventId(1L)
-                .name("kim")
-                .content("content 1")
-                .eventDate(LocalDateTime.now())
-                .capacity(100)
-                .applicants(10)
-                .createdDate(LocalDateTime.now())
-                .build();
-        EventPreviewResponseDto dto2 = EventPreviewResponseDto.builder()
-                .eventId(2L)
-                .name("lee")
-                .content("content 2")
-                .eventDate(LocalDateTime.now())
-                .capacity(200)
-                .applicants(20)
-                .createdDate(LocalDateTime.now())
-                .build();
-        results.add(dto1);
-        results.add(dto2);
-
-        Slice<EventPreviewResponseDto> slice = new SliceImpl<>(results, pageable,true);
-
-//        when(eventService.findAll(null, pageable)).thenReturn((Slice<EventPreviewResponseDto>) results);
-
-        mockMvc.perform(request(HttpMethod.GET, "/events"))
+        //when //then
+        mockMvc.perform(
+                post("/events")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+        )
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect((ResultMatcher) jsonPath("$.content[0].eventId").value(1L))
-                .andExpect((ResultMatcher) jsonPath("$.content[1].name").value("lee"))
-                .andExpect((ResultMatcher) jsonPath("$.hasNext").value(true));
+                .andExpect(jsonPath("$.message").value("성공"));
+    }
 
+    @DisplayName("모임을 등록 할때 최대 참가자는 200명을 초과 할수 없습니다.")
+    @Test
+    void saveEventWhenOverCapacity() throws Exception {
+        //given
+        EventSaveRequestDto request = createEventSaveRequest("산책 모임", sports, 201);
+
+        //when //then
+        mockMvc.perform(
+                        post("/events")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(csrf())
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("capacity"));
+    }
+
+    @DisplayName("모임을 조회 한다.")
+    @Test
+    void getEvent() throws Exception {
+        //given
+        Long eventId = 1L;
+
+        //when //then
+        mockMvc.perform(
+                get("/events/{event-id}", eventId)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("OK"));
 
     }
+
+    private EventSaveRequestDto createEventSaveRequest(String name, Category category, int capacity) {
+        return EventSaveRequestDto.builder()
+                .name(name)
+                .eventDate(LocalDateTime.of(2025,1,1,12,0))
+                .content("산책 하실분 모집 합니다.")
+                .category(category)
+                .capacity(capacity)
+                .location("한라산")
+                .build();
+    }
+
 }

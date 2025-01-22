@@ -1,12 +1,15 @@
 package lems.cowshed.api.controller.dto.event.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -20,7 +23,7 @@ public class EventSaveRequestDto {
     @Schema(description = "모임 이름", example = "새벽 한강 러닝 모임")
     String name;
 
-    @NotBlank
+    @NotNull
     @Schema(description = "카테고리", example = "스포츠")
     Category category;
 
@@ -28,8 +31,8 @@ public class EventSaveRequestDto {
     @Schema(description = "모임 장소", example = "여의도 한강공원")
     String location;
 
-    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "날짜 형식은 yyyy-MM-dd 입니다.")
-    @Schema(description = "모임 날짜", example = "yyyy-mm-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Schema(description = "모임 날짜", example = "yyyy-mm-dd HH:mm")
     LocalDateTime eventDate;
 
     @Max(value = 200)
