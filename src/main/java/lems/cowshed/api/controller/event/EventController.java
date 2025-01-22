@@ -1,24 +1,18 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.event.response.EventListResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventPageResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,30 +22,33 @@ public class EventController implements EventSpecification {
     private final EventService eventService;
 
     @GetMapping
-    public CommonResponse<EventPageResponseDto> findPagingEvents(@RequestParam int page, @RequestParam int size) {
-        PageRequest pageable = PageRequest.of(page, size);
-        return null;
+    public CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable) {
+        return CommonResponse.success(eventService.getPagingEvents(pageable));
     }
 
     @PostMapping
     public CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto) {
-        return null;
+        eventService.saveEvent(requestDto);
+        return CommonResponse.success();
     }
 
     @GetMapping("/{event-id}")
     public CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId) {
-        return null;
+        EventDetailResponseDto response = eventService.getEvent(eventId);
+        return CommonResponse.success(response);
     }
 
     @PatchMapping("/{event-id}")
     public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId, @RequestBody @Validated EventUpdateRequestDto requestDto){
-        return null;
+        eventService.editEvent(eventId, requestDto);
+        return CommonResponse.success();
     }
 
     //삭제
     @DeleteMapping("/{event-id}")
     public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId){
-        return null;
+        eventService.deleteEvent(eventId);
+        return CommonResponse.success();
     }
 
     //TODO

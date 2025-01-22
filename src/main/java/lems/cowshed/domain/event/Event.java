@@ -1,17 +1,15 @@
 package lems.cowshed.domain.event;
 
 import jakarta.persistence.*;
+import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.BaseEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
-@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Entity
 public class Event extends BaseEntity {
 
     @Id
@@ -24,6 +22,7 @@ public class Event extends BaseEntity {
 
     @Column(name = "event_date")
     private LocalDateTime eventDate;
+
     @Column(name = "category")
     private Category category;
 
@@ -52,8 +51,22 @@ public class Event extends BaseEntity {
     @Column(name = "availability")
     private Availability availability;
 
-    public static Event of(String name, LocalDateTime eventDate, Category category, String location, String address, String author, String email, String content, int capacity, int applicants, Availability availability){
-        return new Event(null, name, eventDate, category, location, address, author, email, content, capacity, applicants, availability);
+    @Builder
+    public Event(String name, LocalDateTime eventDate, Category category,
+                 String location, String address, String author,
+                 String email, String content, int capacity,
+                 int applicants, Availability availability) {
+        this.name = name;
+        this.eventDate = eventDate;
+        this.category = category;
+        this.location = location;
+        this.address = address;
+        this.author = author;
+        this.email = email;
+        this.content = content;
+        this.capacity = capacity;
+        this.applicants = applicants;
+        this.availability = availability;
     }
 
     public void update(String name, Category category, String location, LocalDateTime eventDate, int capacity, String content) {
@@ -64,4 +77,14 @@ public class Event extends BaseEntity {
         this.capacity = capacity;
         this.content = content;
     }
+
+    public void edit(EventUpdateRequestDto requestDto) {
+        if(requestDto.getName() != null) this.name = requestDto.getName();
+        this.capacity = requestDto.getCapacity();
+        if(requestDto.getContent() != null) this.content = requestDto.getContent();
+        if(requestDto.getCategory() != null) this.category = requestDto.getCategory();
+        if(requestDto.getEventDate() != null) this.eventDate = requestDto.getEventDate();
+        if(requestDto.getLocation() != null) this.location = requestDto.getLocation();
+    }
 }
+

@@ -32,7 +32,8 @@ public class JwtUtil {
     }
 
     public Role getRole(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", Role.class);
+        String roleString = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+        return Role.valueOf(roleString);
     }
 
     public Boolean isExpired(String token) {

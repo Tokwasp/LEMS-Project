@@ -16,6 +16,5 @@ public enum Message {
 
     EVENT_NOT_FOUND("모임을 찾지 못했습니다.");
 
-
     private final String message;
 }

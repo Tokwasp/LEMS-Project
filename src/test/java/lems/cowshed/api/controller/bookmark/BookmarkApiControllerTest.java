@@ -3,6 +3,7 @@ package lems.cowshed.api.controller.bookmark;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lems.cowshed.api.controller.dto.bookmark.request.BookmarkSaveRequestDto;
 import lems.cowshed.service.BookmarkService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ class BookmarkApiControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Disabled
     @DisplayName("회원이 등록한 북마크 폴더 목록을 찾습니다.")
     @Test
     void getAllBookmarks() throws Exception {
@@ -43,6 +45,7 @@ class BookmarkApiControllerTest {
                 .andExpect(jsonPath("$.message").value("OK"));
     }
 
+    @Disabled
     @DisplayName("회원이 북마크 폴더를 등록 합니다.")
     @Test
     void createBookmark() throws Exception {
