@@ -40,7 +40,7 @@ class UserQueryRepositoryTest {
         User user = createUser("테스터", INTP);
         Event event = createEvent("산책 모임", "산책회");
         eventJpaRepository.save(event);
-        UserEvent userEvent = UserEvent.create(user, event);
+        UserEvent userEvent = UserEvent.of(user, event);
         userRepository.save(user);
 
         //when
@@ -78,7 +78,7 @@ class UserQueryRepositoryTest {
         User user = createUser("테스터", INTP);
         Bookmark bookmark = Bookmark.create("소모임", user);
 
-        UserEvent userEvent = UserEvent.create(user, event);
+        UserEvent userEvent = UserEvent.of(user, event);
         userRepository.save(user);
 
         //when

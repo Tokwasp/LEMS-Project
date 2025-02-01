@@ -1,6 +1,7 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.api.controller.CommonResponse;
+import lems.cowshed.api.controller.SecurityContextUtil;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
@@ -40,7 +41,8 @@ public class EventController implements EventSpecification {
 
     @PostMapping("/{event-id}/join")
     public CommonResponse<Void> saveUserEvent(@PathVariable Long eventId) {
-        return null;
+        eventService.joinEvent(eventId, SecurityContextUtil.getUserId());
+        return CommonResponse.success();
     }
 
     @PatchMapping("/{event-id}")
@@ -48,7 +50,7 @@ public class EventController implements EventSpecification {
         eventService.editEvent(eventId, requestDto);
         return CommonResponse.success();
     }
-    //삭제
+
 
     @DeleteMapping("/{event-id}")
     public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId){
