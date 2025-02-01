@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
+@Schema(description = "모임에 참여한 회원 정보")
 public class UserEventQueryDto {
     @Schema(description = "이름", example = "이길동")
     private String name;

@@ -33,9 +33,8 @@ public class UserQueryRepository {
                         user.birth,
                         user.location
                 ))
-                .from(user)
-                .join(user.userEvents, userEvent)
-                .join(userEvent.event, event)
+                .from(userEvent)
+                .join(userEvent.user, user)
                 .where(user.id.eq(userId))
                 .fetch();
     }
@@ -60,8 +59,7 @@ public class UserQueryRepository {
                         event.name.as("eventName"),
                         event.eventDate
                 ))
-                .from(user)
-                .join(user.userEvents, userEvent)
+                .from(userEvent)
                 .join(userEvent.event, event)
                 .where(user.id.eq(userId))
                 .limit(LIMIT_COUNT)

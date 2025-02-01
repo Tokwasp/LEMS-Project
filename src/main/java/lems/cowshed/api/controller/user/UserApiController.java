@@ -1,5 +1,6 @@
 package lems.cowshed.api.controller.user;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.SecurityContextUtil;
 import lems.cowshed.api.controller.CommonResponse;

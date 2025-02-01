@@ -8,6 +8,7 @@ import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
+import lems.cowshed.domain.userevent.UserEventRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +34,19 @@ class UserQueryRepositoryTest {
     @Autowired
     UserQueryRepository userQueryRepository;
 
+    @Autowired
+    UserEventRepository userEventRepository;
+
     @DisplayName("모임에 참여한 회원을 조회 한다.")
     @Test
     void findUserParticipatingInEvent() {
         //given
         User user = createUser("테스터", INTP);
         Event event = createEvent("산책 모임", "산책회");
-        eventJpaRepository.save(event);
         UserEvent userEvent = UserEvent.of(user, event);
+        eventJpaRepository.save(event);
         userRepository.save(user);
+        userEventRepository.save(userEvent);
 
         //when
         List<UserEventQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
@@ -76,10 +81,11 @@ class UserQueryRepositoryTest {
         eventJpaRepository.save(event);
         
         User user = createUser("테스터", INTP);
-        Bookmark bookmark = Bookmark.create("소모임", user);
-
-        UserEvent userEvent = UserEvent.of(user, event);
         userRepository.save(user);
+
+        Bookmark bookmark = Bookmark.create("소모임", user);
+        UserEvent userEvent = UserEvent.of(user, event);
+        userEventRepository.save(userEvent);
 
         //when
         UserMyPageResponseDto myPage = userQueryRepository.findUserForMyPage(user.getId());
