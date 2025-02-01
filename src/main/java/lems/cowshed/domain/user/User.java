@@ -50,9 +50,6 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserEvent> userEvents = new ArrayList<>();
-
     @Builder
     private User(Long id, String username, String password,
                  Role role, String email, Mbti mbti,

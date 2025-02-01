@@ -6,6 +6,10 @@ import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.user.User;
+import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.userevent.UserEvent;
+import lems.cowshed.domain.userevent.UserEventRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +34,12 @@ class EventServiceTest {
 
     @Autowired
     EventRepository eventRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    UserEventRepository userEventRepository;
 
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
@@ -98,6 +108,25 @@ class EventServiceTest {
                 .containsExactly("테스터", "산책 모임", 20);
     }
 
+    @DisplayName("유저가 모임에 참여 한다.")
+    @Test
+    void joinEvent() {
+        //given
+        Event event = createEvent("테스터", "자전거 모임", 10);
+        eventRepository.save(event);
+
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        //when
+        long userEventId = eventService.joinEvent(event.getId(), user.getId());
+
+        //then
+        UserEvent userEvent = userEventRepository.findById(userEventId).orElseThrow();
+        assertThat(userEvent.getUser()).extracting("username").isEqualTo("테스터");
+        assertThat(userEvent.getEvent()).extracting("name").isEqualTo("자전거 모임");
+    }
+
     @DisplayName("모임을 삭제 한다.")
     @Test
     void deleteEvent() {
@@ -141,6 +170,13 @@ class EventServiceTest {
         return  EventUpdateRequestDto.builder()
                 .name(name)
                 .capacity(capacity)
+                .build();
+    }
+
+    private User createUser(String username, String email) {
+        return User.builder()
+                .username(username)
+                .email(email)
                 .build();
     }
 }

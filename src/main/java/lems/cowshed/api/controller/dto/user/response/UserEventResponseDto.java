@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@Schema(description = "유저에 속한 이벤트")
+@Schema(description = "모임에 참여한 회원")
 @AllArgsConstructor
 public class UserEventResponseDto {
 
