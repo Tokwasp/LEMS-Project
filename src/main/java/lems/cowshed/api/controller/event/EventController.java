@@ -38,13 +38,18 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(response);
     }
 
+    @PostMapping("/{event-id}/join")
+    public CommonResponse<Void> saveUserEvent(@PathVariable Long eventId) {
+        return null;
+    }
+
     @PatchMapping("/{event-id}")
     public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId, @RequestBody @Validated EventUpdateRequestDto requestDto){
         eventService.editEvent(eventId, requestDto);
         return CommonResponse.success();
     }
-
     //삭제
+
     @DeleteMapping("/{event-id}")
     public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId){
         eventService.deleteEvent(eventId);

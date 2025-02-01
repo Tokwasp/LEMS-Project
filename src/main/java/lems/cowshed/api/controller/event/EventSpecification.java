@@ -1,6 +1,7 @@
 package lems.cowshed.api.controller.event;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
@@ -19,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 public interface EventSpecification {
+
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
     CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(Pageable pageable);
-
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto);
@@ -30,6 +31,10 @@ public interface EventSpecification {
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 반환 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
     CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId);
+
+    @Operation(summary = "모임 참여", description = "회원이 모임에 참여 합니다.")
+    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR})
+    CommonResponse<Void> saveUserEvent(@Parameter(name="event-id", description = "모임 id", example = "1") @PathVariable Long eventId);
 
     @Operation(summary = "모임 수정", description = "모임의 세부 사항을 수정 합니다.")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR})
