@@ -1,16 +1,17 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.SecurityContextUtil;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +41,9 @@ public class EventController implements EventSpecification {
     }
 
     @PostMapping("/{event-id}/join")
-    public CommonResponse<Void> saveUserEvent(@PathVariable Long eventId) {
-        eventService.joinEvent(eventId, SecurityContextUtil.getUserId());
+    public CommonResponse<Void> saveUserEvent(@PathVariable Long eventId,
+                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        eventService.joinEvent(eventId, customUserDetails.getUserId());
         return CommonResponse.success();
     }
 

@@ -15,6 +15,8 @@ import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.service.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -32,12 +34,14 @@ public interface UserSpecification {
 
     @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [마이 페이지 -> 프로필 편집]")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto);
+    CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto,
+                                  @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 다수 회원을 조회 합니다. [이벤트 상세 > 참여자 목록]")
-    CommonResponse<UserEventResponseDto> findUserParticipatingInEvent(@PathVariable("event-id")  long eventId);
+    CommonResponse<UserEventResponseDto> findUserParticipatingInEvent(@PathVariable("event-id")  long eventId,
+                                                                      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "내 정보 조회", description = "내 정보, 북마크 목록, 참가한 이벤트 조회")
-    CommonResponse<UserMyPageResponseDto> findMyPage();
+    CommonResponse<UserMyPageResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 
 }
