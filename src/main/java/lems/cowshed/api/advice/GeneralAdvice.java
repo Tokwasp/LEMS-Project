@@ -43,7 +43,7 @@ public class GeneralAdvice {
     //TODO 데이터 == null 이면
     @ExceptionHandler(value = {Exception.class})
     public ErrorResponse<String> handleExceptionFromAPIMethod(Exception ex){
-        return ErrorResponse.of(ErrorCode.INTERNAL_ERROR, "");
+        return ErrorResponse.of(ErrorCode.INTERNAL_ERROR, ex.getMessage());
     }
 
     @Getter

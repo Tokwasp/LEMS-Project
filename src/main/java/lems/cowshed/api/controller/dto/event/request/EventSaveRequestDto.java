@@ -53,13 +53,14 @@ public class EventSaveRequestDto {
         this.content = content;
     }
 
-    public Event toEntity() {
+    public Event toEntity(String username) {
         return Event.builder()
                 .name(this.name)
                 .category(this.category)
                 .location(this.location)
                 .eventDate(this.eventDate)
                 .capacity(this.getCapacity())
+                .author(username)
                 .content(this.content)
                 .build();
     }

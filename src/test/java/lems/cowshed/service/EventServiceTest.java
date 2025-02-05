@@ -68,7 +68,7 @@ class EventServiceTest {
         EventSaveRequestDto request = createRequestDto("자전거 모임", "서울", 10);
 
         //when
-        eventService.saveEvent(request);
+        eventService.saveEvent(request, "테스터");
 
         //then
         Event findEvent = eventRepository.findByName("자전거 모임");
