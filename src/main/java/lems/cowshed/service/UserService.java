@@ -1,7 +1,5 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.SecurityContextUtil;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
@@ -39,8 +37,8 @@ public class UserService {
         return userQueryRepository.findUserForMyPage(userId);
     }
 
-    public UserEventResponseDto findUserParticipatingInEvent(LocalDate currentYear){
-        List<UserEventQueryDto> userEventDtoList = userQueryRepository.findUserParticipatingInEvent(SecurityContextUtil.getUserId());
+    public UserEventResponseDto findUserParticipatingInEvent(LocalDate currentYear, Long userId){
+        List<UserEventQueryDto> userEventDtoList = userQueryRepository.findUserParticipatingInEvent(userId);
         userEventDtoList.forEach(dto -> dto.setAge((int) ChronoUnit.YEARS.between(dto.getBirth(), currentYear) + 1));
 
         return new UserEventResponseDto(userEventDtoList);
