@@ -35,8 +35,8 @@ public class EventService {
         return slice.map(EventPreviewResponseDto::new);
     }
 
-    public void saveEvent(EventSaveRequestDto requestDto) {
-        Event event = requestDto.toEntity();
+    public void saveEvent(EventSaveRequestDto requestDto, String username) {
+        Event event = requestDto.toEntity(username);
         eventRepository.save(event);
     }
 

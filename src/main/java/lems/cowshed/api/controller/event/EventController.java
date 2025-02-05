@@ -29,8 +29,9 @@ public class EventController implements EventSpecification {
     }
 
     @PostMapping
-    public CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto) {
-        eventService.saveEvent(requestDto);
+    public CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        eventService.saveEvent(requestDto, customUserDetails.getUsername());
         return CommonResponse.success();
     }
 
@@ -41,7 +42,7 @@ public class EventController implements EventSpecification {
     }
 
     @PostMapping("/{event-id}/join")
-    public CommonResponse<Void> saveUserEvent(@PathVariable Long eventId,
+    public CommonResponse<Void> saveUserEvent(@PathVariable("event-id") Long eventId,
                                               @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         eventService.joinEvent(eventId, customUserDetails.getUserId());
         return CommonResponse.success();

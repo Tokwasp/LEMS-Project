@@ -23,7 +23,7 @@ public class UserEventQueryDto {
     private Mbti mbti;
 
     @Schema(description = "나이", example = "26")
-    private int age;
+    private Integer age;
 
     @JsonIgnore
     @Schema(description = "생일", example = "2020-01-01")

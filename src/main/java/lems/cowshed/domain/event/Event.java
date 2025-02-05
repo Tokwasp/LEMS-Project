@@ -23,6 +23,7 @@ public class Event extends BaseEntity {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "category")
     private Category category;
 

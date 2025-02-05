@@ -22,7 +22,6 @@ public class EventUpdateRequestDto {
     @Schema(description = "모임 이름", example = "새벽 한강 러닝 모임")
     String name;
 
-    @NotBlank
     @Schema(description = "카테고리", example = "스포츠")
     Category category;
 

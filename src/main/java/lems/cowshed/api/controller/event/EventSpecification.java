@@ -26,9 +26,11 @@ public interface EventSpecification {
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
     CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(Pageable pageable);
+
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto);
+    CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto,
+                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 반환 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
