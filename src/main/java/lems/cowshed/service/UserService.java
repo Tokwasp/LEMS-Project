@@ -39,7 +39,7 @@ public class UserService {
 
     public UserEventResponseDto findUserParticipatingInEvent(LocalDate currentYear, Long userId){
         List<UserEventQueryDto> userEventDtoList = userQueryRepository.findUserParticipatingInEvent(userId);
-        userEventDtoList.forEach(dto -> dto.setAge((int) ChronoUnit.YEARS.between(dto.getBirth(), currentYear) + 1));
+        calculateAndSetDtoAge(currentYear, userEventDtoList);
 
         return new UserEventResponseDto(userEventDtoList);
     }
@@ -71,6 +71,17 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
         user.modifyContents(editDto);
+    }
+
+    private void calculateAndSetDtoAge(LocalDate currentYear, List<UserEventQueryDto> userEventDtoList) {
+        userEventDtoList.forEach((UserEventQueryDto dto) -> {
+            if (dto.getBirth() == null){
+                dto.setAge(null);
+            }
+            else {
+                dto.setAge((int) ChronoUnit.YEARS.between(dto.getBirth(), currentYear) + 1);
+            }
+        });
     }
 
     private boolean isPasswordValidationFail(UserLoginRequestDto loginDto, User user) {
