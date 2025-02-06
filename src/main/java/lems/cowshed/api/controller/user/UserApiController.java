@@ -7,6 +7,7 @@ import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationDto;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -55,4 +56,15 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success();
     }
 
+    @GetMapping("/check-username")
+    public CommonResponse<UserSignUpValidationDto> signUpValidationForUsername(@RequestParam String username){
+        UserSignUpValidationDto response = UserSignUpValidationDto.from(userService.signUpValidationForUsername(username));
+        return CommonResponse.success(response);
+    }
+
+    @GetMapping("/check-email")
+    public CommonResponse<UserSignUpValidationDto> signUpValidationForEmail(@RequestParam String email){
+        UserSignUpValidationDto response = UserSignUpValidationDto.from(userService.signUpValidationForEmail(email));
+        return CommonResponse.success(response);
+    }
 }

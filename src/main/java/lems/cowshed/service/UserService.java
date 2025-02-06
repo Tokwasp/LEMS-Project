@@ -73,6 +73,14 @@ public class UserService {
         user.modifyContents(editDto);
     }
 
+    public boolean signUpValidationForUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean signUpValidationForEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
     private void calculateAndSetDtoAge(LocalDate currentYear, List<UserEventQueryDto> userEventDtoList) {
         userEventDtoList.forEach((UserEventQueryDto dto) -> {
             if (dto.getBirth() == null){
