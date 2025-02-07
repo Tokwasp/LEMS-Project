@@ -2,17 +2,12 @@ package lems.cowshed.domain.bookmark;
 
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
-import lems.cowshed.domain.bookmarkevent.BookmarkEvent;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -24,33 +19,24 @@ public class Bookmark extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "bookmark" , cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookmarkEvent> bookmarkEvent = new ArrayList<>();
-
     @Builder
-    private Bookmark(String name, User user) {
+    private Bookmark(Event event, User user) {
+        this.event = event;
         this.user = user;
-        this.name = name;
     }
 
-    public static Bookmark create(String name, User user){
-        Bookmark bookmark = Bookmark.builder()
-                .name(name)
+    public static Bookmark create(Event event, User user){
+        return Bookmark.builder()
+                .event(event)
                 .user(user)
                 .build();
-        user.getBookmarks().add(bookmark);
-        return bookmark;
-    }
-
-    public void editName(String newBookmarkFolderName) {
-        if(newBookmarkFolderName != null){
-            name = newBookmarkFolderName;
-        }
     }
 }
