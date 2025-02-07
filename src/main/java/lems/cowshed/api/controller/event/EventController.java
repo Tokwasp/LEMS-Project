@@ -1,10 +1,14 @@
 package lems.cowshed.api.controller.event;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lems.cowshed.api.controller.CommonResponse;
+import lems.cowshed.api.controller.ErrorCode;
+import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -28,17 +32,23 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(eventService.getPagingEvents(pageable));
     }
 
+    @GetMapping("/{event-id}")
+    public CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId) {
+        EventDetailResponseDto response = eventService.getEvent(eventId);
+        return CommonResponse.success(response);
+    }
+
+    @GetMapping("/bookmark")
+    public CommonResponse<BookmarkResponseDto> getAllBookmarkEvents(@AuthenticationPrincipal CustomUserDetails userDetails){
+        BookmarkResponseDto response = eventService.getAllBookmarkEvents(userDetails.getUserId());
+        return CommonResponse.success(response);
+    }
+
     @PostMapping
     public CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto,
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         eventService.saveEvent(requestDto, customUserDetails.getUsername());
         return CommonResponse.success();
-    }
-
-    @GetMapping("/{event-id}")
-    public CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId) {
-        EventDetailResponseDto response = eventService.getEvent(eventId);
-        return CommonResponse.success(response);
     }
 
     @PostMapping("/{event-id}/join")
@@ -61,17 +71,4 @@ public class EventController implements EventSpecification {
         return CommonResponse.success();
     }
 
-    //TODO
-    /*카테고리별 조회
-    @GetMapping("/category/{category}")
-    public CommonResponse<EventListResponseDto> findByCategory(@PathVariable String category) {
-        return null;
-    }*/
-
-    //TODO
-    /*키워드로 조회
-    @GetMapping("/keyword/{keyword}")
-    public CommonResponse<EventListResponseDto> findByKeyword(@PathVariable String keyword) {
-        return null;
-    }*/
 }

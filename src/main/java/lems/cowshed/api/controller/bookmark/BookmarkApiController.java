@@ -15,12 +15,6 @@ public class BookmarkApiController implements BookmarkSpecification{
 
     private final BookmarkService bookmarkService;
 
-    @GetMapping
-    public CommonResponse<BookmarkResponseDto> getAllBookmarks(@AuthenticationPrincipal CustomUserDetails userDetails){
-        BookmarkResponseDto response = bookmarkService.getAllBookmarks(userDetails.getUserId());
-        return CommonResponse.success(response);
-    }
-
     @PostMapping("/{event-id}")
     public CommonResponse<Void> saveBookmark(@PathVariable("event-id") Long eventId,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {

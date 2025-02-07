@@ -54,36 +54,6 @@ class BookmarkServiceTest {
                 .containsExactly("테스트 모임", "테스트");
     }
 
-    @DisplayName("회원의 북마크를 모두 찾습니다.")
-    @Test
-    void getAllBookmarks() {
-        //given
-        User user = createUser();
-        userRepository.save(user);
-
-        Event event1 = createEvent("테스트 모임1", "테스트1");
-        Event event2 = createEvent("테스트 모임2", "테스트2");
-        Event event3 = createEvent("테스트 모임3", "테스트3");
-        eventRepository.save(event1);
-        eventRepository.save(event2);
-        eventRepository.save(event3);
-
-        Bookmark bookmark1 = createBookmark(event1, user);
-        Bookmark bookmark2 = Bookmark.create(event2, user);
-        Bookmark bookmark3 = Bookmark.create(event3, user);
-        bookmarkRepository.save(bookmark1);
-        bookmarkRepository.save(bookmark2);
-        bookmarkRepository.save(bookmark3);
-
-        //when
-        List<EventPreviewResponseDto> result = bookmarkService.getAllBookmarks(user.getId()).getBookmarks();
-
-        //then
-        assertThat(result).hasSize(3)
-                .extracting("content")
-                .containsExactlyInAnyOrder("테스트1", "테스트2", "테스트3");
-    }
-
     @DisplayName("북마크를 제거 합니다.")
     @Test
     void deleteBookmark() {

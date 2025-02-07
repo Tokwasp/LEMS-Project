@@ -10,10 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 
 public interface BookmarkSpecification {
-    @Operation(summary = "북마크 모임 전체 조회", description = "북마크 모임 전체 조회")
-    @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<BookmarkResponseDto> getAllBookmarks(@AuthenticationPrincipal CustomUserDetails userDetails);
-
     @Operation(summary = "북마크 추가", description = "회원이 모임을 북마크 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
     CommonResponse<Void> saveBookmark(@PathVariable("event-id") Long eventId,
