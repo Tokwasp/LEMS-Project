@@ -2,8 +2,10 @@ package lems.cowshed.api.controller.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
-import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.event.Category;
+import lems.cowshed.domain.user.Role;
+import lems.cowshed.domain.user.User;
+import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.EventService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,9 +17,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static lems.cowshed.domain.event.Category.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,6 +51,7 @@ class EventControllerTest {
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf())
+                        .with(user(new CustomUserDetails(createForUserDetails())))
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -95,6 +100,11 @@ class EventControllerTest {
                 .capacity(capacity)
                 .location("한라산")
                 .build();
+    }
+
+    private User createForUserDetails(){
+        return User.createUserForDetails(1L, "test",
+                "password", Role.ROLE_USER,"testEmail");
     }
 
 }
