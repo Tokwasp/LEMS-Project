@@ -2,6 +2,7 @@ package lems.cowshed.api.controller.dto.user.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lombok.*;
@@ -23,11 +24,15 @@ public class UserSaveRequestDto {
     @NotBlank(message = "패스워드는 필수 입니다.")
     private String password;
 
+    @Schema(description = "성별", example = "남")
+    private Gender gender;
+
     @Builder
-    private UserSaveRequestDto(String email, String username, String password) {
+    private UserSaveRequestDto(String email, String username, String password, Gender gender) {
         this.email = email;
         this.username = username;
         this.password = password;
+        this.gender = gender;
     }
 
     public User toEntityForRegister(BCryptPasswordEncoder bCryptPasswordEncoder, Role role){
@@ -35,6 +40,7 @@ public class UserSaveRequestDto {
                 .username(username)
                 .password(bCryptPasswordEncoder.encode(password))
                 .email(email)
+                .gender(gender)
                 .role(role)
                 .build();
     }
