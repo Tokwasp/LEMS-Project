@@ -24,7 +24,7 @@ public class UserSaveRequestDto {
     @NotBlank(message = "패스워드는 필수 입니다.")
     private String password;
 
-    @Schema(description = "성별", example = "남")
+    @Schema(description = "성별", example = "남성")
     private Gender gender;
 
     @Builder
