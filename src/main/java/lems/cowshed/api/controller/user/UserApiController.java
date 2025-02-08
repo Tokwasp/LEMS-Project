@@ -56,14 +56,14 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success();
     }
 
-    @GetMapping("/check-username")
-    public CommonResponse<UserSignUpValidationDto> signUpValidationForUsername(@RequestParam String username){
+    @GetMapping("/username/{username}")
+    public CommonResponse<UserSignUpValidationDto> signUpValidationForUsername(@PathVariable String username){
         UserSignUpValidationDto response = UserSignUpValidationDto.from(userService.signUpValidationForUsername(username));
         return CommonResponse.success(response);
     }
 
-    @GetMapping("/check-email")
-    public CommonResponse<UserSignUpValidationDto> signUpValidationForEmail(@RequestParam String email){
+    @GetMapping("/email/{email}")
+    public CommonResponse<UserSignUpValidationDto> signUpValidationForEmail(@PathVariable String email){
         UserSignUpValidationDto response = UserSignUpValidationDto.from(userService.signUpValidationForEmail(email));
         return CommonResponse.success(response);
     }
