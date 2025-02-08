@@ -47,9 +47,9 @@ public interface UserSpecification {
     CommonResponse<UserMyPageResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "회원 가입 검증", description = "중복된 닉네임을 가진 회원을 찾습니다.")
-    CommonResponse<UserSignUpValidationDto> signUpValidationForUsername(@RequestParam String username);
+    CommonResponse<UserSignUpValidationDto> signUpValidationForUsername(@PathVariable String username);
 
     @Operation(summary = "회원 가입 검증", description = "중복된 이메일을 가진 회원을 찾습니다.")
-    CommonResponse<UserSignUpValidationDto> signUpValidationForEmail(@RequestParam String email);
+    CommonResponse<UserSignUpValidationDto> signUpValidationForEmail(@PathVariable String email);
 
 }

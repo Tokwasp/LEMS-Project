@@ -67,4 +67,5 @@ public class UserApiController implements UserSpecification{
         UserSignUpValidationDto response = UserSignUpValidationDto.from(userService.signUpValidationForEmail(email));
         return CommonResponse.success(response);
     }
+
 }
