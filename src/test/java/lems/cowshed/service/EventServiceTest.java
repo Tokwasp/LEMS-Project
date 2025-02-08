@@ -4,6 +4,8 @@ import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
+import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +43,9 @@ class EventServiceTest {
 
     @Autowired
     UserEventRepository userEventRepository;
+
+    @Autowired
+    BookmarkRepository bookmarkRepository;
 
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
@@ -142,6 +148,37 @@ class EventServiceTest {
                 () -> eventRepository.findById(event.getId()).orElseThrow());
     }
 
+    @DisplayName("회원의 북마크한 모임을 모두 찾습니다.")
+    @Test
+    void getAllBookmarks() {
+        //given
+        String author = "테스터";
+        User user = createUser(author, "test@naver.com");
+        userRepository.save(user);
+
+        Event event1 = createEvent(author, "테스트1");
+        Event event2 = createEvent(author, "테스트2");
+        Event event3 = createEvent(author, "테스트3");
+        eventRepository.save(event1);
+        eventRepository.save(event2);
+        eventRepository.save(event3);
+
+        Bookmark bookmark1 = createBookmark(event1, user);
+        Bookmark bookmark2 = Bookmark.create(event2, user);
+        Bookmark bookmark3 = Bookmark.create(event3, user);
+        bookmarkRepository.save(bookmark1);
+        bookmarkRepository.save(bookmark2);
+        bookmarkRepository.save(bookmark3);
+
+        //when
+        List<EventPreviewResponseDto> result = eventService.getAllBookmarkEvents(user.getId()).getBookmarks();
+
+        //then
+        assertThat(result).hasSize(3)
+                .extracting("name")
+                .containsExactlyInAnyOrder("테스트1", "테스트2", "테스트3");
+    }
+
     private static Event createEvent(String author, String name) {
         return Event.builder()
                 .name(name)
@@ -177,6 +214,13 @@ class EventServiceTest {
         return User.builder()
                 .username(username)
                 .email(email)
+                .build();
+    }
+
+    private Bookmark createBookmark(Event event, User user) {
+        return Bookmark.builder()
+                .event(event)
+                .user(user)
                 .build();
     }
 }

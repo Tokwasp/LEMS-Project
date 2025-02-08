@@ -1,15 +1,13 @@
 package lems.cowshed.api.controller.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.user.query.UserBookmarkMyPageQueryDto;
-import lems.cowshed.domain.user.Mbti;
+import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.user.query.UserEventMyPageQueryDto;
 import lems.cowshed.domain.user.query.UserMyPageQueryDto;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -23,10 +21,10 @@ public class UserMyPageResponseDto {
     @Schema(description = "참여 모임")
     private List<UserEventMyPageQueryDto> userEventList;
 
-    @Schema(description = "북마크 폴더")
-    private List<UserBookmarkMyPageQueryDto> bookmarkList;
+    @Schema(description = "북마크 모임")
+    private List<EventPreviewResponseDto> bookmarkList;
 
-    public UserMyPageResponseDto(UserMyPageQueryDto userDto, List<UserEventMyPageQueryDto> userEventList, List<UserBookmarkMyPageQueryDto> bookmarkList) {
+    public UserMyPageResponseDto(UserMyPageQueryDto userDto, List<UserEventMyPageQueryDto> userEventList, List<EventPreviewResponseDto> bookmarkList) {
         this.userDto = userDto;
         this.userEventList = userEventList;
         this.bookmarkList = bookmarkList;

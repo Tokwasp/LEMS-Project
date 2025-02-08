@@ -1,5 +1,7 @@
 package lems.cowshed.domain.bookmark;
 
+import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -19,28 +21,36 @@ class BookmarkRepositoryTest {
     UserRepository userRepository;
 
     @Autowired
+    EventRepository eventRepository;
+
+    @Autowired
     BookmarkRepository bookmarkRepository;
 
-    @DisplayName("회원과 관련된 북마크 폴더 목록을 찾습니다.")
+    @DisplayName("회원이 등록한 북마크를 찾습니다.")
     @Test
     void findByUserId() {
         //given
         User user = createUser();
-        Bookmark bookmark = Bookmark.create("폴더", user);
         userRepository.save(user);
 
+        Event event = createEvent("테스트 모임", 100);
+        eventRepository.save(event);
+
+        Bookmark bookmark = createBookmark(event, user);
+        bookmarkRepository.save(bookmark);
+
         //when
-        List<Bookmark> bookmarks = bookmarkRepository.findByUserId(user.getId());
+        Bookmark result = bookmarkRepository.findByUserId(user.getId()).get(0);
 
         //then
-        Assertions.assertThat(bookmarks).hasSize(1)
-                .extracting("name")
-                .containsExactly("폴더");
+        Assertions.assertThat(result.getEvent())
+                .extracting("name", "applicants")
+                .containsExactly("테스트 모임", 100);
     }
 
-    @DisplayName("회원과 관련된 북마크 폴더가 없다면 빈 목록이 반환 됩니다.")
+    @DisplayName("회원이 등록한 북마크가 없다면 빈 목록이 반환 됩니다.")
     @Test
-    void findByUserIdWhenNotExistFolder() {
+    void findByUserIdWhenNotExist() {
         //given
         User user = createUser();
         userRepository.save(user);
@@ -52,9 +62,9 @@ class BookmarkRepositoryTest {
         Assertions.assertThat(bookmarks).isEmpty();
     }
 
-    private Bookmark createBookmark(String folderName, User user) {
+    private Bookmark createBookmark(Event event, User user) {
         return Bookmark.builder()
-                .name(folderName)
+                .event(event)
                 .user(user)
                 .build();
     }
@@ -64,6 +74,13 @@ class BookmarkRepositoryTest {
                 .email("test@naver.com")
                 .password("tempPassword")
                 .username("테스트")
+                .build();
+    }
+
+    private Event createEvent(String name, int applicants) {
+        return Event.builder()
+                .name(name)
+                .applicants(applicants)
                 .build();
     }
 }

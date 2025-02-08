@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
+import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
@@ -49,12 +50,8 @@ public interface EventSpecification {
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId);
 
-    //    @Operation(summary = "카테고리별 조회", description = "category에 해당하는 모임을 반환합니다.")
-//    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR})
-//    CommonResponse<EventListResponseDto> findByCategory(@Parameter(name="category", description = "카테고리", example = "스포츠") @PathVariable String category);
-
-//    @Operation(summary = "검색어로 조회", description = "keyword가 포함된 모임을 반환합니다.")
-//    @ApiErrorCodeExamples({ErrorCode.SUCCESS, ErrorCode.NOT_FOUND_ERROR})
-//    CommonResponse<EventListResponseDto> findByKeyword(@Parameter(name="keyword", description = "키워드", example = "축구") @PathVariable String keyword);
+    @Operation(summary = "북마크 모임 전체 조회", description = "북마크 모임 전체 조회")
+    @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
+    CommonResponse<BookmarkResponseDto> getAllBookmarkEvents(@AuthenticationPrincipal CustomUserDetails userDetails);
 
 }

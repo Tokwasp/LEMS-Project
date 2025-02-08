@@ -2,6 +2,8 @@ package lems.cowshed.domain.user.query;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
+import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import org.springframework.stereotype.Repository;
 
@@ -65,14 +67,20 @@ public class UserQueryRepository {
                 .limit(LIMIT_COUNT)
                 .fetch();
 
-        List<UserBookmarkMyPageQueryDto> bookmarks = queryFactory
-                .select(new QUserBookmarkMyPageQueryDto(
-                        bookmark.id,
-                        bookmark.name.as("bookmarkName"),
-                        bookmark.modifiedDateTime
-                ))
-                .from(user)
-                .join(user.bookmarks, bookmark)
+        List<EventPreviewResponseDto> bookmarks = queryFactory
+                .select(new QEventPreviewResponseDto(
+                                event.id.as("eventId"),
+                                event.name,
+                                event.author,
+                                event.content,
+                                event.eventDate,
+                                event.capacity,
+                                event.applicants,
+                                event.createdDateTime
+                        )
+                )
+                .from(bookmark)
+                .join(bookmark.event, event)
                 .where(user.id.eq(userId))
                 .limit(LIMIT_COUNT)
                 .fetch();

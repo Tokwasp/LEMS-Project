@@ -5,7 +5,6 @@ import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.service.BookmarkService;
 import lems.cowshed.service.UserService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -165,17 +163,4 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.errors[0].message").value("패스워드는 필수 입니다."));
     }
 
-    @Disabled
-    @DisplayName("회원이 북마크 폴더에 모임을 추가 합니다.")
-    @Test
-    void saveBookmarkEvent() throws Exception {
-        //when //then
-        mockMvc.perform(
-                        post("/users/{eventId}/{bookmarkId}", 1, 1)
-                                .with(csrf())
-                )
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("성공"));
-    }
 }

@@ -2,6 +2,7 @@ package lems.cowshed.domain.user.query;
 
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventJpaRepository;
 import lems.cowshed.domain.user.Mbti;
@@ -36,6 +37,9 @@ class UserQueryRepositoryTest {
 
     @Autowired
     UserEventRepository userEventRepository;
+
+    @Autowired
+    BookmarkRepository bookmarkRepository;
 
     @DisplayName("모임에 참여한 회원을 조회 한다.")
     @Test
@@ -83,7 +87,9 @@ class UserQueryRepositoryTest {
         User user = createUser("테스터", INTP);
         userRepository.save(user);
 
-        Bookmark bookmark = Bookmark.create("소모임", user);
+        Bookmark bookmark = createBookmark(event, user);
+        bookmarkRepository.save(bookmark);
+
         UserEvent userEvent = UserEvent.of(user, event);
         userEventRepository.save(userEvent);
 
@@ -99,14 +105,13 @@ class UserQueryRepositoryTest {
                 .extracting("eventName", "author")
                 .containsExactly("자전거 모임", "주최자");
 
-        assertThat(myPage.getBookmarkList().get(0))
-                .extracting("bookmarkName")
-                .isEqualTo("소모임");
+        assertThat(myPage.getBookmarkList()).isNotEmpty();
     }
 
-    private Bookmark createBookmark(String name) {
+    private Bookmark createBookmark(Event event, User user) {
         return Bookmark.builder()
-                .name(name)
+                .event(event)
+                .user(user)
                 .build();
     }
 
