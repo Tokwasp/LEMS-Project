@@ -34,20 +34,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String email = null;
         String password = null;
 
-        if(request.getContentType().equals("application/json")) {
-            try {
-                BufferedReader reader = request.getReader();
-                Map<String, String> jsonMap = objectMapper.readValue(reader, Map.class);
+        try {
+            BufferedReader reader = request.getReader();
+            Map<String, String> jsonMap = objectMapper.readValue(reader, Map.class);
 
-                email = jsonMap.get("email");
-                password = jsonMap.get("password");
+            email = jsonMap.get("email");
+            password = jsonMap.get("password");
 
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to read Json");
-            }
-        }
-        else{
-            throw new RuntimeException("ContentType only application/json");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read Json");
         }
 
         // username, password, roll 값을 통해 token 만들고 authenticationManager 인증 요청
@@ -72,7 +67,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(userId, username, email,  role, 60 * 60 * 1000L);
+        String token = jwtUtil.createJwt(userId, username, email, role, 60 * 60 * 1000L);
 
         response.addHeader("Authorization", "Bearer " + token);
 
