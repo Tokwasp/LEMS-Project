@@ -26,15 +26,15 @@ public class UserEditRequestDto {
     private LocalDate birth;
 
     @Schema(description = "성격 유형", example = "ISTP")
-    private Mbti character;
+    private Mbti mbti;
 
     @Builder
-    private UserEditRequestDto(String username, String introduction, String localName, LocalDate birth, Mbti character) {
+    private UserEditRequestDto(String username, String introduction, String localName, LocalDate birth, Mbti mbti) {
         this.username = username;
         this.introduction = introduction;
         this.localName = localName;
         this.birth = birth;
-        this.character = character;
+        this.mbti = mbti;
     }
 
 }
