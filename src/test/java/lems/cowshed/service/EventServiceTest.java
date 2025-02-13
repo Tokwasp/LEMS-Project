@@ -101,12 +101,14 @@ class EventServiceTest {
     @Test
     void editEvent() {
         //given
-        Event event = createEvent("테스터", "자전거 모임", 10);
+        String tester = "테스터";
+        Event event = createEvent(tester, "자전거 모임", 10);
         eventRepository.save(event);
+
         EventUpdateRequestDto updateRequest = createUpdateReqeustDto("산책 모임", 20);
 
         //when
-        eventService.editEvent(event.getId(), updateRequest);
+        eventService.editEvent(event.getId(), updateRequest, tester);
 
         //then
         Event findEvent = eventRepository.findById(event.getId()).orElseThrow();

@@ -91,7 +91,7 @@ class BaseEntityTest {
                 .introduction(introduction)
                 .localName("대구광역시 수성구")
                 .birth(LocalDate.of(2024, 11, 20))
-                .character(mbti)
+                .mbti(mbti)
                 .build();
     }
 }

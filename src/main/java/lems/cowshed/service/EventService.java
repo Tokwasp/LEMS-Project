@@ -1,6 +1,5 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
@@ -14,6 +13,7 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -64,9 +64,13 @@ public class EventService {
         return userEvent.getId();
     }
 
-    public void editEvent(Long eventId, EventUpdateRequestDto requestDto) {
+    public void editEvent(Long eventId, EventUpdateRequestDto requestDto, String userName) {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+
+        if(notRegisteredEventByUser(userName, event)){
+            throw new BusinessException(BusinessReason, EVENT_NOT_REGISTERED_BY_USER);
+        }
         event.edit(requestDto);
     }
 
@@ -82,5 +86,9 @@ public class EventService {
 
         List<Bookmark> bookmarks = bookmarkRepository.findByUserId(userId);
         return BookmarkResponseDto.from(bookmarks);
+    }
+
+    private boolean notRegisteredEventByUser(String userName, Event event) {
+        return !event.getAuthor().equals(userName);
     }
 }
