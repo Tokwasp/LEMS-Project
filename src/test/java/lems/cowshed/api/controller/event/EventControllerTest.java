@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,7 +44,7 @@ class EventControllerTest {
     @Test
     void saveEvent() throws Exception {
         //given
-        EventSaveRequestDto request = createEventSaveRequest("산책 모임", sports, 20);
+        EventSaveRequestDto request = createEventSaveRequest("산책 모임", SPORTS, 20);
 
         //when //then
         mockMvc.perform(
@@ -62,7 +63,7 @@ class EventControllerTest {
     @Test
     void saveEventWhenOverCapacity() throws Exception {
         //given
-        EventSaveRequestDto request = createEventSaveRequest("산책 모임", sports, 201);
+        EventSaveRequestDto request = createEventSaveRequest("산책 모임", SPORTS, 201);
 
         //when //then
         mockMvc.perform(
@@ -94,7 +95,7 @@ class EventControllerTest {
     private EventSaveRequestDto createEventSaveRequest(String name, Category category, int capacity) {
         return EventSaveRequestDto.builder()
                 .name(name)
-                .eventDate(LocalDateTime.of(2025,1,1,12,0))
+                .eventDate(LocalDate.of(2025,1,1))
                 .content("산책 하실분 모집 합니다.")
                 .category(category)
                 .capacity(capacity)
