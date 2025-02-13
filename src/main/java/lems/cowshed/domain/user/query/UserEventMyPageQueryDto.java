@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,10 +21,10 @@ public class UserEventMyPageQueryDto {
     private String eventName;
 
     @Schema(description = "이벤트 날짜", example = "2024-10-19")
-    private LocalDateTime eventDate;
+    private LocalDate eventDate;
 
     @QueryProjection
-    public UserEventMyPageQueryDto(Long id, String author, String eventName, LocalDateTime eventDate) {
+    public UserEventMyPageQueryDto(Long id, String author, String eventName, LocalDate eventDate) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
