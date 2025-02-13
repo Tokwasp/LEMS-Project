@@ -30,8 +30,8 @@ public class EventDetailResponseDto {
     String location;
     @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
     String content;
-    @Schema(description = "모임 시간", example = "2024-09-12")
-    LocalDateTime eventDate;
+    @Schema(description = "모임 날짜", example = "2024-09-12")
+    LocalDate eventDate;
     @Schema(description = "수용 인원", example = "100")
     int capacity;
     @Schema(description = "참여 신청 인원", example = "50")
@@ -40,7 +40,7 @@ public class EventDetailResponseDto {
     @Builder
     private EventDetailResponseDto(Long eventId, String author, String name, Category category,
                                   LocalDateTime createdDate, String address, String location,
-                                  String content, LocalDateTime eventDate, int capacity, int applicants) {
+                                  String content, LocalDate eventDate, int capacity, int applicants) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
