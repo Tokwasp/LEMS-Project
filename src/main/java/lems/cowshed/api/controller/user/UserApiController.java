@@ -1,13 +1,17 @@
 package lems.cowshed.api.controller.user;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
+import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationDto;
+import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +58,12 @@ public class UserApiController implements UserSpecification{
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
         userService.editUser(userEditRequestDto, customUserDetails.getUserId());
         return CommonResponse.success();
+    }
+
+    @GetMapping
+    public CommonResponse<UserResponseDto> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        UserResponseDto response = userService.findUser(customUserDetails.getUserId());
+        return CommonResponse.success(response);
     }
 
     @GetMapping("/username/{username}")

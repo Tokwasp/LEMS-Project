@@ -5,6 +5,7 @@ import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
@@ -79,6 +80,13 @@ public class UserService {
 
     public boolean signUpValidationForEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
+    }
+
+    public UserResponseDto findUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
+
+        return UserResponseDto.from(user);
     }
 
     private void calculateAndSetDtoAge(LocalDate currentYear, List<UserEventQueryDto> userEventDtoList) {
