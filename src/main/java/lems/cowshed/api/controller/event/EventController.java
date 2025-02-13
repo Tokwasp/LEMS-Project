@@ -1,14 +1,11 @@
 package lems.cowshed.api.controller.event;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -59,8 +56,10 @@ public class EventController implements EventSpecification {
     }
 
     @PatchMapping("/{event-id}")
-    public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId, @RequestBody @Validated EventUpdateRequestDto requestDto){
-        eventService.editEvent(eventId, requestDto);
+    public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId,
+                                          @RequestBody @Validated EventUpdateRequestDto requestDto,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        eventService.editEvent(eventId, requestDto, customUserDetails.getUsername());
         return CommonResponse.success();
     }
 

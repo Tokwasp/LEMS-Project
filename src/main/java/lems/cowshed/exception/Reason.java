@@ -14,7 +14,8 @@ public enum Reason {
 
     BOOKMARK_ID("boomark_id"),
 
-    EVENT_ID("event_id");
+    EVENT_ID("event_id"),
 
+    BusinessReason("Business");
     private final String text;
 }

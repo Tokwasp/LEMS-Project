@@ -44,7 +44,9 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 수정", description = "모임의 세부 사항을 수정 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId, @RequestBody @Validated EventUpdateRequestDto eventUpdateDto);
+    CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId,
+                                   @RequestBody @Validated EventUpdateRequestDto eventUpdateDto,
+                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 삭제", description = "모임을 삭제 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
