@@ -60,7 +60,7 @@ public class SwaggerConfig {
     @Bean
     public GlobalOpenApiCustomizer testHeaderCustom() {
         var parameters = List.of(
-                buildParameter("Authentication", "JWT 토큰", null)
+                buildParameter("Authorizetion", "JWT 토큰", null)
         );
 
         // 제외할 경로를 리스트로 정의
