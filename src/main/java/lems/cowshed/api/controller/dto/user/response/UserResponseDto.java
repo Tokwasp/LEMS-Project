@@ -1,17 +1,19 @@
-package lems.cowshed.api.controller.dto.user.request;
+package lems.cowshed.api.controller.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Mbti;
-import lombok.*;
+import lems.cowshed.domain.user.User;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "회원 수정")
-public class UserEditRequestDto {
+@Schema(description = "회원 조회")
+public class UserResponseDto {
 
     @Schema(description = "닉네임", example = "외양간")
     private String username;
@@ -29,7 +31,7 @@ public class UserEditRequestDto {
     private Mbti mbti;
 
     @Builder
-    private UserEditRequestDto(String username, String introduction, String localName, LocalDate birth, Mbti mbti) {
+    private UserResponseDto(String username, String introduction, String localName, LocalDate birth, Mbti mbti) {
         this.username = username;
         this.introduction = introduction;
         this.localName = localName;
@@ -37,4 +39,13 @@ public class UserEditRequestDto {
         this.mbti = mbti;
     }
 
+    public static UserResponseDto from(User user){
+        return UserResponseDto.builder()
+                .username(user.getUsername())
+                .introduction(user.getIntroduction())
+                .localName(user.getLocation())
+                .birth(user.getBirth())
+                .mbti(user.getMbti())
+                .build();
+    }
 }
