@@ -81,7 +81,7 @@ public class User extends BaseEntity {
         if(userEditRequestDto.getIntroduction() != null) {this.introduction = userEditRequestDto.getIntroduction();}
         if(userEditRequestDto.getLocalName() != null) {this.location = userEditRequestDto.getLocalName();}
         if(userEditRequestDto.getBirth() != null) {this.birth = userEditRequestDto.getBirth();}
-        if(userEditRequestDto.getCharacter() != null) {this.mbti = userEditRequestDto.getCharacter();}
+        if(userEditRequestDto.getMbti() != null) {this.mbti = userEditRequestDto.getMbti();}
     }
 
 }
