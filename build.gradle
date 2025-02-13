@@ -35,6 +35,7 @@ dependencies {
 
 	//시큐리티 테스트
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'com.h2database:h2:1.4.200'
 
 	//MySql
 	//runtimeOnly 'com.mysql:mysql-connector-j'
