@@ -1,5 +1,7 @@
 package lems.cowshed.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
@@ -12,9 +14,8 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import lems.cowshed.exception.BusinessException;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,11 +56,19 @@ class EventServiceTest {
     @Autowired
     BookmarkRepository bookmarkRepository;
 
+    @BeforeEach
+    void cleanUp() {
+        userEventRepository.deleteAllInBatch();
+        bookmarkRepository.deleteAllInBatch();
+        eventRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+    }
+
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
     void getPagingEvents() {
         //given
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Event event = createEvent("테스터" + i, "자전거 모임");
             eventRepository.save(event);
         }
@@ -137,6 +152,94 @@ class EventServiceTest {
         assertThat(userEvent.getEvent()).extracting("name").isEqualTo("자전거 모임");
     }
 
+    @DisplayName("3명이 최대 인원인 모임에 5명이 참가 할때 두 회원은 참가 하지 못한다.")
+    @Test
+    void joinEventWhenNumberOfParticipantsExceeded() throws Exception {
+        //given
+        int taskCount = 5;
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        CountDownLatch countDownLatch = new CountDownLatch(taskCount);
+
+        Event findEvent = executorService.submit(() ->
+                eventRepository.save(createEvent("테스터", "테스트 모임", 3))).get();
+
+        List<User> users = executorService.submit(() -> Stream
+                .generate(() -> {
+                    User user = createUser("테스터", "testEmail");
+                    userRepository.save(user);
+                    return user;
+                })
+                .limit(taskCount)
+                .toList()).get();
+
+        //when
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+        users.forEach((User user) -> {
+                    try {
+                        eventService.joinEvent(findEvent.getId(), user.getId());
+                        eventRepository.flush();
+                    } catch (BusinessException ex){
+                        exceptionCount.incrementAndGet();
+                    }
+                    countDownLatch.countDown();
+                }
+        );
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then
+        long participants = userEventRepository.countParticipantByEventId(findEvent.getId());
+        assertThat(participants).isEqualTo(3);
+        assertThat(exceptionCount.get()).isEqualTo(2);
+    }
+
+    @DisplayName("5명의 회원이 동시에 최대 인원이 3명인 모임에 참가 할때 3명만 참여 할 수 있다.")
+    @Test
+    void joinEventWhenParticipateAtTheSameTimeWithConcurrency() throws Exception {
+        //given
+        int taskCount = 5;
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        CountDownLatch countDownLatch = new CountDownLatch(taskCount);
+
+        Event findEvent = executorService.submit(() ->
+                eventRepository.save(createEvent("테스터", "테스트 모임", 3))).get();
+
+        List<User> users = executorService.submit(() -> Stream
+                .generate(() -> {
+                    User user = createUser("테스터", "testEmail");
+                    userRepository.save(user);
+                    return user;
+                })
+                .limit(taskCount)
+                .toList()).get();
+
+        //when
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+
+        for (User user : users) {
+            executorService.submit(() -> {
+                try {
+                    eventService.joinEvent(findEvent.getId(), user.getId());
+                    eventRepository.flush();  // 엔티티 상태를 DB에 강제로 반영
+                } catch (BusinessException ex) {
+                    exceptionCount.incrementAndGet();
+                } finally {
+                    countDownLatch.countDown();  // 카운트다운
+                }
+            });
+        }
+        countDownLatch.await();
+
+        Long participateCount = executorService.submit(
+                () -> userEventRepository.countParticipantByEventId(findEvent.getId())).get();
+
+        executorService.shutdown();
+
+        //then
+        assertThat(participateCount).isEqualTo(3);
+        assertThat(exceptionCount.get()).isEqualTo(2);
+    }
+
     @DisplayName("모임을 삭제 한다.")
     @Test
     void deleteEvent() {
@@ -199,6 +302,7 @@ class EventServiceTest {
                 .capacity(capacity)
                 .build();
     }
+
     private EventSaveRequestDto createRequestDto(String name, String location, int capacity) {
         return EventSaveRequestDto.builder()
                 .name(name)
@@ -208,7 +312,7 @@ class EventServiceTest {
     }
 
     private EventUpdateRequestDto createUpdateReqeustDto(String name, int capacity) {
-        return  EventUpdateRequestDto.builder()
+        return EventUpdateRequestDto.builder()
                 .name(name)
                 .capacity(capacity)
                 .build();

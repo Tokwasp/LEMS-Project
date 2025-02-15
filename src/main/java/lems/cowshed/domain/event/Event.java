@@ -6,7 +6,6 @@ import lems.cowshed.domain.BaseEntity;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -87,6 +86,10 @@ public class Event extends BaseEntity {
         if(requestDto.getCategory() != null) this.category = requestDto.getCategory();
         if(requestDto.getEventDate() != null) this.eventDate = requestDto.getEventDate();
         if(requestDto.getLocation() != null) this.location = requestDto.getLocation();
+    }
+
+    public boolean isNotParticipate(long participateCount){
+        return capacity == participateCount;
     }
 }
 

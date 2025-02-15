@@ -1,6 +1,9 @@
 package lems.cowshed.domain.event;
 
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
+import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.userevent.UserEventRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,19 @@ class EventRepositoryTest {
 
     @Autowired
     EventRepository eventRepository;
+
+    @Autowired
+    UserEventRepository userEventRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @BeforeEach
+    void cleanUp(){
+        userEventRepository.deleteAllInBatch();
+        eventRepository.deleteAllInBatch();
+        userEventRepository.deleteAllInBatch();
+    }
 
     @DisplayName("모임을 요청 받은 페이지의 사이즈 만큼 조회 한다.")
     @Test

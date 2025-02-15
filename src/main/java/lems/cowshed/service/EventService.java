@@ -53,8 +53,12 @@ public class EventService {
     }
 
     public long joinEvent(Long eventId, Long userId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(
+        Event event = eventRepository.findPessimisticLockById(eventId).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+
+        if(isNotPossibleToParticipate(event)){
+            throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
@@ -90,5 +94,9 @@ public class EventService {
 
     private boolean notRegisteredEventByUser(String userName, Event event) {
         return !event.getAuthor().equals(userName);
+    }
+
+    private boolean isNotPossibleToParticipate(Event event) {
+        return event.isNotParticipate(userEventRepository.countParticipantByEventId(event.getId()));
     }
 }
