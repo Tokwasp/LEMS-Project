@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -36,7 +37,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Transactional
 @SpringBootTest
 @ActiveProfiles("test")
 class EventServiceTest {
@@ -64,6 +64,7 @@ class EventServiceTest {
         userRepository.deleteAllInBatch();
     }
 
+    @Transactional
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
     void getPagingEvents() {
@@ -84,6 +85,7 @@ class EventServiceTest {
                 .containsExactlyInAnyOrder("테스터3", "테스터4", "테스터5");
     }
 
+    @Transactional
     @DisplayName("모임을 등록 한다.")
     @Test
     void saveEvent() {
@@ -99,6 +101,7 @@ class EventServiceTest {
                 .containsExactly("자전거 모임", "서울", 10);
     }
 
+    @Transactional
     @DisplayName("모임을 조회 한다.")
     @Test
     void getEvent() {
@@ -114,6 +117,7 @@ class EventServiceTest {
                 .containsExactly("자전거 모임", "테스터");
     }
 
+    @Transactional
     @DisplayName("모임을 수정 한다.")
     @Test
     void editEvent() {
@@ -133,6 +137,7 @@ class EventServiceTest {
                 .containsExactly("테스터", "산책 모임", 20);
     }
 
+    @Transactional
     @DisplayName("유저가 모임에 참여 한다.")
     @Test
     void joinEvent() {
@@ -160,28 +165,27 @@ class EventServiceTest {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         CountDownLatch countDownLatch = new CountDownLatch(taskCount);
 
-        Event findEvent = executorService.submit(() ->
-                eventRepository.save(createEvent("테스터", "테스트 모임", 3))).get();
+        Event findEvent =  eventRepository.save(createEvent("테스터", "테스트 모임", 3));
 
-        List<User> users = executorService.submit(() -> Stream
+        List<User> users = Stream
                 .generate(() -> {
                     User user = createUser("테스터", "testEmail");
                     userRepository.save(user);
                     return user;
                 })
                 .limit(taskCount)
-                .toList()).get();
+                .toList();
 
         //when
         AtomicInteger exceptionCount = new AtomicInteger(0);
         users.forEach((User user) -> {
                     try {
                         eventService.joinEvent(findEvent.getId(), user.getId());
-                        eventRepository.flush();
                     } catch (BusinessException ex){
                         exceptionCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
                     }
-                    countDownLatch.countDown();
                 }
         );
         countDownLatch.await();
@@ -201,17 +205,16 @@ class EventServiceTest {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         CountDownLatch countDownLatch = new CountDownLatch(taskCount);
 
-        Event findEvent = executorService.submit(() ->
-                eventRepository.save(createEvent("테스터", "테스트 모임", 3))).get();
+        Event findEvent =  eventRepository.save(createEvent("테스터", "테스트 모임", 3));
 
-        List<User> users = executorService.submit(() -> Stream
+        List<User> users = Stream
                 .generate(() -> {
                     User user = createUser("테스터", "testEmail");
                     userRepository.save(user);
                     return user;
                 })
                 .limit(taskCount)
-                .toList()).get();
+                .toList();
 
         //when
         AtomicInteger exceptionCount = new AtomicInteger(0);
@@ -220,7 +223,6 @@ class EventServiceTest {
             executorService.submit(() -> {
                 try {
                     eventService.joinEvent(findEvent.getId(), user.getId());
-                    eventRepository.flush();  // 엔티티 상태를 DB에 강제로 반영
                 } catch (BusinessException ex) {
                     exceptionCount.incrementAndGet();
                 } finally {
@@ -240,6 +242,7 @@ class EventServiceTest {
         assertThat(exceptionCount.get()).isEqualTo(2);
     }
 
+    @Transactional
     @DisplayName("모임을 삭제 한다.")
     @Test
     void deleteEvent() {
@@ -255,6 +258,7 @@ class EventServiceTest {
                 () -> eventRepository.findById(event.getId()).orElseThrow());
     }
 
+    @Transactional
     @DisplayName("회원의 북마크한 모임을 모두 찾습니다.")
     @Test
     void getAllBookmarks() {
