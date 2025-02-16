@@ -1,5 +1,7 @@
 package lems.cowshed.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
@@ -12,26 +14,31 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import lems.cowshed.exception.BusinessException;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Transactional
 @SpringBootTest
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 class EventServiceTest {
 
     @Autowired
@@ -49,11 +56,20 @@ class EventServiceTest {
     @Autowired
     BookmarkRepository bookmarkRepository;
 
+    @BeforeEach
+    void cleanUp() {
+        userEventRepository.deleteAllInBatch();
+        bookmarkRepository.deleteAllInBatch();
+        eventRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+    }
+
+    @Transactional
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
     void getPagingEvents() {
         //given
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Event event = createEvent("테스터" + i, "자전거 모임");
             eventRepository.save(event);
         }
@@ -69,6 +85,7 @@ class EventServiceTest {
                 .containsExactlyInAnyOrder("테스터3", "테스터4", "테스터5");
     }
 
+    @Transactional
     @DisplayName("모임을 등록 한다.")
     @Test
     void saveEvent() {
@@ -84,6 +101,7 @@ class EventServiceTest {
                 .containsExactly("자전거 모임", "서울", 10);
     }
 
+    @Transactional
     @DisplayName("모임을 조회 한다.")
     @Test
     void getEvent() {
@@ -99,6 +117,7 @@ class EventServiceTest {
                 .containsExactly("자전거 모임", "테스터");
     }
 
+    @Transactional
     @DisplayName("모임을 수정 한다.")
     @Test
     void editEvent() {
@@ -118,6 +137,7 @@ class EventServiceTest {
                 .containsExactly("테스터", "산책 모임", 20);
     }
 
+    @Transactional
     @DisplayName("유저가 모임에 참여 한다.")
     @Test
     void joinEvent() {
@@ -137,6 +157,92 @@ class EventServiceTest {
         assertThat(userEvent.getEvent()).extracting("name").isEqualTo("자전거 모임");
     }
 
+    @DisplayName("3명이 최대 인원인 모임에 5명이 참가 할때 두 회원은 참가 하지 못한다.")
+    @Test
+    void joinEventWhenNumberOfParticipantsExceeded() throws Exception {
+        //given
+        int taskCount = 5;
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        CountDownLatch countDownLatch = new CountDownLatch(taskCount);
+
+        Event findEvent =  eventRepository.save(createEvent("테스터", "테스트 모임", 3));
+
+        List<User> users = Stream
+                .generate(() -> {
+                    User user = createUser("테스터", "testEmail");
+                    userRepository.save(user);
+                    return user;
+                })
+                .limit(taskCount)
+                .toList();
+
+        //when
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+        users.forEach((User user) -> {
+                    try {
+                        eventService.joinEvent(findEvent.getId(), user.getId());
+                    } catch (BusinessException ex){
+                        exceptionCount.incrementAndGet();
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                }
+        );
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then
+        long participants = userEventRepository.countParticipantByEventId(findEvent.getId());
+        assertThat(participants).isEqualTo(3);
+        assertThat(exceptionCount.get()).isEqualTo(2);
+    }
+
+    @DisplayName("5명의 회원이 동시에 최대 인원이 3명인 모임에 참가 할때 3명만 참여 할 수 있다.")
+    @Test
+    void joinEventWhenParticipateAtTheSameTimeWithConcurrency() throws Exception {
+        //given
+        int taskCount = 5;
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        CountDownLatch countDownLatch = new CountDownLatch(taskCount);
+
+        Event findEvent =  eventRepository.save(createEvent("테스터", "테스트 모임", 3));
+
+        List<User> users = Stream
+                .generate(() -> {
+                    User user = createUser("테스터", "testEmail");
+                    userRepository.save(user);
+                    return user;
+                })
+                .limit(taskCount)
+                .toList();
+
+        //when
+        AtomicInteger exceptionCount = new AtomicInteger(0);
+
+        for (User user : users) {
+            executorService.submit(() -> {
+                try {
+                    eventService.joinEvent(findEvent.getId(), user.getId());
+                } catch (BusinessException ex) {
+                    exceptionCount.incrementAndGet();
+                } finally {
+                    countDownLatch.countDown();  // 카운트다운
+                }
+            });
+        }
+        countDownLatch.await();
+
+        Long participateCount = executorService.submit(
+                () -> userEventRepository.countParticipantByEventId(findEvent.getId())).get();
+
+        executorService.shutdown();
+
+        //then
+        assertThat(participateCount).isEqualTo(3);
+        assertThat(exceptionCount.get()).isEqualTo(2);
+    }
+
+    @Transactional
     @DisplayName("모임을 삭제 한다.")
     @Test
     void deleteEvent() {
@@ -152,6 +258,7 @@ class EventServiceTest {
                 () -> eventRepository.findById(event.getId()).orElseThrow());
     }
 
+    @Transactional
     @DisplayName("회원의 북마크한 모임을 모두 찾습니다.")
     @Test
     void getAllBookmarks() {
@@ -199,6 +306,7 @@ class EventServiceTest {
                 .capacity(capacity)
                 .build();
     }
+
     private EventSaveRequestDto createRequestDto(String name, String location, int capacity) {
         return EventSaveRequestDto.builder()
                 .name(name)
@@ -208,7 +316,7 @@ class EventServiceTest {
     }
 
     private EventUpdateRequestDto createUpdateReqeustDto(String name, int capacity) {
-        return  EventUpdateRequestDto.builder()
+        return EventUpdateRequestDto.builder()
                 .name(name)
                 .capacity(capacity)
                 .build();
