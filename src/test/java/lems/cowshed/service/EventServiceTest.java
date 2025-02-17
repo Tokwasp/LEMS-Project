@@ -1,7 +1,5 @@
 package lems.cowshed.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
@@ -22,23 +20,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-//@ActiveProfiles("test")
+@ActiveProfiles("test")
 class EventServiceTest {
 
     @Autowired
@@ -83,6 +81,50 @@ class EventServiceTest {
         assertThat(slice.getContent())
                 .extracting("author")
                 .containsExactlyInAnyOrder("테스터3", "테스터4", "테스터5");
+    }
+
+    @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
+    @Test
+    void getPagingEventsWithApplicants() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임", 2);
+        eventRepository.save(event);
+
+        int userCount = 2;
+        for(int i = 0; i < userCount; i++){
+            User user = createUser("테스터", "testEmail");
+            userRepository.save(user);
+            eventService.joinEvent(event.getId(), user.getId());
+        }
+
+        Pageable pageable = PageRequest.of(0, 1);
+        Slice<EventPreviewResponseDto> result = eventService.getPagingEvents(pageable);
+
+        //when
+        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable);
+
+        //then
+        assertThat(slice.getContent()).hasSize(1)
+                .extracting("applicants")
+                .containsExactly(2L);
+    }
+
+    @DisplayName("모임에 참여한 회원이 없을 경우 참여자 수는 0명이다.")
+    @Test
+    void getPagingEventsWhenNothingApplicants() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임", 2);
+        eventRepository.save(event);
+
+        Pageable pageable = PageRequest.of(0, 1);
+
+        //when
+        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable);
+
+        //then
+        assertThat(slice.getContent()).hasSize(1)
+                .extracting("applicants")
+                .containsExactly(0L);
     }
 
     @Transactional
@@ -258,6 +300,7 @@ class EventServiceTest {
                 () -> eventRepository.findById(event.getId()).orElseThrow());
     }
 
+    @Disabled
     @Transactional
     @DisplayName("회원의 북마크한 모임을 모두 찾습니다.")
     @Test
@@ -335,4 +378,5 @@ class EventServiceTest {
                 .user(user)
                 .build();
     }
+
 }

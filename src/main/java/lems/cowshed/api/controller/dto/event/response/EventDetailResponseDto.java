@@ -35,12 +35,12 @@ public class EventDetailResponseDto {
     @Schema(description = "수용 인원", example = "100")
     int capacity;
     @Schema(description = "참여 신청 인원", example = "50")
-    int applicants;
+    long applicants;
 
     @Builder
     private EventDetailResponseDto(Long eventId, String author, String name, Category category,
                                   LocalDateTime createdDate, String address, String location,
-                                  String content, LocalDate eventDate, int capacity, int applicants) {
+                                  String content, LocalDate eventDate, int capacity, long applicants) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -54,7 +54,7 @@ public class EventDetailResponseDto {
         this.applicants = applicants;
     }
 
-    public static EventDetailResponseDto from(Event event){
+    public static EventDetailResponseDto from(Event event, long participantsCount){
         return EventDetailResponseDto.builder()
                 .eventId(event.getId())
                 .name(event.getName())
@@ -66,7 +66,7 @@ public class EventDetailResponseDto {
                 .content(event.getContent())
                 .eventDate(event.getEventDate())
                 .capacity(event.getCapacity())
-                .applicants(event.getApplicants())
+                .applicants(participantsCount)
                 .build();
     }
 }

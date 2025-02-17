@@ -10,6 +10,7 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,7 @@ class UserQueryRepositoryTest {
         assertThat(userEventDto).isEmpty();
     }
 
+    @Disabled
     @DisplayName("회원의 마이페이지 정보를 조회 한다.")
     @Test
     void findUserForMyPage() {

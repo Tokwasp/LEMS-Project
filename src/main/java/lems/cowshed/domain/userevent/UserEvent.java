@@ -25,6 +25,9 @@ public class UserEvent extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
+    private UserEvent() {
+    }
+
     @Builder
     private UserEvent(User user, Event event) {
         this.user = user;
