@@ -1,11 +1,13 @@
 package lems.cowshed.service;
 
+import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
@@ -22,7 +24,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
@@ -31,7 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.*;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,6 +68,9 @@ class EventServiceTest {
     @Test
     void getPagingEvents() {
         //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
         for (int i = 0; i < 10; i++) {
             Event event = createEvent("테스터" + i, "자전거 모임");
             eventRepository.save(event);
@@ -75,7 +79,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(1, 3);
 
         //when
-        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable);
+        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable, user.getId());
 
         //then
         assertThat(slice.getContent())
@@ -83,6 +87,7 @@ class EventServiceTest {
                 .containsExactlyInAnyOrder("테스터3", "테스터4", "테스터5");
     }
 
+    @Transactional
     @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
     @Test
     void getPagingEventsWithApplicants() {
@@ -91,6 +96,7 @@ class EventServiceTest {
         eventRepository.save(event);
 
         int userCount = 2;
+
         for(int i = 0; i < userCount; i++){
             User user = createUser("테스터", "testEmail");
             userRepository.save(user);
@@ -98,10 +104,10 @@ class EventServiceTest {
         }
 
         Pageable pageable = PageRequest.of(0, 1);
-        Slice<EventPreviewResponseDto> result = eventService.getPagingEvents(pageable);
+        Slice<EventPreviewResponseDto> result = eventService.getPagingEvents(pageable, 0L);
 
         //when
-        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable);
+        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable, 0L);
 
         //then
         assertThat(slice.getContent()).hasSize(1)
@@ -119,7 +125,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable);
+        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable, 0L);
 
         //then
         assertThat(slice.getContent()).hasSize(1)
@@ -148,15 +154,41 @@ class EventServiceTest {
     @Test
     void getEvent() {
         //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
         //when
-        EventDetailResponseDto response = eventService.getEvent(event.getId());
+        EventDetailResponseDto response = eventService.getEvent(event.getId(), user.getId());
 
         //then
-        assertThat(response).extracting("name", "author")
-                .containsExactly("자전거 모임", "테스터");
+        assertThat(response).extracting("name", "author", "bookmarkStatus")
+                .containsExactly("자전거 모임", "테스터", NOT_BOOKMARK);
+    }
+
+    @Transactional
+    @DisplayName("북마크한 모임을 조회 할때 북마크의 상태는 BOOKMARK 이다.")
+    @Test
+    void getEventWhenBookmarked() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        Bookmark bookmark = createBookmark(event, user);
+        bookmarkRepository.save(bookmark);
+
+        //when
+        EventDetailResponseDto result = eventService.getEvent(event.getId(), user.getId());
+
+        //then
+        assertThat(result).isNotNull()
+                .extracting("bookmarkStatus")
+                .isEqualTo(BOOKMARK);
     }
 
     @Transactional
@@ -300,38 +332,63 @@ class EventServiceTest {
                 () -> eventRepository.findById(event.getId()).orElseThrow());
     }
 
-    @Disabled
     @Transactional
-    @DisplayName("회원의 북마크한 모임을 모두 찾습니다.")
+    @DisplayName("회원의 북마크한 모임을 페이징 조회 합니다.")
     @Test
-    void getAllBookmarks() {
+    void getPagingBookmarkEvents() {
         //given
         String author = "테스터";
         User user = createUser(author, "test@naver.com");
         userRepository.save(user);
 
-        Event event1 = createEvent(author, "테스트1");
-        Event event2 = createEvent(author, "테스트2");
-        Event event3 = createEvent(author, "테스트3");
-        eventRepository.save(event1);
-        eventRepository.save(event2);
-        eventRepository.save(event3);
+        int bookmarkCount = 3;
+        for(int i = 0; i < bookmarkCount; i++){
+            Event event = createEvent(author, "테스트" + i);
+            eventRepository.save(event);
 
-        Bookmark bookmark1 = createBookmark(event1, user);
-        Bookmark bookmark2 = Bookmark.create(event2, user);
-        Bookmark bookmark3 = Bookmark.create(event3, user);
-        bookmarkRepository.save(bookmark1);
-        bookmarkRepository.save(bookmark2);
-        bookmarkRepository.save(bookmark3);
+            Bookmark bookmark = createBookmark(event, user);
+            bookmarkRepository.save(bookmark);
+        }
+
+        Pageable pageable = PageRequest.of(0, 3);
 
         //when
-        List<EventPreviewResponseDto> result = eventService.getAllBookmarkEvents(user.getId()).getBookmarks();
+        BookmarkResponseDto bookmarkEvents = eventService.getPagingBookmarkEvents(pageable, user.getId());
 
         //then
-        assertThat(result).hasSize(3)
+        assertThat(bookmarkEvents.getBookmarks())
+                .hasSize(3)
                 .extracting("name")
-                .containsExactlyInAnyOrder("테스트1", "테스트2", "테스트3");
+                .containsExactlyInAnyOrder("테스트0", "테스트1", "테스트2");
     }
+
+    @Transactional
+    @DisplayName("북마크한 모임을 페이징 조회 할 때 북마크 여부를 확인 한다.")
+    @Test
+    void getPagingEventsForBookmark() {
+        //given
+        User user = createUser("북마크 테스터", "test@naver.com");
+        userRepository.save(user);
+
+        Event bookmarkEvent = createEvent("테스트", "북마크 모임");
+        eventRepository.save(bookmarkEvent);
+
+        Event unBookmarkEvent = createEvent("테스트", "북마크 안한 모임");
+        eventRepository.save(unBookmarkEvent);
+
+        Bookmark bookmark = createBookmark(bookmarkEvent, user);
+        bookmarkRepository.save(bookmark);
+        Pageable pageable = PageRequest.of(0, 2);
+
+        //when
+        List<EventPreviewResponseDto> result = eventService.getPagingEvents(pageable, user.getId()).getContent();
+
+        //then
+        assertThat(result)
+                .extracting("bookmarkStatus")
+                .containsExactlyInAnyOrder(BOOKMARK, NOT_BOOKMARK);
+    }
+
 
     private static Event createEvent(String author, String name) {
         return Event.builder()
@@ -376,6 +433,7 @@ class EventServiceTest {
         return Bookmark.builder()
                 .event(event)
                 .user(user)
+                .status(BOOKMARK)
                 .build();
     }
 

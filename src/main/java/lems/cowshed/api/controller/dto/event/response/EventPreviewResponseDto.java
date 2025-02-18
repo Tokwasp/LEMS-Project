@@ -49,7 +49,8 @@ public class EventPreviewResponseDto {
     @Builder
     public EventPreviewResponseDto(Long eventId, String name, String author,
                                    String content, LocalDate eventDate,
-                                   int capacity, LocalDateTime createdDate, long applicants) {
+                                   int capacity, LocalDateTime createdDate, long applicants,
+                                   BookmarkStatus bookmarkStatus) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -58,9 +59,10 @@ public class EventPreviewResponseDto {
         this.capacity = capacity;
         this.createdDate = createdDate;
         this.applicants = applicants;
+        this.bookmarkStatus = bookmarkStatus;
     }
 
-    public static EventPreviewResponseDto of(Event event, long participantsCount){
+    public static EventPreviewResponseDto of(Event event, long participantsCount, BookmarkStatus status){
         return EventPreviewResponseDto.builder()
                 .eventId(event.getId())
                 .name(event.getName())
@@ -70,6 +72,7 @@ public class EventPreviewResponseDto {
                 .capacity(event.getCapacity())
                 .createdDate(event.getCreatedDateTime())
                 .applicants(participantsCount)
+                .bookmarkStatus(status)
                 .build();
     }
 }

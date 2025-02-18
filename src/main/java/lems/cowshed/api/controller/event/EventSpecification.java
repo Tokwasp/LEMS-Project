@@ -26,7 +26,8 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(Pageable pageable);
+    CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(Pageable pageable,
+                                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
@@ -35,7 +36,8 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 반환 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId);
+    CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId,
+                                                    @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 참여", description = "회원이 모임에 참여 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
@@ -52,8 +54,8 @@ public interface EventSpecification {
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId);
 
-    @Operation(summary = "북마크 모임 전체 조회", description = "북마크 모임 전체 조회")
-    @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<BookmarkResponseDto> getAllBookmarkEvents(@AuthenticationPrincipal CustomUserDetails userDetails);
+    @Operation(summary = "북마크 모임 페이징 조회", description = "북마크 모임 페이징 조회")
+    CommonResponse<BookmarkResponseDto> getPagingBookmarkEvents(Pageable pageable,
+                                                                @AuthenticationPrincipal CustomUserDetails userDetails);
 
 }

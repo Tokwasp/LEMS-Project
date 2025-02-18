@@ -25,20 +25,23 @@ public class EventController implements EventSpecification {
     private final EventService eventService;
 
     @GetMapping
-    public CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable) {
-        return CommonResponse.success(eventService.getPagingEvents(pageable));
+    public CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return CommonResponse.success(eventService.getPagingEvents(pageable, customUserDetails.getUserId()));
     }
 
     @GetMapping("/{event-id}")
-    public CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId) {
-        EventDetailResponseDto response = eventService.getEvent(eventId);
+    public CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId,
+                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        EventDetailResponseDto response = eventService.getEvent(eventId, userDetails.getUserId());
         return CommonResponse.success(response);
     }
 
     @GetMapping("/bookmark")
-    public CommonResponse<BookmarkResponseDto> getAllBookmarkEvents(@AuthenticationPrincipal CustomUserDetails userDetails){
-        BookmarkResponseDto response = eventService.getAllBookmarkEvents(userDetails.getUserId());
-        return CommonResponse.success(response);
+    public CommonResponse<BookmarkResponseDto> getPagingBookmarkEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                @AuthenticationPrincipal CustomUserDetails userDetails){
+        eventService.getPagingBookmarkEvents(pageable, userDetails.getUserId());
+        return CommonResponse.success();
     }
 
     @PostMapping

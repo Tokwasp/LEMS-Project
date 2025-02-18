@@ -3,6 +3,7 @@ package lems.cowshed.service;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static org.assertj.core.api.Assertions.*;
 
 @Transactional
@@ -51,6 +53,7 @@ class BookmarkServiceTest {
 
         //then
         Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow();
+        assertThat(bookmark.getStatus()).isEqualTo(BOOKMARK);
         assertThat(bookmark.getEvent())
                 .extracting("name", "content")
                 .containsExactly("테스트 모임", "테스트");
@@ -70,11 +73,11 @@ class BookmarkServiceTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        bookmarkService.deleteBookmark(bookmark.getId());
+        bookmarkService.deleteBookmark(event.getId(), user.getId());
 
         //then
-        assertThatThrownBy(() -> bookmarkRepository.findById(bookmark.getId()).orElseThrow())
-                .isInstanceOf(NoSuchElementException.class);
+        Bookmark findBookmark = bookmarkRepository.findById(bookmark.getId()).orElseThrow();
+        assertThat(findBookmark.getStatus()).isEqualTo(DELETE);
     }
 
     private User createUser() {
@@ -89,6 +92,7 @@ class BookmarkServiceTest {
         return Bookmark.builder()
                 .event(event)
                 .user(user)
+                .status(BOOKMARK)
                 .build();
     }
 

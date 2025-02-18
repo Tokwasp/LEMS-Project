@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Schema(description = "북마크 모임 반환")
 public class BookmarkResponseDto {
 
-    @NotEmpty
     @Schema(description = "북마크 모임 리스트")
     List<EventPreviewResponseDto> bookmarks;
 

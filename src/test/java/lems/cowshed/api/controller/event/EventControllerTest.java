@@ -86,6 +86,7 @@ class EventControllerTest {
         //when //then
         mockMvc.perform(
                 get("/events/{event-id}", eventId)
+                        .with(user(new CustomUserDetails(createForUserDetails())))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("OK"));
