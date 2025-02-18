@@ -22,9 +22,10 @@ public class BookmarkApiController implements BookmarkSpecification{
         return CommonResponse.success();
     }
 
-    @DeleteMapping("/{bookmarkId}")
-    public CommonResponse<Void> deleteBookmark(@PathVariable long bookmarkId) {
-        bookmarkService.deleteBookmark(bookmarkId);
+    @PatchMapping("/{event-id}")
+    public CommonResponse<Void> deleteBookmark(@PathVariable("event-id") long eventId,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        bookmarkService.deleteBookmark(eventId, userDetails.getUserId());
         return CommonResponse.success();
     }
 }

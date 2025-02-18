@@ -1,6 +1,5 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
@@ -12,8 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
 
@@ -34,19 +32,14 @@ public class BookmarkService {
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND)
         );
 
-        return bookmarkRepository.save(Bookmark.create(event, user)).getId();
+        return bookmarkRepository.save(Bookmark.create(event, user, BOOKMARK)).getId();
     }
 
-    public void deleteBookmark(Long bookmarkId) {
-        bookmarkRepository.deleteById(bookmarkId);
-    }
+    public void deleteBookmark(Long eventId, Long userId) {
+        Bookmark bookmark = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK)
+                .orElseThrow(() -> new NotFoundException(BOOKMARK_ID, BOOKMARK_NOT_FOUND));
 
-    public BookmarkResponseDto getAllBookmarks(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
-
-        List<Bookmark> bookmarks = bookmarkRepository.findByUserId(userId);
-        return BookmarkResponseDto.from(bookmarks);
+        bookmark.deleteBookmark();
     }
 
 }
