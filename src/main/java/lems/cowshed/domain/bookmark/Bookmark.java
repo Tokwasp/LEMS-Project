@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,16 +29,25 @@ public class Bookmark extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    BookmarkStatus status;
+
     @Builder
-    private Bookmark(Event event, User user) {
+    private Bookmark(Event event, User user, BookmarkStatus status) {
         this.event = event;
         this.user = user;
+        this.status = status;
     }
 
-    public static Bookmark create(Event event, User user){
+    public static Bookmark create(Event event, User user, BookmarkStatus status){
         return Bookmark.builder()
                 .event(event)
                 .user(user)
+                .status(status)
                 .build();
+    }
+
+    public void deleteBookmark(){
+        this.status = DELETE;
     }
 }
