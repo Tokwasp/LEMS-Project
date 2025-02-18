@@ -10,4 +10,6 @@ public interface UserEventRepository extends JpaRepository<UserEvent, Long> {
 
     @Query("SELECT COUNT(ue) From UserEvent ue Where ue.event.id = :eventId")
     long countParticipantByEventId(@Param("eventId") Long eventId);
+
+    List<UserEvent> findByEventIdIn (List<Long> eventIds);
 }

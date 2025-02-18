@@ -18,10 +18,16 @@ import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
@@ -37,8 +43,14 @@ public class EventService {
     private final UserEventRepository userEventRepository;
 
     public Slice<EventPreviewResponseDto> getPagingEvents(Pageable Pageable) {
-        Slice<Event> slice = eventRepository.findSliceBy(Pageable);
-        return slice.map(EventPreviewResponseDto::new);
+        Slice<Event> eventPaging = eventRepository.findSliceBy(Pageable);
+        Map<Long, Long> eventCountMap = findEventParticipantsCount(eventPaging);
+
+        List<EventPreviewResponseDto> resultContent = eventPaging
+                .map(event -> EventPreviewResponseDto.of(event, eventCountMap.getOrDefault(event.getId(), 0L)))
+                .toList();
+
+        return new SliceImpl<>(resultContent, Pageable, eventPaging.hasNext());
     }
 
     public void saveEvent(EventSaveRequestDto requestDto, String username) {
@@ -49,7 +61,9 @@ public class EventService {
     public EventDetailResponseDto getEvent(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
-        return EventDetailResponseDto.from(event);
+
+        long participantCount = userEventRepository.countParticipantByEventId(event.getId());
+        return EventDetailResponseDto.from(event, participantCount);
     }
 
     public long joinEvent(Long eventId, Long userId) {
@@ -90,6 +104,16 @@ public class EventService {
 
         List<Bookmark> bookmarks = bookmarkRepository.findByUserId(userId);
         return BookmarkResponseDto.from(bookmarks);
+    }
+
+    private Map<Long, Long> findEventParticipantsCount(Slice<Event> slice) {
+        List<Long> eventIdList = slice.stream().map(Event::getId).toList();
+        List<UserEvent> participantsList = userEventRepository.findByEventIdIn(eventIdList);
+        return participantsList.stream()
+                .collect(Collectors.groupingBy(
+                        userEvent -> userEvent.getEvent().getId()
+                        , Collectors.counting()
+                ));
     }
 
     private boolean notRegisteredEventByUser(String userName, Event event) {

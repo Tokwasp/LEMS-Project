@@ -26,10 +26,10 @@ public class BookmarkResponseDto {
     }
 
     public static BookmarkResponseDto from(List<Bookmark> bookmarks){
-        List<EventPreviewResponseDto> results = bookmarks.stream()
-                .map((Bookmark bookmark) -> new EventPreviewResponseDto(bookmark.getEvent()))
-                .collect(Collectors.toList());
-        return new BookmarkResponseDto(results);
+//        List<EventPreviewResponseDto> results = bookmarks.stream()
+//                .map((Bookmark bookmark) -> new EventPreviewResponseDto(null))
+//                .collect(Collectors.toList());
+        return null;
     }
 }
 

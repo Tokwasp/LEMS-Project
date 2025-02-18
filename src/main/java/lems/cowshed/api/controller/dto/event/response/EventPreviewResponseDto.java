@@ -2,6 +2,7 @@ package lems.cowshed.api.controller.dto.event.response;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +10,6 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Builder
 @Getter
 @Schema(description = "메인 페이지의 모임 리스트 중 한 개의 모임 정보")
 public class EventPreviewResponseDto {
@@ -23,12 +23,14 @@ public class EventPreviewResponseDto {
     String content;
     @Schema(description = "모임 날짜", example = "2024-09-12")
     LocalDate eventDate;
-    @Schema(description = "수용 인원", example = "100")
+    @Schema(description = "수용 최대 인원", example = "100")
     int capacity;
-    @Schema(description = "참여 신청 인원", example = "50")
-    int applicants;
+    @Schema(description = "참여 인원", example = "50")
+    long applicants;
     @Schema(description = "등록일", example = "yyyy-mm-dd hh:mm:ss")
     LocalDateTime createdDate;
+    @Schema(description = "북마크 여부 ", example = "Y")
+    BookmarkStatus bookmarkStatus;
 
     @QueryProjection
     public EventPreviewResponseDto(Long eventId, String name, String author,
@@ -44,14 +46,30 @@ public class EventPreviewResponseDto {
         this.createdDate = createdDate;
     }
 
-    public EventPreviewResponseDto(Event event) {
-        this.eventId = event.getId();
-        this.name = event.getName();
-        this.author = event.getAuthor();
-        this.content = event.getContent();
-        this.eventDate = event.getEventDate();
-        this.capacity = event.getCapacity();
-        this.applicants = event.getApplicants();
-        this.createdDate = event.getCreatedDateTime();
+    @Builder
+    public EventPreviewResponseDto(Long eventId, String name, String author,
+                                   String content, LocalDate eventDate,
+                                   int capacity, LocalDateTime createdDate, long applicants) {
+        this.eventId = eventId;
+        this.name = name;
+        this.author = author;
+        this.content = content;
+        this.eventDate = eventDate;
+        this.capacity = capacity;
+        this.createdDate = createdDate;
+        this.applicants = applicants;
+    }
+
+    public static EventPreviewResponseDto of(Event event, long participantsCount){
+        return EventPreviewResponseDto.builder()
+                .eventId(event.getId())
+                .name(event.getName())
+                .author(event.getAuthor())
+                .content(event.getContent())
+                .eventDate(event.getEventDate())
+                .capacity(event.getCapacity())
+                .createdDate(event.getCreatedDateTime())
+                .applicants(participantsCount)
+                .build();
     }
 }

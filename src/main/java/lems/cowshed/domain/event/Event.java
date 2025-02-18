@@ -45,18 +45,10 @@ public class Event extends BaseEntity {
     @Column(name = "capacity")
     private int capacity;
 
-    @Column(name = "applicants")
-    private int applicants;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "availability")
-    private Availability availability;
-
     @Builder
     public Event(String name, LocalDate eventDate, Category category,
                  String location, String address, String author,
-                 String email, String content, int capacity,
-                 int applicants, Availability availability) {
+                 String email, String content, int capacity) {
         this.name = name;
         this.eventDate = eventDate;
         this.category = category;
@@ -66,17 +58,6 @@ public class Event extends BaseEntity {
         this.email = email;
         this.content = content;
         this.capacity = capacity;
-        this.applicants = applicants;
-        this.availability = availability;
-    }
-
-    public void update(String name, Category category, String location, LocalDate eventDate, int capacity, String content) {
-        this.name = name;
-        this.category = category;
-        this.location = location;
-        this.eventDate = eventDate;
-        this.capacity = capacity;
-        this.content = content;
     }
 
     public void edit(EventUpdateRequestDto requestDto) {
