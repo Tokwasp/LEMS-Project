@@ -2,10 +2,13 @@ package lems.cowshed.domain;
 
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,19 @@ class BaseEntityTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserEventRepository userEventRepository;
+
+    @Autowired
+    private BookmarkRepository bookmarkRepository;
+
+    @BeforeEach
+    public void cleanUp(){
+        bookmarkRepository.deleteAllInBatch();
+        userEventRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+    }
 
     @DisplayName("신규 회원을 등록 하면 생성 날짜와 변경 날짜는 현재 날짜로 생성 된다.")
     @Test
