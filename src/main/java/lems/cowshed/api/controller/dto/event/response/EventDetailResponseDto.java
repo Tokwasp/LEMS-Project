@@ -1,6 +1,7 @@
 package lems.cowshed.api.controller.dto.event.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lombok.AllArgsConstructor;
@@ -36,11 +37,14 @@ public class EventDetailResponseDto {
     int capacity;
     @Schema(description = "참여 신청 인원", example = "50")
     long applicants;
+    @Schema(description = "북마크 여부", example = "BOOKMARK")
+    BookmarkStatus bookmarkStatus;
 
     @Builder
     private EventDetailResponseDto(Long eventId, String author, String name, Category category,
                                   LocalDateTime createdDate, String address, String location,
-                                  String content, LocalDate eventDate, int capacity, long applicants) {
+                                  String content, LocalDate eventDate, int capacity, long applicants,
+                                   BookmarkStatus bookmarkStatus) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -52,9 +56,10 @@ public class EventDetailResponseDto {
         this.eventDate = eventDate;
         this.capacity = capacity;
         this.applicants = applicants;
+        this.bookmarkStatus = bookmarkStatus;
     }
 
-    public static EventDetailResponseDto from(Event event, long participantsCount){
+    public static EventDetailResponseDto from(Event event, long participantsCount, BookmarkStatus bookmarkStatus){
         return EventDetailResponseDto.builder()
                 .eventId(event.getId())
                 .name(event.getName())
@@ -67,6 +72,7 @@ public class EventDetailResponseDto {
                 .eventDate(event.getEventDate())
                 .capacity(event.getCapacity())
                 .applicants(participantsCount)
+                .bookmarkStatus(bookmarkStatus)
                 .build();
     }
 }

@@ -67,25 +67,25 @@ public class UserQueryRepository {
                 .limit(LIMIT_COUNT)
                 .fetch();
 
-        List<EventPreviewResponseDto> bookmarks = queryFactory
-                .select(new QEventPreviewResponseDto(
-                                event.id.as("eventId"),
-                                event.name,
-                                event.author,
-                                event.content,
-                                event.eventDate,
-                                event.capacity,
-                                event.applicants,
-                                event.createdDateTime
-                        )
-                )
-                .from(bookmark)
-                .join(bookmark.event, event)
-                .where(user.id.eq(userId))
-                .limit(LIMIT_COUNT)
-                .fetch();
+//        List<EventPreviewResponseDto> bookmarks = queryFactory
+//                .select(new QEventPreviewResponseDto(
+//                                event.id.as("eventId"),
+//                                event.name,
+//                                event.author,
+//                                event.content,
+//                                event.eventDate,
+//                                event.capacity,
+//                                event.a,
+//                                event.createdDateTime
+//                        )
+//                )
+//                .from(bookmark)
+//                .join(bookmark.event, event)
+//                .where(user.id.eq(userId))
+//                .limit(LIMIT_COUNT)
+//                .fetch();
 
-        return new UserMyPageResponseDto(userDto, userEventDto, bookmarks);
+        return new UserMyPageResponseDto(userDto, userEventDto, null);
     }
 
 }

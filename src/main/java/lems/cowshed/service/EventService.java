@@ -1,5 +1,6 @@
 package lems.cowshed.service;
 
+import jakarta.validation.constraints.Null;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
@@ -7,6 +8,7 @@ import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
@@ -22,13 +24,12 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collector;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
 
@@ -42,13 +43,13 @@ public class EventService {
     private final BookmarkRepository bookmarkRepository;
     private final UserEventRepository userEventRepository;
 
-    public Slice<EventPreviewResponseDto> getPagingEvents(Pageable Pageable) {
+    public Slice<EventPreviewResponseDto> getPagingEvents(Pageable Pageable, Long userId) {
         Slice<Event> eventPaging = eventRepository.findSliceBy(Pageable);
-        Map<Long, Long> eventCountMap = findEventParticipantsCount(eventPaging);
+        List<Long> eventIdList = eventPaging.stream().map(Event::getId).toList();
+        Map<Long, Long> eventCountMap = findEventParticipantsCounting(eventIdList);
 
-        List<EventPreviewResponseDto> resultContent = eventPaging
-                .map(event -> EventPreviewResponseDto.of(event, eventCountMap.getOrDefault(event.getId(), 0L)))
-                .toList();
+        Set<Long> bookmarkedEventIds = eventRepository.findBookmarkedEventIds(userId, eventIdList, BOOKMARK);
+        List<EventPreviewResponseDto> resultContent = bookmarkCountingAndCheckBookmarked(eventPaging, eventCountMap, bookmarkedEventIds);
 
         return new SliceImpl<>(resultContent, Pageable, eventPaging.hasNext());
     }
@@ -58,12 +59,15 @@ public class EventService {
         eventRepository.save(event);
     }
 
-    public EventDetailResponseDto getEvent(Long eventId) {
+    public EventDetailResponseDto getEvent(Long eventId, Long userId) {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
         long participantCount = userEventRepository.countParticipantByEventId(event.getId());
-        return EventDetailResponseDto.from(event, participantCount);
+        BookmarkStatus bookmarkStatus = eventRepository.findBookmarkedEventIds(userId, List.of(event.getId()), BOOKMARK)
+                .isEmpty() ? NOT_BOOKMARK : BOOKMARK;
+
+        return EventDetailResponseDto.from(event, participantCount, bookmarkStatus);
     }
 
     public long joinEvent(Long eventId, Long userId) {
@@ -98,22 +102,45 @@ public class EventService {
         eventRepository.delete(event);
     }
 
-    public BookmarkResponseDto getAllBookmarkEvents(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
+    public BookmarkResponseDto getPagingBookmarkEvents(Pageable pageable, Long userId) {
+        Slice<Bookmark> bookmarks = bookmarkRepository.findSliceByUserId(pageable, userId);
+        List<Long> bookmarkedEventIdList = bookmarks.stream().map(bookmark -> bookmark.getEvent().getId()).toList();
 
-        List<Bookmark> bookmarks = bookmarkRepository.findByUserId(userId);
-        return BookmarkResponseDto.from(bookmarks);
+        Map<Long, Long> participantsCountingMap = getCountingMap(bookmarkedEventIdList);
+        List<EventPreviewResponseDto> result = bookmarks
+                .stream()
+                .map((Bookmark bookmark) -> EventPreviewResponseDto
+                        .of(bookmark.getEvent(), participantsCountingMap.getOrDefault(bookmark.getEvent().getId(), 0L), BOOKMARK)
+        ).toList();
+
+        return BookmarkResponseDto.create(result);
     }
 
-    private Map<Long, Long> findEventParticipantsCount(Slice<Event> slice) {
-        List<Long> eventIdList = slice.stream().map(Event::getId).toList();
+    private Map<Long, Long> findEventParticipantsCounting(List<Long> eventIdList) {
         List<UserEvent> participantsList = userEventRepository.findByEventIdIn(eventIdList);
         return participantsList.stream()
                 .collect(Collectors.groupingBy(
                         userEvent -> userEvent.getEvent().getId()
                         , Collectors.counting()
                 ));
+    }
+
+    private Map<Long, Long> getCountingMap(List<Long> bookmarkedEventIdList) {
+        List<UserEvent> participantsList = userEventRepository.findByEventIdIn(bookmarkedEventIdList);
+        return participantsList.stream()
+                .collect(Collectors.groupingBy(
+                        userEvent -> userEvent.getEvent().getId()
+                        , Collectors.counting()
+                ));
+    }
+
+    private List<EventPreviewResponseDto> bookmarkCountingAndCheckBookmarked(Slice<Event> eventPaging, Map<Long, Long> eventCountMap, Set<Long> bookmarkedEventIds) {
+        List<EventPreviewResponseDto> resultContent = eventPaging
+                .map(event -> EventPreviewResponseDto
+                        .of(event, eventCountMap.getOrDefault(event.getId(), 0L),
+                                bookmarkedEventIds.contains(event.getId()) ? BOOKMARK : NOT_BOOKMARK))
+                .toList();
+        return resultContent;
     }
 
     private boolean notRegisteredEventByUser(String userName, Event event) {

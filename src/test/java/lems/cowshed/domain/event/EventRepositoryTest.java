@@ -37,7 +37,7 @@ class EventRepositoryTest {
     void cleanUp(){
         userEventRepository.deleteAllInBatch();
         eventRepository.deleteAllInBatch();
-        userEventRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
     @DisplayName("모임을 요청 받은 페이지의 사이즈 만큼 조회 한다.")

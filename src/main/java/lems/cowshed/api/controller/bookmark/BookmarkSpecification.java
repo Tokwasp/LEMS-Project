@@ -16,5 +16,6 @@ public interface BookmarkSpecification {
                                       @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "북마크 삭제", description = "회원이 모임 북마크 삭제 합니다.")
-    CommonResponse<Void> deleteBookmark(@PathVariable("id") long bookmarkId);
+    CommonResponse<Void> deleteBookmark(@PathVariable("id") long eventId,
+                                        @AuthenticationPrincipal CustomUserDetails userDetails);
 }
