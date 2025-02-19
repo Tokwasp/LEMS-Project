@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
+import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
@@ -26,8 +27,8 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(Pageable pageable,
-                                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventPagingResponse> getPagingEvents(Pageable pageable,
+                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)

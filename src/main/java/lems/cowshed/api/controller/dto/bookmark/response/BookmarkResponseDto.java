@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
@@ -16,19 +17,19 @@ public class BookmarkResponseDto {
     @Schema(description = "북마크 모임 리스트")
     List<EventPreviewResponseDto> bookmarks;
 
-    public BookmarkResponseDto(List<EventPreviewResponseDto> bookmarks) {
+    boolean isLast;
+
+    @Builder
+    public BookmarkResponseDto(List<EventPreviewResponseDto> bookmarks, boolean isLast) {
         this.bookmarks = bookmarks;
+        this.isLast = isLast;
     }
 
-    public static BookmarkResponseDto create(List<EventPreviewResponseDto> bookmarks){
-        return new BookmarkResponseDto(bookmarks);
+    public static BookmarkResponseDto of(List<EventPreviewResponseDto> bookmarks, boolean isLast){
+        return BookmarkResponseDto.builder()
+                .bookmarks(bookmarks)
+                .isLast(isLast)
+                .build();
     }
 
-    public static BookmarkResponseDto from(List<Bookmark> bookmarks){
-//        List<EventPreviewResponseDto> results = bookmarks.stream()
-//                .map((Bookmark bookmark) -> new EventPreviewResponseDto(null))
-//                .collect(Collectors.toList());
-        return null;
-    }
 }
-
