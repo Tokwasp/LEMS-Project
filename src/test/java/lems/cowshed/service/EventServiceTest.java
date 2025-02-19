@@ -4,6 +4,7 @@ import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
+import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
@@ -79,10 +80,10 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(1, 3);
 
         //when
-        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable, user.getId());
+        EventPagingResponse result = eventService.getPagingEvents(pageable, user.getId());
 
         //then
-        assertThat(slice.getContent())
+        assertThat(result.getContent())
                 .extracting("author")
                 .containsExactlyInAnyOrder("테스터3", "테스터4", "테스터5");
     }
@@ -104,13 +105,12 @@ class EventServiceTest {
         }
 
         Pageable pageable = PageRequest.of(0, 1);
-        Slice<EventPreviewResponseDto> result = eventService.getPagingEvents(pageable, 0L);
 
         //when
-        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable, 0L);
+        EventPagingResponse result = eventService.getPagingEvents(pageable, 0L);
 
         //then
-        assertThat(slice.getContent()).hasSize(1)
+        assertThat(result.getContent()).hasSize(1)
                 .extracting("applicants")
                 .containsExactly(2L);
     }
@@ -125,10 +125,10 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        Slice<EventPreviewResponseDto> slice = eventService.getPagingEvents(pageable, 0L);
+        EventPagingResponse result = eventService.getPagingEvents(pageable, 0L);
 
         //then
-        assertThat(slice.getContent()).hasSize(1)
+        assertThat(result.getContent()).hasSize(1)
                 .extracting("applicants")
                 .containsExactly(0L);
     }

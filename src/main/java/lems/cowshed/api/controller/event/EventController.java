@@ -2,6 +2,7 @@ package lems.cowshed.api.controller.event;
 
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
+import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
@@ -25,8 +26,8 @@ public class EventController implements EventSpecification {
     private final EventService eventService;
 
     @GetMapping
-    public CommonResponse<Slice<EventPreviewResponseDto>> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public CommonResponse<EventPagingResponse> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                               @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return CommonResponse.success(eventService.getPagingEvents(pageable, customUserDetails.getUserId()));
     }
 
