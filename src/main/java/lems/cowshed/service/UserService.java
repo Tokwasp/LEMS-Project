@@ -9,6 +9,7 @@ import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.user.query.UserEventMyPageQueryDto;
 import lems.cowshed.domain.user.query.UserEventQueryDto;
 import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.exception.*;
@@ -35,7 +36,10 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserMyPageResponseDto findMyPage(Long userId) {
-        return userQueryRepository.findUserForMyPage(userId);
+        UserMyPageResponseDto myPageResponse = userQueryRepository.findUserForMyPage(userId);
+        myPageResponse.getUserEventList()
+                .forEach(UserEventMyPageQueryDto::statusCheck);
+        return myPageResponse;
     }
 
     public UserEventResponseDto findUserParticipatingInEvent(LocalDate currentYear, Long userId){

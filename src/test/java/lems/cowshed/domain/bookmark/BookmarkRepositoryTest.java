@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
+
 @Transactional
 @SpringBootTest
 @ActiveProfiles("test")
@@ -29,7 +31,6 @@ class BookmarkRepositoryTest {
     @Autowired
     BookmarkRepository bookmarkRepository;
 
-    @Disabled
     @DisplayName("회원이 등록한 북마크를 찾습니다.")
     @Test
     void findByUserId() {
@@ -44,10 +45,12 @@ class BookmarkRepositoryTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        Bookmark result = bookmarkRepository.findByUserId(user.getId()).get(0);
+        List<Bookmark> result = bookmarkRepository.findByUserId(user.getId());
 
         //then
-        Assertions.assertThat(result.getEvent());
+        assertThat(result.get(0).getEvent())
+                .extracting("name")
+                .isEqualTo("테스트 모임");
     }
 
     @DisplayName("회원이 등록한 북마크가 없다면 빈 목록이 반환 됩니다.")
@@ -61,7 +64,7 @@ class BookmarkRepositoryTest {
         List<Bookmark> bookmarks = bookmarkRepository.findByUserId(user.getId());
 
         //then
-        Assertions.assertThat(bookmarks).isEmpty();
+        assertThat(bookmarks).isEmpty();
     }
 
     private Bookmark createBookmark(Event event, User user) {

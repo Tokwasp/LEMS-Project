@@ -1,14 +1,21 @@
 package lems.cowshed.domain.user.query;
 
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
+import lems.cowshed.domain.bookmark.QBookmark;
+import lems.cowshed.domain.userevent.QUserEvent;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.domain.bookmark.QBookmark.*;
 import static lems.cowshed.domain.event.QEvent.*;
 import static lems.cowshed.domain.user.QUser.*;
@@ -59,33 +66,43 @@ public class UserQueryRepository {
                         event.id,
                         event.author,
                         event.name.as("eventName"),
-                        event.eventDate
+                        event.eventDate,
+                        bookmark.status,
+                        userEvent.user.id.countDistinct().as("applicants")
                 ))
                 .from(userEvent)
                 .join(userEvent.event, event)
-                .where(user.id.eq(userId))
+                .leftJoin(bookmark).on(event.id.eq(bookmark.event.id)
+                        .and(bookmark.user.id.eq(userId))
+                        .and(bookmark.status.eq(BOOKMARK)))
+                .where(userEvent.user.id.eq(userId))
+                .groupBy(event.id, bookmark.status)
                 .limit(LIMIT_COUNT)
                 .fetch();
 
-//        List<EventPreviewResponseDto> bookmarks = queryFactory
-//                .select(new QEventPreviewResponseDto(
-//                                event.id.as("eventId"),
-//                                event.name,
-//                                event.author,
-//                                event.content,
-//                                event.eventDate,
-//                                event.capacity,
-//                                event.a,
-//                                event.createdDateTime
-//                        )
-//                )
-//                .from(bookmark)
-//                .join(bookmark.event, event)
-//                .where(user.id.eq(userId))
-//                .limit(LIMIT_COUNT)
-//                .fetch();
+        List<EventPreviewResponseDto> bookmarks = queryFactory
+                .select(new QEventPreviewResponseDto(
+                                event.id.as("eventId"),
+                                event.name,
+                                event.author,
+                                event.content,
+                                event.eventDate,
+                                event.capacity,
+                                event.id.count().intValue(),
+                                event.createdDateTime,
+                                bookmark.status
+                        )
+                )
+                .from(bookmark)
+                .join(bookmark.event, event)
+                .join(userEvent).on(userEvent.event.id.eq(event.id))
+                .where(bookmark.user.id.eq(userId)
+                        .and(bookmark.status.eq(BOOKMARK)))
+                .groupBy(event.id, bookmark.status)
+                .limit(LIMIT_COUNT)
+                .fetch();
 
-        return new UserMyPageResponseDto(userDto, userEventDto, null);
+        return new UserMyPageResponseDto(userDto, userEventDto, bookmarks);
     }
 
 }
