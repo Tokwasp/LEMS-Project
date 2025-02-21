@@ -3,10 +3,17 @@ package lems.cowshed.service;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.user.query.UserQueryRepository;
+import lems.cowshed.domain.userevent.UserEvent;
+import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
@@ -20,7 +27,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
+import static lems.cowshed.domain.user.Mbti.INTP;
 import static lems.cowshed.exception.Message.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -33,8 +44,23 @@ class UserServiceTest {
     UserService userService;
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    EventRepository eventRepository;
+    @Autowired
+    UserEventRepository userEventRepository;
+    @Autowired
+    BookmarkRepository bookmarkRepository;
     @Autowired
     UserQueryRepository userQueryRepository;
+
+    @BeforeEach
+    void cleanUp(){
+        userEventRepository.deleteAllInBatch();
+        bookmarkRepository.deleteAllInBatch();
+        eventRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+    }
 
     @DisplayName("신규 회원을 등록 한다.")
     @Test
@@ -168,6 +194,33 @@ class UserServiceTest {
                 .hasMessage("유저를 찾지 못했습니다.");
     }
 
+    @DisplayName("회원의 마이 페이지 조회 할 때 북마크 되지 않은 모임은 북마크 되지 않음을 표기 한다.")
+    @Test
+    void findMyPage() {
+        //given
+        Event event = createEvent("자전거 모임", "주최자");
+        Event event2 = createEvent("테스트 모임", "테스터");
+        eventRepository.saveAll(List.of(event, event2));
+
+        User user = createUser("테스터", INTP);
+        userRepository.save(user);
+
+        UserEvent userEvent = UserEvent.of(user, event);
+        UserEvent userEvent2 = UserEvent.of(user, event2);
+        userEventRepository.saveAll(List.of(userEvent, userEvent2));
+
+        Bookmark bookmark = createBookmark(event, user);
+        bookmarkRepository.save(bookmark);
+
+        //when
+        UserMyPageResponseDto result = userService.findMyPage(user.getId());
+
+        //then
+        assertThat(result.getUserEventList())
+                .extracting("status")
+                .containsExactlyInAnyOrder(BOOKMARK, NOT_BOOKMARK);
+    }
+
     private User createUser(String username, String email) {
         return User.builder()
                 .username(username)
@@ -205,6 +258,28 @@ class UserServiceTest {
                 .localName("대구광역시 수성구")
                 .birth(LocalDate.of(2024, 11, 20))
                 .mbti(mbti)
+                .build();
+    }
+
+    private User createUser(String username, Mbti mbti) {
+        return User.builder()
+                .username(username)
+                .mbti(mbti)
+                .build();
+    }
+
+    private Event createEvent(String name, String author) {
+        return Event.builder()
+                .name(name)
+                .author(author)
+                .build();
+    }
+
+    private Bookmark createBookmark(Event event, User user) {
+        return Bookmark.builder()
+                .event(event)
+                .user(user)
+                .status(BOOKMARK)
                 .build();
     }
 }

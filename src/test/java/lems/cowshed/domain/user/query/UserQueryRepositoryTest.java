@@ -3,6 +3,7 @@ package lems.cowshed.domain.user.query;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventJpaRepository;
 import lems.cowshed.domain.user.Mbti;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.domain.user.Mbti.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -80,22 +82,24 @@ class UserQueryRepositoryTest {
         assertThat(userEventDto).isEmpty();
     }
 
-    @Disabled
-    @DisplayName("회원의 마이페이지 정보를 조회 한다.")
+    @DisplayName("한명의 회원이 2개의 모임 참여, 2개의 북마크 했을때 마이 페이지 정보를 확인 한다.")
     @Test
-    void findUserForMyPage() {
+    void findUserForMyPageWhenTwoParticipateEventAndTwoBookmark() {
         //given
         Event event = createEvent("자전거 모임", "주최자");
-        eventJpaRepository.save(event);
+        Event event2 = createEvent("테스트 모임", "테스터");
+        eventJpaRepository.saveAll(List.of(event, event2));
         
         User user = createUser("테스터", INTP);
         userRepository.save(user);
 
         Bookmark bookmark = createBookmark(event, user);
-        bookmarkRepository.save(bookmark);
+        Bookmark bookmark2 = createBookmark(event2, user);
+        bookmarkRepository.saveAll(List.of(bookmark,bookmark2));
 
         UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
+        UserEvent userEvent2 = UserEvent.of(user, event2);
+        userEventRepository.saveAll(List.of(userEvent, userEvent2));
 
         //when
         UserMyPageResponseDto myPage = userQueryRepository.findUserForMyPage(user.getId());
@@ -105,17 +109,20 @@ class UserQueryRepositoryTest {
                 .extracting("name", "mbti")
                 .containsExactly("테스터", INTP);
 
-        assertThat(myPage.getUserEventList().get(0))
-                .extracting("eventName", "author")
-                .containsExactly("자전거 모임", "주최자");
+        assertThat(myPage.getUserEventList()).hasSize(2)
+                .extracting("eventName")
+                .containsExactlyInAnyOrder("자전거 모임", "테스트 모임");
 
-        assertThat(myPage.getBookmarkList()).isNotEmpty();
+        assertThat(myPage.getBookmarkList()).hasSize(2)
+                .extracting("author")
+                .containsExactlyInAnyOrder("주최자", "테스터");
     }
 
     private Bookmark createBookmark(Event event, User user) {
         return Bookmark.builder()
                 .event(event)
                 .user(user)
+                .status(BOOKMARK)
                 .build();
     }
 

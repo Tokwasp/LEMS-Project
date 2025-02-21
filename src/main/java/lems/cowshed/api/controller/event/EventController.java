@@ -38,11 +38,11 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(response);
     }
 
-    @GetMapping("/bookmark")
+    @GetMapping("/bookmarks")
     public CommonResponse<BookmarkResponseDto> getPagingBookmarkEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
-        eventService.getPagingBookmarkEvents(pageable, userDetails.getUserId());
-        return CommonResponse.success();
+        BookmarkResponseDto bookmarkEvents = eventService.getPagingBookmarkEvents(pageable, userDetails.getUserId());
+        return CommonResponse.success(bookmarkEvents);
     }
 
     @PostMapping
