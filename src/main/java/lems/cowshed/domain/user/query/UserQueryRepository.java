@@ -1,19 +1,15 @@
 package lems.cowshed.domain.user.query;
 
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
-import lems.cowshed.domain.bookmark.BookmarkStatus;
-import lems.cowshed.domain.bookmark.QBookmark;
-import lems.cowshed.domain.userevent.QUserEvent;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.domain.bookmark.QBookmark.*;
@@ -26,6 +22,7 @@ public class UserQueryRepository {
 
     private final EntityManager em;
     private final JPAQueryFactory queryFactory;
+    private static final int LIMIT_COUNT = 5;
 
     public UserQueryRepository(EntityManager em) {
         this.em = em;
@@ -48,8 +45,7 @@ public class UserQueryRepository {
                 .fetch();
     }
 
-    public UserMyPageResponseDto findUserForMyPage(Long userId) {
-        final int LIMIT_COUNT = 5;
+    public UserMyPageResponseDto findUserForMyPage(Long userId, List<Long> eventIdList) {
 
         UserMyPageQueryDto userDto = queryFactory
                 .select(new QUserMyPageQueryDto(
@@ -61,25 +57,22 @@ public class UserQueryRepository {
                 .where(user.id.eq(userId))
                 .fetchOne();
 
+        // 회원이 참여한 모임과 참여 인원수 북마크 여부 X
         List<UserEventMyPageQueryDto> userEventDto = queryFactory
                 .select(new QUserEventMyPageQueryDto(
                         event.id,
                         event.author,
                         event.name.as("eventName"),
                         event.eventDate,
-                        bookmark.status,
                         userEvent.user.id.countDistinct().as("applicants")
                 ))
                 .from(userEvent)
                 .join(userEvent.event, event)
-                .leftJoin(bookmark).on(event.id.eq(bookmark.event.id)
-                        .and(bookmark.user.id.eq(userId))
-                        .and(bookmark.status.eq(BOOKMARK)))
-                .where(userEvent.user.id.eq(userId))
-                .groupBy(event.id, bookmark.status)
-                .limit(LIMIT_COUNT)
+                .where(userEvent.event.id.in(eventIdList))
+                .groupBy(event.id)
                 .fetch();
 
+        // 북마크 여부 O 참여자 수 체크 X
         List<EventPreviewResponseDto> bookmarks = queryFactory
                 .select(new QEventPreviewResponseDto(
                                 event.id.as("eventId"),
@@ -88,21 +81,51 @@ public class UserQueryRepository {
                                 event.content,
                                 event.eventDate,
                                 event.capacity,
-                                event.id.count().intValue(),
                                 event.createdDateTime,
                                 bookmark.status
                         )
                 )
                 .from(bookmark)
                 .join(bookmark.event, event)
-                .join(userEvent).on(userEvent.event.id.eq(event.id))
                 .where(bookmark.user.id.eq(userId)
                         .and(bookmark.status.eq(BOOKMARK)))
-                .groupBy(event.id, bookmark.status)
                 .limit(LIMIT_COUNT)
                 .fetch();
 
         return new UserMyPageResponseDto(userDto, userEventDto, bookmarks);
     }
 
+    public List<Long> getParticipatedEvent(Long userId){
+        return queryFactory
+                .select(event.id)
+                .from(userEvent)
+                .where(userEvent.user.id.eq(userId))
+                .limit(LIMIT_COUNT)
+                .fetch();
+    }
+
+    public Set<Long> getBookmark(Long userId, List<Long> eventIds){
+        return new HashSet<>(queryFactory.select(bookmark.event.id)
+                .from(bookmark)
+                .where(user.id.eq(userId)
+                        .and(bookmark.event.id.in(eventIds)).and(bookmark.status.eq(BOOKMARK)))
+                .fetch());
+    }
+
+    public Map<Long, Long> getParticipatedEventIdSet(List<Long> eventIds){
+        List<Tuple> result = queryFactory.select(userEvent.event.id, userEvent.event.id.count())
+                .from(userEvent)
+                .where(userEvent.event.id.in(eventIds))
+                .groupBy(userEvent.event.id)
+                .fetch();
+
+        Map<Long, Long> eventCountMap = new HashMap<>();
+        for(Tuple tuple : result){
+            Long eventId = tuple.get(userEvent.event.id);
+            Long participantCount = tuple.get(userEvent.event.id.count());
+
+            eventCountMap.put(eventId, participantCount != null ? participantCount : 0);
+        }
+        return eventCountMap;
+    }
 }

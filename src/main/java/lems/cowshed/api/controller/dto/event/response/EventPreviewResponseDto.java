@@ -35,14 +35,13 @@ public class EventPreviewResponseDto {
     @QueryProjection
     public EventPreviewResponseDto(Long eventId, String name, String author,
                                    String content, LocalDate eventDate,
-                                   int capacity, int applicants, LocalDateTime createdDate, BookmarkStatus bookmarkStatus){
+                                   int capacity, LocalDateTime createdDate, BookmarkStatus bookmarkStatus){
         this.eventId = eventId;
         this.name = name;
         this.author = author;
         this.content = content;
         this.eventDate = eventDate;
         this.capacity = capacity;
-        this.applicants = applicants;
         this.createdDate = createdDate;
         this.bookmarkStatus = bookmarkStatus;
     }
@@ -75,5 +74,9 @@ public class EventPreviewResponseDto {
                 .applicants(participantsCount)
                 .bookmarkStatus(status)
                 .build();
+    }
+
+    public void changeApplicants(Long applicants){
+        this.applicants = applicants;
     }
 }

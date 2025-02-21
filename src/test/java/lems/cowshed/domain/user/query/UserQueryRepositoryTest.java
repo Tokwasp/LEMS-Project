@@ -102,7 +102,7 @@ class UserQueryRepositoryTest {
         userEventRepository.saveAll(List.of(userEvent, userEvent2));
 
         //when
-        UserMyPageResponseDto myPage = userQueryRepository.findUserForMyPage(user.getId());
+        UserMyPageResponseDto myPage = userQueryRepository.findUserForMyPage(user.getId(), List.of(event.getId(), event2.getId()));
 
         //then
         assertThat(myPage.getUserDto())
