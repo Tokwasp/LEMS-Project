@@ -134,6 +134,7 @@ class UserApiControllerTest {
         //given
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
+                .password("tempPassword")
                 .email("test@naver.com")
                 .build();
 
@@ -146,7 +147,7 @@ class UserApiControllerTest {
         )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].field").value("gender"))
-                .andExpect(jsonPath("$.errors[0].message").value("성별은 필수 입니다."));
+                .andExpect(jsonPath("$.errors[0].message").value("성별은 `MALE`, `FEMALE`을 허용 합니다."));
     }
 
     @DisplayName("회원이 로그인 할 때 이메일 값은 빈값일 수 없습니다.")
