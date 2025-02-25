@@ -2,6 +2,7 @@ package lems.cowshed.api.controller.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
+import lems.cowshed.domain.user.query.UserBookmarkMyPageQueryDto;
 import lems.cowshed.domain.user.query.UserEventMyPageQueryDto;
 import lems.cowshed.domain.user.query.UserMyPageQueryDto;
 import lombok.AccessLevel;
@@ -22,9 +23,9 @@ public class UserMyPageResponseDto {
     private List<UserEventMyPageQueryDto> userEventList;
 
     @Schema(description = "북마크 모임")
-    private List<EventPreviewResponseDto> bookmarkList;
+    private List<UserBookmarkMyPageQueryDto> bookmarkList;
 
-    public UserMyPageResponseDto(UserMyPageQueryDto userDto, List<UserEventMyPageQueryDto> userEventList, List<EventPreviewResponseDto> bookmarkList) {
+    public UserMyPageResponseDto(UserMyPageQueryDto userDto, List<UserEventMyPageQueryDto> userEventList, List<UserBookmarkMyPageQueryDto> bookmarkList) {
         this.userDto = userDto;
         this.userEventList = userEventList;
         this.bookmarkList = bookmarkList;

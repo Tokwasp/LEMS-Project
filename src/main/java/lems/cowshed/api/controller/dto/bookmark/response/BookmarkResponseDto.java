@@ -1,14 +1,12 @@
 package lems.cowshed.api.controller.dto.bookmark.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
-import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.user.query.UserBookmarkMyPageQueryDto;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Schema(description = "북마크 모임 반환")
