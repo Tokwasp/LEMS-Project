@@ -1,8 +1,10 @@
 package lems.cowshed.api.controller.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.domain.user.Gender;
 import lems.cowshed.service.BookmarkService;
 import lems.cowshed.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +17,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import static lems.cowshed.domain.user.Gender.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,6 +47,7 @@ class UserApiControllerTest {
                 .username("test")
                 .email("test@naver.com")
                 .password("tempPassword")
+                .gender(MALE)
                 .build();
 
         //when //then
@@ -64,6 +68,7 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .email("test@naver.com")
                 .password("tempPassword")
+                .gender(MALE)
                 .build();
 
         //when //then
@@ -86,6 +91,7 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .password("tempPassword")
+                .gender(MALE)
                 .build();
 
         //when //then
@@ -107,6 +113,7 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .email("test@naver.com")
+                .gender(MALE)
                 .build();
 
         //when //then
@@ -119,6 +126,27 @@ class UserApiControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].field").value("password"))
                 .andExpect(jsonPath("$.errors[0].message").value("패스워드는 필수 입니다."));
+    }
+
+    @DisplayName("신규 회원이 회원 가입을 할 때 성별 값은 필수 입니다.")
+    @Test
+    void saveUserWithoutGender() throws Exception {
+        //given
+        UserSaveRequestDto request = UserSaveRequestDto.builder()
+                .username("test")
+                .email("test@naver.com")
+                .build();
+
+        //when //then
+        mockMvc.perform(
+                post("/users/signUp")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("gender"))
+                .andExpect(jsonPath("$.errors[0].message").value("성별은 필수 입니다."));
     }
 
     @DisplayName("회원이 로그인 할 때 이메일 값은 빈값일 수 없습니다.")
