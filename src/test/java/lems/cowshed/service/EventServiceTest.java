@@ -469,15 +469,6 @@ class EventServiceTest {
                 .isInstanceOf(NotFoundException.class);
     }
 
-    @DisplayName("회원이 모임 참석을 해제 할때 ")
-    @Test
-    void deleteUserEventWhenNotParticipateByMe() {
-        //given
-
-        //when
-
-        //then
-    }
     private static Event createEvent(String author, String name) {
         return Event.builder()
                 .name(name)
