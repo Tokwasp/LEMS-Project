@@ -4,13 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Schema(description = "모임 상세")
@@ -37,12 +35,16 @@ public class EventDetailResponseDto {
     long applicants;
     @Schema(description = "북마크 여부", example = "BOOKMARK")
     BookmarkStatus bookmarkStatus;
+    @Schema(description = "내가 등록한 모임 인지 여부", example = "YES")
+    boolean registeredByMe;
+    @Schema(description = "내가 참여한 모임 인지 여부", example = "YES")
+    boolean isParticipated;
 
     @Builder
     private EventDetailResponseDto(Long eventId, String author, String name, Category category,
                                   LocalDateTime createdDate, String location,
                                   String content, LocalDate eventDate, int capacity, long applicants,
-                                   BookmarkStatus bookmarkStatus) {
+                                   BookmarkStatus bookmarkStatus, boolean registeredByMe, boolean isParticipated) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -54,9 +56,12 @@ public class EventDetailResponseDto {
         this.capacity = capacity;
         this.applicants = applicants;
         this.bookmarkStatus = bookmarkStatus;
+        this.registeredByMe = registeredByMe;
+        this.isParticipated = isParticipated;
     }
 
-    public static EventDetailResponseDto from(Event event, long participantsCount, BookmarkStatus bookmarkStatus){
+    public static EventDetailResponseDto from(Event event, long participantsCount, BookmarkStatus bookmarkStatus,
+                                              boolean registeredByMe, boolean isParticipated){
         return EventDetailResponseDto.builder()
                 .eventId(event.getId())
                 .name(event.getName())
@@ -69,6 +74,8 @@ public class EventDetailResponseDto {
                 .capacity(event.getCapacity())
                 .applicants(participantsCount)
                 .bookmarkStatus(bookmarkStatus)
+                .registeredByMe(registeredByMe)
+                .isParticipated(isParticipated)
                 .build();
     }
 }

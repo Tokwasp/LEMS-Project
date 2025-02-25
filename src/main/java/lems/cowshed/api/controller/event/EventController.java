@@ -35,7 +35,7 @@ public class EventController implements EventSpecification {
     @GetMapping("/{event-id}")
     public CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId,
                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        EventDetailResponseDto response = eventService.getEvent(eventId, userDetails.getUserId());
+        EventDetailResponseDto response = eventService.getEvent(eventId, userDetails.getUserId(), userDetails.getUsername());
         return CommonResponse.success(response);
     }
 
@@ -69,8 +69,9 @@ public class EventController implements EventSpecification {
     }
 
     @DeleteMapping("/{event-id}")
-    public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId){
-        eventService.deleteEvent(eventId);
+    public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId,
+                                            @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        eventService.deleteEvent(eventId, customUserDetails.getUsername());
         return CommonResponse.success();
     }
 

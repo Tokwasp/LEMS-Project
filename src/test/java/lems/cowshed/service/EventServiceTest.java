@@ -164,11 +164,35 @@ class EventServiceTest {
         eventRepository.save(event);
 
         //when
-        EventDetailResponseDto response = eventService.getEvent(event.getId(), user.getId());
+        EventDetailResponseDto response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
 
         //then
-        assertThat(response).extracting("name", "author", "bookmarkStatus")
-                .containsExactly("자전거 모임", "테스터", NOT_BOOKMARK);
+        assertThat(response).extracting("name", "author", "bookmarkStatus", "isParticipated")
+                .containsExactly("자전거 모임", "테스터", NOT_BOOKMARK, false);
+    }
+
+    @DisplayName("모임을 조회할때 회원이 참여한 모임, 북마크한 모임은 표시가 되어있다.")
+    @Test
+    void getEventWhenParticipatedEvent() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        UserEvent userEvent = UserEvent.of(user, event);
+        userEventRepository.save(userEvent);
+
+        Bookmark bookmark = Bookmark.create(event, user, BOOKMARK);
+        bookmarkRepository.save(bookmark);
+
+        //when
+        EventDetailResponseDto response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        assertThat(response).extracting("bookmarkStatus", "isParticipated")
+                .containsExactly(BOOKMARK, true);
     }
 
     @Transactional
@@ -186,7 +210,7 @@ class EventServiceTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        EventDetailResponseDto result = eventService.getEvent(event.getId(), user.getId());
+        EventDetailResponseDto result = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
 
         //then
         assertThat(result).isNotNull()
@@ -199,19 +223,32 @@ class EventServiceTest {
     @Test
     void editEvent() {
         //given
-        String tester = "테스터";
-        Event event = createEvent(tester, "자전거 모임", 10);
+        Event event = createEvent("테스터", "자전거 모임", 10);
         eventRepository.save(event);
 
         EventUpdateRequestDto updateRequest = createUpdateReqeustDto("산책 모임", 20);
 
         //when
-        eventService.editEvent(event.getId(), updateRequest, tester);
+        eventService.editEvent(event.getId(), updateRequest, "테스터");
 
         //then
         Event findEvent = eventRepository.findById(event.getId()).orElseThrow();
         assertThat(findEvent).extracting("author", "name", "capacity")
                 .containsExactly("테스터", "산책 모임", 20);
+    }
+
+    @DisplayName("모임을 수정할 때 내가 등록한 모임이 아니라면 예외가 발생 한다.")
+    @Test
+    void editEventWhenNotRegisteredByMe() {
+        //given
+        Event event = createEvent("테스터", "자전거 모임", 10);
+        eventRepository.save(event);
+
+        EventUpdateRequestDto updateRequest = createUpdateReqeustDto("산책 모임", 20);
+
+        //when //then
+        assertThatThrownBy(() -> eventService.editEvent(event.getId(), updateRequest, "등록 안한 테스터"))
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Transactional
@@ -328,7 +365,7 @@ class EventServiceTest {
         eventRepository.save(event);
 
         //when
-        eventService.deleteEvent(event.getId());
+        eventService.deleteEvent(event.getId(), event.getAuthor());
 
         //then
         assertThrows(NoSuchElementException.class,
@@ -432,6 +469,15 @@ class EventServiceTest {
                 .isInstanceOf(NotFoundException.class);
     }
 
+    @DisplayName("회원이 모임 참석을 해제 할때 ")
+    @Test
+    void deleteUserEventWhenNotParticipateByMe() {
+        //given
+
+        //when
+
+        //then
+    }
     private static Event createEvent(String author, String name) {
         return Event.builder()
                 .name(name)

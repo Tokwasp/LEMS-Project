@@ -20,7 +20,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Optional<Event> findPessimisticLockById(Long eventId);
     Slice<Event> findSliceBy(Pageable pageable);
     Event findByName(String name);
-
+    Optional<Event> findByIdAndAuthor(Long eventId, String author);
     @Query("SELECT b.event.id FROM Bookmark b WHERE b.user.id = :userId AND b.event.id IN :eventIds AND b.status = :bookmarkStatus")
     Set<Long> findBookmarkedEventIds(@Param("userId") Long userId, @Param("eventIds") List<Long> eventIds, @Param("bookmarkStatus") BookmarkStatus bookmarkStatus);
+    @Query("select e from Event e Join Bookmark b on b.user.id = :userId And b.event.id = :eventId And b.status = :bookmarkStatus")
+    Optional<Event> findBookmarkedEvent(@Param("userId") Long userId, @Param("eventId") Long eventId, @Param("bookmarkStatus") BookmarkStatus bookmarkStatus);
 }

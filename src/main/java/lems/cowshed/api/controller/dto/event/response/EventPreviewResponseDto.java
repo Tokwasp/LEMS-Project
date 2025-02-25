@@ -13,66 +13,51 @@ import java.time.LocalDateTime;
 @Getter
 @Schema(description = "메인 페이지의 모임 리스트 중 한 개의 모임 정보")
 public class EventPreviewResponseDto {
-    @Schema(description = "모임 id", example = "1")
-    Long eventId;
-    @Schema(description = "모임 이름", example = "자전거 모임")
-    String name;
-    @Schema(description = "모임 등록자", example = "김철수")
-    String author;
-    @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
-    String content;
-    @Schema(description = "모임 날짜", example = "2024-09-12")
-    LocalDate eventDate;
-    @Schema(description = "수용 최대 인원", example = "100")
-    int capacity;
-    @Schema(description = "참여 인원", example = "50")
-    long applicants;
-    @Schema(description = "등록일", example = "yyyy-mm-dd hh:mm:ss")
-    LocalDateTime createdDate;
-    @Schema(description = "북마크 여부 ", example = "Y")
-    BookmarkStatus bookmarkStatus;
+    @Schema(description = "이벤트 id", example = "1")
+    private Long id;
+
+    @Schema(description = "주최자", example = "김철수")
+    private String author;
+
+    @Schema(description = "이벤트 이름", example = "자전거 소모임")
+    private String eventName;
+
+    @Schema(description = "이벤트 날짜", example = "2024-10-19")
+    private LocalDate eventDate;
+
+    @Schema(description = "북마크 여부", example = "BOOKMARK")
+    private BookmarkStatus status;
+
+    @Schema(description = "참여자 수 ", example = "15")
+    private Long applicants;
 
     @QueryProjection
-    public EventPreviewResponseDto(Long eventId, String name, String author,
-                                   String content, LocalDate eventDate,
-                                   int capacity, LocalDateTime createdDate, BookmarkStatus bookmarkStatus){
-        this.eventId = eventId;
-        this.name = name;
+    public EventPreviewResponseDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status) {
+        this.id = id;
         this.author = author;
-        this.content = content;
+        this.eventName = eventName;
         this.eventDate = eventDate;
-        this.capacity = capacity;
-        this.createdDate = createdDate;
-        this.bookmarkStatus = bookmarkStatus;
+        this.status = status;
     }
 
     @Builder
-    public EventPreviewResponseDto(Long eventId, String name, String author,
-                                   String content, LocalDate eventDate,
-                                   int capacity, LocalDateTime createdDate, long applicants,
-                                   BookmarkStatus bookmarkStatus) {
-        this.eventId = eventId;
-        this.name = name;
+    public EventPreviewResponseDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status, Long applicants) {
+        this.id = id;
         this.author = author;
-        this.content = content;
+        this.eventName = eventName;
         this.eventDate = eventDate;
-        this.capacity = capacity;
-        this.createdDate = createdDate;
+        this.status = status;
         this.applicants = applicants;
-        this.bookmarkStatus = bookmarkStatus;
     }
 
     public static EventPreviewResponseDto of(Event event, long participantsCount, BookmarkStatus status){
         return EventPreviewResponseDto.builder()
-                .eventId(event.getId())
-                .name(event.getName())
+                .id(event.getId())
+                .eventName(event.getName())
                 .author(event.getAuthor())
-                .content(event.getContent())
                 .eventDate(event.getEventDate())
-                .capacity(event.getCapacity())
-                .createdDate(event.getCreatedDateTime())
                 .applicants(participantsCount)
-                .bookmarkStatus(status)
+                .status(status)
                 .build();
     }
 

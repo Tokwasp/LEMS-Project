@@ -1,6 +1,5 @@
 package lems.cowshed.service;
 
-import jakarta.validation.constraints.Null;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
@@ -23,7 +22,6 @@ import lems.cowshed.exception.Reason;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,15 +60,18 @@ public class EventService {
         eventRepository.save(event);
     }
 
-    public EventDetailResponseDto getEvent(Long eventId, Long userId) {
+    public EventDetailResponseDto getEvent(Long eventId, Long userId, String username) {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        long participantCount = userEventRepository.countParticipantByEventId(event.getId());
-        BookmarkStatus bookmarkStatus = eventRepository.findBookmarkedEventIds(userId, List.of(event.getId()), BOOKMARK)
+        List<UserEvent> userEvents = userEventRepository.findFetchUserByEventId(eventId);
+        long participantsCount = userEvents.size();
+
+        BookmarkStatus bookmarkStatus = eventRepository.findBookmarkedEvent(userId, event.getId(), BOOKMARK)
                 .isEmpty() ? NOT_BOOKMARK : BOOKMARK;
 
-        return EventDetailResponseDto.from(event, participantCount, bookmarkStatus);
+        return EventDetailResponseDto.from(event, participantsCount, bookmarkStatus,
+                registeredByMe(username, event.getAuthor()), isParticipated(userEvents, userId));
     }
 
     public long joinEvent(Long eventId, Long userId) {
@@ -90,7 +91,7 @@ public class EventService {
     }
 
     public void editEvent(Long eventId, EventUpdateRequestDto requestDto, String userName) {
-        Event event = eventRepository.findById(eventId).orElseThrow(
+        Event event = eventRepository.findByIdAndAuthor(eventId, userName).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
         if(notRegisteredEventByUser(userName, event)){
@@ -99,9 +100,10 @@ public class EventService {
         event.edit(requestDto);
     }
 
-    public void deleteEvent(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(
+    public void deleteEvent(Long eventId, String username) {
+        Event event = eventRepository.findByIdAndAuthor(eventId, username).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+
         eventRepository.delete(event);
     }
 
@@ -159,5 +161,14 @@ public class EventService {
 
     private boolean isNotPossibleToParticipate(Event event) {
         return event.isNotParticipate(userEventRepository.countParticipantByEventId(event.getId()));
+    }
+
+    private boolean registeredByMe(String username, String author) {
+        return username.equals(author);
+    }
+
+    private boolean isParticipated(List<UserEvent> userEvents, Long userId) {
+        return userEvents.stream()
+                .anyMatch(userEvent -> userEvent.getUser().getId().equals(userId));
     }
 }
