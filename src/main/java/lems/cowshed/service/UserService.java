@@ -83,10 +83,13 @@ public class UserService {
         }
     }
 
-    public void editUser(UserEditRequestDto editDto, Long userId){
-        userRepository.findByUsername(editDto.getUsername())
-                .ifPresent(u -> {throw new BusinessException(USER_NAME, USERNAME_EXIST);});
-
+    public void editUser(UserEditRequestDto editDto, Long userId, String myUsername){
+        if(isChangeUsername(editDto, myUsername)) {
+            userRepository.findByUsername(editDto.getUsername())
+                    .ifPresent(u -> {
+                        throw new BusinessException(USER_NAME, USERNAME_EXIST);
+                    });
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
@@ -121,6 +124,10 @@ public class UserService {
 
     private boolean isPasswordValidationFail(UserLoginRequestDto loginDto, User user) {
         return !bCryptPasswordEncoder.matches(loginDto.getPassword(), user.getPassword());
+    }
+
+    private boolean isChangeUsername(UserEditRequestDto editDto, String myUsername) {
+        return !editDto.getUsername().equals(myUsername);
     }
 
     private void checkBookmarked(List<UserEventMyPageQueryDto> userEventList, Set<Long> bookmarkEventIdSet) {

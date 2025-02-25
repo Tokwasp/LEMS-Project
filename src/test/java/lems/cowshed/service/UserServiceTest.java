@@ -152,7 +152,7 @@ class UserServiceTest {
         UserEditRequestDto request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
 
         //when
-        userService.editUser(request, user.getId());
+        userService.editUser(request, user.getId(), user.getUsername());
 
         //then
         User findUser = userRepository.findByUsername(editName).orElseThrow();
@@ -164,17 +164,16 @@ class UserServiceTest {
     @Test
     void editProcessWhenDuplicateUsername() {
         //given
-        String duplicateName = "테스트";
-        User priorRegisterUser = createUser(duplicateName, "test@naver.com");
-        userRepository.save(priorRegisterUser);
-
-        User user = createUser("신규", "new@naver.com");
+        User user = createUser("테스터", "test@naver.com");
         userRepository.save(user);
 
-        UserEditRequestDto request = createEditDto(duplicateName, "안녕하세요!", Mbti.INTP);
+        User user2 = createUser("등록된 닉네임", "new@naver.com");
+        userRepository.save(user2);
+
+        UserEditRequestDto request = createEditDto("등록된 닉네임", "안녕하세요!", Mbti.INTP);
 
         //when //then
-        assertThatThrownBy(() -> userService.editUser(request, user.getId()))
+        assertThatThrownBy(() -> userService.editUser(request, user.getId(), user.getUsername()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("이미 존재하는 닉네임 입니다.");
     }
@@ -189,7 +188,7 @@ class UserServiceTest {
         UserEditRequestDto request = createEditDto("새닉네임", "안녕하세요!", Mbti.INTP);
 
         //when //then
-        assertThatThrownBy(() -> userService.editUser(request, 2L))
+        assertThatThrownBy(() -> userService.editUser(request, 2L, user.getUsername()))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("유저를 찾지 못했습니다.");
     }
