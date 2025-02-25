@@ -77,7 +77,7 @@ class BaseEntityTest {
         UserEditRequestDto request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
 
         //when
-        userService.editUser(request, user.getId());
+        userService.editUser(request, user.getId(), user.getUsername());
 
         //then
         userRepository.flush();

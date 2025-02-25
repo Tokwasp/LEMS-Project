@@ -56,7 +56,7 @@ public class UserApiController implements UserSpecification{
     @PatchMapping
     public CommonResponse<Void> editUser(@RequestBody UserEditRequestDto userEditRequestDto,
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        userService.editUser(userEditRequestDto, customUserDetails.getUserId());
+        userService.editUser(userEditRequestDto, customUserDetails.getUserId(), customUserDetails.getUsername());
         return CommonResponse.success();
     }
 
