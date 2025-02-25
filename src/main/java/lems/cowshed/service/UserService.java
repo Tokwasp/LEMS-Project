@@ -11,6 +11,7 @@ import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.user.query.UserBookmarkMyPageQueryDto;
 import lems.cowshed.domain.user.query.UserEventMyPageQueryDto;
 import lems.cowshed.domain.user.query.UserEventQueryDto;
 import lems.cowshed.domain.user.query.UserQueryRepository;
@@ -50,8 +51,8 @@ public class UserService {
         List<UserEventMyPageQueryDto> userEventList = myPageDto.getUserEventList();
         checkBookmarked(userEventList, bookmarkEventIdSet);
 
-        List<EventPreviewResponseDto> bookmarkList = myPageDto.getBookmarkList();
-        List<Long> bookmarkEventIdList = bookmarkList.stream().map(EventPreviewResponseDto::getEventId).toList();
+        List<UserBookmarkMyPageQueryDto> bookmarkList = myPageDto.getBookmarkList();
+        List<Long> bookmarkEventIdList = bookmarkList.stream().map(UserBookmarkMyPageQueryDto::getId).toList();
         Map<Long, Long> eventIdParticipantsMap = userQueryRepository.getParticipatedEventIdSet(bookmarkEventIdList);
         setApplicants(bookmarkList, eventIdParticipantsMap);
         return myPageDto;
@@ -141,9 +142,9 @@ public class UserService {
         });
     }
 
-    private void setApplicants(List<EventPreviewResponseDto> bookmarkList, Map<Long, Long> eventIdParticipantsMap) {
+    private void setApplicants(List<UserBookmarkMyPageQueryDto> bookmarkList, Map<Long, Long> eventIdParticipantsMap) {
         bookmarkList.stream().forEach(
-                dto -> dto.changeApplicants(eventIdParticipantsMap.getOrDefault(dto.getEventId(), 0L))
+                dto -> dto.changeApplicants(eventIdParticipantsMap.getOrDefault(dto.getId(), 0L))
         );
     }
 }

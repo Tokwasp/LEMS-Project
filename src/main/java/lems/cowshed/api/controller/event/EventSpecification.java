@@ -58,7 +58,8 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 삭제", description = "모임을 삭제 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId);
+    CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId,
+                                     @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "북마크 모임 페이징 조회", description = "북마크 모임 페이징 조회")
     CommonResponse<BookmarkResponseDto> getPagingBookmarkEvents(Pageable pageable,

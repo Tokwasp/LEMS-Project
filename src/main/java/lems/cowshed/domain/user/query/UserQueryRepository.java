@@ -73,15 +73,12 @@ public class UserQueryRepository {
                 .fetch();
 
         // 북마크 여부 O 참여자 수 체크 X
-        List<EventPreviewResponseDto> bookmarks = queryFactory
-                .select(new QEventPreviewResponseDto(
+        List<UserBookmarkMyPageQueryDto> bookmarks = queryFactory
+                .select(new QUserBookmarkMyPageQueryDto(
                                 event.id.as("eventId"),
-                                event.name,
                                 event.author,
-                                event.content,
+                                event.name,
                                 event.eventDate,
-                                event.capacity,
-                                event.createdDateTime,
                                 bookmark.status
                         )
                 )
