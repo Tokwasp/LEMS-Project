@@ -2,6 +2,8 @@ package lems.cowshed.api.controller.dto.user.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lems.cowshed.api.controller.dto.Enum;
 import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
@@ -25,6 +27,7 @@ public class UserSaveRequestDto {
     private String password;
 
     @Schema(description = "성별", example = "MALE")
+    @Enum(message = "성별은 `MALE`, `FEMALE`을 허용 합니다.")
     private Gender gender;
 
     @Builder
@@ -44,4 +47,5 @@ public class UserSaveRequestDto {
                 .role(role)
                 .build();
     }
+
 }
