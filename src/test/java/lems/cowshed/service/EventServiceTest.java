@@ -16,6 +16,8 @@ import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
+import lems.cowshed.exception.NotFoundException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -389,6 +392,45 @@ class EventServiceTest {
                 .containsExactlyInAnyOrder(BOOKMARK, NOT_BOOKMARK);
     }
 
+    @Transactional
+    @DisplayName("회원이 참석한 모임의 참석을 해제 한다.")
+    @Test
+    void deleteUserEvent() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        UserEvent userEvent = UserEvent.of(user, event);
+        userEventRepository.save(userEvent);
+
+        //when
+        eventService.deleteUserEvent(event.getId(), user.getId());
+
+        //then
+        assertThatThrownBy(() -> userEventRepository.findById(userEvent.getId()).orElseThrow())
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @DisplayName("회원이 모임 참석을 해제 할때 등록 하지 않은 모임 이라면 예외가 발생 한다.")
+    @Test
+    void deleteUserEventWhenNotParticipated() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        UserEvent userEvent = UserEvent.of(user, event);
+        userEventRepository.save(userEvent);
+
+        //when //then
+        assertThatThrownBy(() -> eventService.deleteUserEvent(null, user.getId()))
+                .isInstanceOf(NotFoundException.class);
+    }
 
     private static Event createEvent(String author, String name) {
         return Event.builder()

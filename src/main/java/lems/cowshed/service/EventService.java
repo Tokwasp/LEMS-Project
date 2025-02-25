@@ -17,7 +17,9 @@ import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
+import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
+import lems.cowshed.exception.Reason;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -115,6 +117,13 @@ public class EventService {
         ).toList();
 
         return BookmarkResponseDto.of(result, bookmarks.isLast());
+    }
+
+    public void deleteUserEvent(Long eventId, Long userId) {
+        UserEvent userEvent = userEventRepository.findByEventIdAndUserId(eventId, userId)
+                .orElseThrow(() -> new NotFoundException(USER_EVENT, USER_EVENT_NOT_FOUND));
+
+        userEventRepository.delete(userEvent);
     }
 
     private Map<Long, Long> findEventParticipantsCounting(List<Long> eventIdList) {
