@@ -76,12 +76,9 @@ public class UserQueryRepository {
         List<EventPreviewResponseDto> bookmarks = queryFactory
                 .select(new QEventPreviewResponseDto(
                                 event.id.as("eventId"),
-                                event.name,
                                 event.author,
-                                event.content,
+                                event.name,
                                 event.eventDate,
-                                event.capacity,
-                                event.createdDateTime,
                                 bookmark.status
                         )
                 )

@@ -51,7 +51,7 @@ public class UserService {
         checkBookmarked(userEventList, bookmarkEventIdSet);
 
         List<EventPreviewResponseDto> bookmarkList = myPageDto.getBookmarkList();
-        List<Long> bookmarkEventIdList = bookmarkList.stream().map(EventPreviewResponseDto::getEventId).toList();
+        List<Long> bookmarkEventIdList = bookmarkList.stream().map(EventPreviewResponseDto::getId).toList();
         Map<Long, Long> eventIdParticipantsMap = userQueryRepository.getParticipatedEventIdSet(bookmarkEventIdList);
         setApplicants(bookmarkList, eventIdParticipantsMap);
         return myPageDto;
@@ -143,7 +143,7 @@ public class UserService {
 
     private void setApplicants(List<EventPreviewResponseDto> bookmarkList, Map<Long, Long> eventIdParticipantsMap) {
         bookmarkList.stream().forEach(
-                dto -> dto.changeApplicants(eventIdParticipantsMap.getOrDefault(dto.getEventId(), 0L))
+                dto -> dto.changeApplicants(eventIdParticipantsMap.getOrDefault(dto.getId(), 0L))
         );
     }
 }
