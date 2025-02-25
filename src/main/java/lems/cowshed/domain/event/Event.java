@@ -30,9 +30,6 @@ public class Event extends BaseEntity {
     @Column(name = "location", length = 20)
     private String location;
 
-    @Column(name = "address", length = 45)
-    private String address;
-
     @Column(name = "author", length = 20)
     private String author;
 
@@ -47,13 +44,12 @@ public class Event extends BaseEntity {
 
     @Builder
     public Event(String name, LocalDate eventDate, Category category,
-                 String location, String address, String author,
+                 String location, String author,
                  String email, String content, int capacity) {
         this.name = name;
         this.eventDate = eventDate;
         this.category = category;
         this.location = location;
-        this.address = address;
         this.author = author;
         this.email = email;
         this.content = content;
