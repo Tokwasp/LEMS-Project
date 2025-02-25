@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lems.cowshed.api.controller.dto.Enum;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lombok.*;
@@ -24,7 +25,7 @@ public class EventSaveRequestDto {
     @Schema(description = "모임 이름", example = "새벽 한강 러닝 모임")
     String name;
 
-    @NotNull
+    @Enum(message = "Category 타입을 확인해 주세요.")
     @Schema(description = "카테고리", example = "스포츠")
     Category category;
 
