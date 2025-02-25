@@ -134,6 +134,7 @@ class UserApiControllerTest {
         //given
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
+                .password("tempPassword")
                 .email("test@naver.com")
                 .build();
 
