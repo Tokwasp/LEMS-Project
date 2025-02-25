@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
-@Slf4j
 public class EnumValidator implements ConstraintValidator<Enum, java.lang.Enum> {
 
     @Override
