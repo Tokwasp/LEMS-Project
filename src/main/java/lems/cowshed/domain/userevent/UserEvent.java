@@ -15,7 +15,7 @@ public class UserEvent extends BaseEntity {
     @Id
     @Column(name = "user_event_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")

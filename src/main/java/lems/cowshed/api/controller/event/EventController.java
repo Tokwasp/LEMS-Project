@@ -1,5 +1,6 @@
 package lems.cowshed.api.controller.event;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
@@ -67,10 +68,16 @@ public class EventController implements EventSpecification {
         return CommonResponse.success();
     }
 
-
     @DeleteMapping("/{event-id}")
     public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId){
         eventService.deleteEvent(eventId);
+        return CommonResponse.success();
+    }
+
+    @DeleteMapping("{event-id}/join")
+    public CommonResponse<Void> deleteUserEvent(@PathVariable("event-id") Long eventId,
+                                                @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        eventService.deleteUserEvent(eventId, customUserDetails.getUserId());
         return CommonResponse.success();
     }
 

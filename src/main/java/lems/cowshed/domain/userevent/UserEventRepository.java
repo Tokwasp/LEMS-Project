@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserEventRepository extends JpaRepository<UserEvent, Long> {
 
@@ -12,4 +13,5 @@ public interface UserEventRepository extends JpaRepository<UserEvent, Long> {
     long countParticipantByEventId(@Param("eventId") Long eventId);
 
     List<UserEvent> findByEventIdIn (List<Long> eventIds);
+    Optional<UserEvent> findByEventIdAndUserId (Long EventId, Long userId);
 }

@@ -51,6 +51,11 @@ public interface EventSpecification {
                                    @RequestBody @Validated EventUpdateRequestDto eventUpdateDto,
                                    @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
+    @Operation(summary = "모임 참여 제거", description = "회원의 모임 참석을 제거 합니다.")
+    @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
+    CommonResponse<Void> deleteUserEvent(@Parameter(name="event-id", description = "모임 id", example = "1") @PathVariable Long eventId
+            , @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
     @Operation(summary = "모임 삭제", description = "모임을 삭제 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId);
