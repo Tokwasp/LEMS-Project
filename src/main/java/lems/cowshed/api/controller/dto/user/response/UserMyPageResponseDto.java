@@ -5,6 +5,7 @@ import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
 import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
 import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,9 +25,20 @@ public class UserMyPageResponseDto {
     @Schema(description = "북마크 모임")
     private List<MyPageBookmarkedEventQueryDto> bookmarkList;
 
+    @Builder
     public UserMyPageResponseDto(MyPageUserQueryDto userDto, List<MyPageParticipatingEventQueryDto> userEventList, List<MyPageBookmarkedEventQueryDto> bookmarkList) {
         this.userDto = userDto;
         this.userEventList = userEventList;
         this.bookmarkList = bookmarkList;
+    }
+
+    public static UserMyPageResponseDto of(MyPageUserQueryDto userDto,
+                                           List<MyPageParticipatingEventQueryDto> userEventList,
+                                           List<MyPageBookmarkedEventQueryDto> bookmarkList){
+        return UserMyPageResponseDto.builder()
+                .userDto(userDto)
+                .userEventList(userEventList)
+                .bookmarkList(bookmarkList)
+                .build();
     }
 }

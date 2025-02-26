@@ -1,5 +1,6 @@
 package lems.cowshed.service;
 
+import com.querydsl.core.Tuple;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
@@ -12,6 +13,7 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
 import lems.cowshed.domain.user.query.EventParticipantQueryDto;
+import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.exception.*;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
+import static lems.cowshed.domain.userevent.QUserEvent.userEvent;
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
 
@@ -38,18 +41,16 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserMyPageResponseDto findMyPage(Long userId) {
-        List<Long> participatedEventIdList = userQueryRepository.getParticipatedEvent(userId);
-        UserMyPageResponseDto myPageDto = userQueryRepository.findUserForMyPage(userId, participatedEventIdList);
-        Set<Long> bookmarkEventIdSet = userQueryRepository.getBookmark(userId, participatedEventIdList);
+        MyPageUserQueryDto userDto = userQueryRepository.findUser(userId);
 
-        List<MyPageParticipatingEventQueryDto> userEventList = myPageDto.getUserEventList();
-        checkBookmarked(userEventList, bookmarkEventIdSet);
+        List<MyPageParticipatingEventQueryDto> participatedEvents = userQueryRepository
+                .findParticipatedEvents(userQueryRepository.getParticipatedEventsId(userId));
+        setBookmarkStatus(participatedEvents, userQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
 
-        List<MyPageBookmarkedEventQueryDto> bookmarkList = myPageDto.getBookmarkList();
-        List<Long> bookmarkEventIdList = bookmarkList.stream().map(MyPageBookmarkedEventQueryDto::getId).toList();
-        Map<Long, Long> eventIdParticipantsMap = userQueryRepository.getParticipatedEventIdSet(bookmarkEventIdList);
-        setApplicants(bookmarkList, eventIdParticipantsMap);
-        return myPageDto;
+        List<MyPageBookmarkedEventQueryDto> bookmarkedEventList = userQueryRepository.findBookmarkedEvents(userId);
+        setApplicants(userQueryRepository.findEventIdParticipants(mapToEventIdList(bookmarkedEventList)), bookmarkedEventList);
+
+        return UserMyPageResponseDto.of(userDto, participatedEvents, bookmarkedEventList);
     }
 
     public UserEventResponseDto findUserParticipatingInEvent(LocalDate currentYear, Long userId){
@@ -125,20 +126,28 @@ public class UserService {
         return !editDto.getUsername().equals(myUsername);
     }
 
-    private void checkBookmarked(List<MyPageParticipatingEventQueryDto> userEventList, Set<Long> bookmarkEventIdSet) {
-        userEventList.stream().forEach(dto -> {
-            if(bookmarkEventIdSet.contains(dto.getId())){
-                dto.statusBookmark();
-            }
-            else{
-                dto.statusNotBookmark();
-            }
-        });
+    private void setApplicants(List<Tuple> eventIdParticipants, List<MyPageBookmarkedEventQueryDto> bookmarkList) {
+        Map<Long, Long> eventIdParticipantsMap = eventIdParticipants.stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(userEvent.event.id), // eventId
+                        tuple -> Optional.ofNullable(tuple.get(userEvent.event.id.count())).orElse(0L) // participantCount, null일 경우 0으로 대체
+                ));
+
+        bookmarkList
+                .forEach(dto -> dto.setApplicants(eventIdParticipantsMap.getOrDefault(dto.getId(), 0L)));
     }
 
-    private void setApplicants(List<MyPageBookmarkedEventQueryDto> bookmarkList, Map<Long, Long> eventIdParticipantsMap) {
-        bookmarkList.stream().forEach(
-                dto -> dto.changeApplicants(eventIdParticipantsMap.getOrDefault(dto.getId(), 0L))
-        );
+    private List<Long> mapToEventIdList(List<MyPageBookmarkedEventQueryDto> bookmarkedEventList) {
+        return bookmarkedEventList.stream().map(MyPageBookmarkedEventQueryDto::getId).toList();
+    }
+
+    private void setBookmarkStatus(List<MyPageParticipatingEventQueryDto> participatedEvents, List<Long> bookmarkedEventIdSet) {
+        participatedEvents
+                .forEach(dto -> dto.setStatus(bookmarkedEventIdSet.contains(dto.getId()) ? BOOKMARK : NOT_BOOKMARK));
+    }
+
+    private List<Long> getParticipatedEventIds(List<MyPageParticipatingEventQueryDto> participatedEvents) {
+        return participatedEvents.stream()
+                .map(MyPageParticipatingEventQueryDto::getId).toList();
     }
 }

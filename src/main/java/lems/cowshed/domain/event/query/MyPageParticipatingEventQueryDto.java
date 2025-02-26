@@ -48,4 +48,5 @@ public class MyPageParticipatingEventQueryDto {
     public void statusNotBookmark(){
         this.status = NOT_BOOKMARK;
     }
+
 }

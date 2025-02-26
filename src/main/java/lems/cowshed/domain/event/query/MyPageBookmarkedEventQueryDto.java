@@ -61,7 +61,4 @@ public class MyPageBookmarkedEventQueryDto {
                 .build();
     }
 
-    public void changeApplicants(Long applicants){
-        this.applicants = applicants;
-    }
 }
