@@ -11,14 +11,13 @@ import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
-import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
-import lems.cowshed.exception.Reason;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -40,6 +39,7 @@ import static lems.cowshed.exception.Reason.*;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final EventQueryRepository eventQueryRepository;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final UserEventRepository userEventRepository;
@@ -61,17 +61,12 @@ public class EventService {
     }
 
     public EventDetailResponseDto getEvent(Long eventId, Long userId, String username) {
-        Event event = eventRepository.findById(eventId).orElseThrow(
-                () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
-
-        List<UserEvent> userEvents = userEventRepository.findFetchUserByEventId(eventId);
-        long participantsCount = userEvents.size();
-
-        BookmarkStatus bookmarkStatus = eventRepository.findBookmarkedEvent(userId, event.getId(), BOOKMARK)
+        EventDetailResponseDto response = eventQueryRepository.getEventWithParticipated(eventId);
+        BookmarkStatus bookmarkStatus = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK)
                 .isEmpty() ? NOT_BOOKMARK : BOOKMARK;
 
-        return EventDetailResponseDto.from(event, participantsCount, bookmarkStatus,
-                registeredByMe(username, event.getAuthor()), isParticipated(userEvents, userId));
+        response.setParticipatedAndRegisteredByMeAndBookmarked(userId, username, bookmarkStatus);
+        return response;
     }
 
     public long joinEvent(Long eventId, Long userId) {
@@ -161,14 +156,5 @@ public class EventService {
 
     private boolean isNotPossibleToParticipate(Event event) {
         return event.isNotParticipate(userEventRepository.countParticipantByEventId(event.getId()));
-    }
-
-    private boolean registeredByMe(String username, String author) {
-        return username.equals(author);
-    }
-
-    private boolean isParticipated(List<UserEvent> userEvents, Long userId) {
-        return userEvents.stream()
-                .anyMatch(userEvent -> userEvent.getUser().getId().equals(userId));
     }
 }
