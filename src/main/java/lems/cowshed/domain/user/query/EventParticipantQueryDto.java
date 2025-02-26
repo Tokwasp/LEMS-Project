@@ -8,11 +8,10 @@ import lems.cowshed.domain.user.Mbti;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "모임에 참여한 회원 정보")
-public class UserEventQueryDto {
+public class EventParticipantQueryDto {
     @Schema(description = "이름", example = "이길동")
     private String name;
 
@@ -33,7 +32,7 @@ public class UserEventQueryDto {
     private String location;
 
     @QueryProjection
-    public UserEventQueryDto(String name, Gender gender, Mbti mbti, LocalDate birth, String location) {
+    public EventParticipantQueryDto(String name, Gender gender, Mbti mbti, LocalDate birth, String location) {
         this.name = name;
         this.gender = gender;
         this.mbti = mbti;

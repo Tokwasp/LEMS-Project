@@ -2,7 +2,6 @@ package lems.cowshed.api.controller.dto.bookmark.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
-import lems.cowshed.domain.user.query.UserBookmarkMyPageQueryDto;
 import lombok.Builder;
 import lombok.Getter;
 

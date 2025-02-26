@@ -1,19 +1,17 @@
-package lems.cowshed.domain.user.query;
+package lems.cowshed.domain.event.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "마이 페이지 북마크 모임 정보")
-public class UserBookmarkMyPageQueryDto {
+public class MyPageBookmarkedEventQueryDto {
 
     @Schema(description = "이벤트 id", example = "1")
     private Long id;
@@ -34,7 +32,7 @@ public class UserBookmarkMyPageQueryDto {
     private Long applicants;
 
     @QueryProjection
-    public UserBookmarkMyPageQueryDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status) {
+    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
@@ -43,7 +41,7 @@ public class UserBookmarkMyPageQueryDto {
     }
 
     @Builder
-    public UserBookmarkMyPageQueryDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status, Long applicants) {
+    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status, Long applicants) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
@@ -52,8 +50,8 @@ public class UserBookmarkMyPageQueryDto {
         this.applicants = applicants;
     }
 
-    public static UserBookmarkMyPageQueryDto of(Event event, long participantsCount, BookmarkStatus status){
-        return UserBookmarkMyPageQueryDto.builder()
+    public static MyPageBookmarkedEventQueryDto of(Event event, long participantsCount, BookmarkStatus status){
+        return MyPageBookmarkedEventQueryDto.builder()
                 .id(event.getId())
                 .eventName(event.getName())
                 .author(event.getAuthor())

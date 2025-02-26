@@ -3,13 +3,14 @@ package lems.cowshed.domain.user.query;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
-import lems.cowshed.api.controller.dto.event.response.QEventPreviewResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
+import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
+import lems.cowshed.domain.event.query.QMyPageBookmarkedEventQueryDto;
+import lems.cowshed.domain.event.query.QMyPageParticipatingEventQueryDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.domain.bookmark.QBookmark.*;
@@ -30,9 +31,9 @@ public class UserQueryRepository {
     }
 
     // 모임에 참가한 회원 정보
-    public List<UserEventQueryDto> findUserParticipatingInEvent (Long userId) {
+    public List<EventParticipantQueryDto> findUserParticipatingInEvent (Long userId) {
         return queryFactory
-                .select(new QUserEventQueryDto(
+                .select(new QEventParticipantQueryDto(
                         user.username,
                         user.gender,
                         user.mbti,
@@ -47,8 +48,8 @@ public class UserQueryRepository {
 
     public UserMyPageResponseDto findUserForMyPage(Long userId, List<Long> eventIdList) {
 
-        UserMyPageQueryDto userDto = queryFactory
-                .select(new QUserMyPageQueryDto(
+        MyPageUserQueryDto userDto = queryFactory
+                .select(new QMyPageUserQueryDto(
                         user.username.as("name"),
                         user.birth,
                         user.mbti
@@ -58,8 +59,8 @@ public class UserQueryRepository {
                 .fetchOne();
 
         // 회원이 참여한 모임과 참여 인원수 북마크 여부 X
-        List<UserEventMyPageQueryDto> userEventDto = queryFactory
-                .select(new QUserEventMyPageQueryDto(
+        List<MyPageParticipatingEventQueryDto> userEventDto = queryFactory
+                .select(new QMyPageParticipatingEventQueryDto(
                         event.id,
                         event.author,
                         event.name.as("eventName"),
@@ -73,8 +74,8 @@ public class UserQueryRepository {
                 .fetch();
 
         // 북마크 여부 O 참여자 수 체크 X
-        List<UserBookmarkMyPageQueryDto> bookmarks = queryFactory
-                .select(new QUserBookmarkMyPageQueryDto(
+        List<MyPageBookmarkedEventQueryDto> bookmarks = queryFactory
+                .select(new QMyPageBookmarkedEventQueryDto(
                                 event.id.as("eventId"),
                                 event.author,
                                 event.name,

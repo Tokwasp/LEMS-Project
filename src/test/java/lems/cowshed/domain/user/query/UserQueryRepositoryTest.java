@@ -3,7 +3,6 @@ package lems.cowshed.domain.user.query;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
-import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventJpaRepository;
 import lems.cowshed.domain.user.Mbti;
@@ -11,7 +10,6 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +56,7 @@ class UserQueryRepositoryTest {
         userEventRepository.save(userEvent);
 
         //when
-        List<UserEventQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
+        List<EventParticipantQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
 
         //then
         assertThat(userEventDto.get(0))
@@ -76,7 +74,7 @@ class UserQueryRepositoryTest {
         userRepository.save(user);
 
         //when
-        List<UserEventQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
+        List<EventParticipantQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
 
         //then
         assertThat(userEventDto).isEmpty();
