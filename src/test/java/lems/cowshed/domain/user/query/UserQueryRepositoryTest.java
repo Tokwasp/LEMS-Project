@@ -1,15 +1,17 @@
 package lems.cowshed.domain.user.query;
 
-import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventJpaRepository;
+import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
+import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +51,10 @@ class UserQueryRepositoryTest {
     void findUserParticipatingInEvent() {
         //given
         User user = createUser("테스터", INTP);
-        Event event = createEvent("산책 모임", "산책회");
-        UserEvent userEvent = UserEvent.of(user, event);
-        eventJpaRepository.save(event);
         userRepository.save(user);
+        Event event = createEvent("산책 모임", "테스터");
+        eventJpaRepository.save(event);
+        UserEvent userEvent = UserEvent.of(user, event);
         userEventRepository.save(userEvent);
 
         //when
@@ -69,9 +71,9 @@ class UserQueryRepositoryTest {
     void findUserParticipatingInEventWhenZeroParticipating() {
         //given
         User user = createUser("테스터", INTP);
-        Event event = createEvent("산책 모임", "산책회");
-        eventJpaRepository.save(event);
         userRepository.save(user);
+        Event event = createEvent("산책 모임", "테스터");
+        eventJpaRepository.save(event);
 
         //when
         List<EventParticipantQueryDto> userEventDto = userQueryRepository.findUserParticipatingInEvent(user.getId());
@@ -80,40 +82,47 @@ class UserQueryRepositoryTest {
         assertThat(userEventDto).isEmpty();
     }
 
-    @DisplayName("한명의 회원이 2개의 모임 참여, 2개의 북마크 했을때 마이 페이지 정보를 확인 한다.")
+    @DisplayName("회원이 참여한 모임을 조회 할때 참여자 수를 조회 한다.")
     @Test
-    void findUserForMyPageWhenTwoParticipateEventAndTwoBookmark() {
+    void findParticipatedEvents() {
         //given
-        Event event = createEvent("자전거 모임", "주최자");
-        Event event2 = createEvent("테스트 모임", "테스터");
-        eventJpaRepository.saveAll(List.of(event, event2));
-        
         User user = createUser("테스터", INTP);
-        userRepository.save(user);
-
-        Bookmark bookmark = createBookmark(event, user);
-        Bookmark bookmark2 = createBookmark(event2, user);
-        bookmarkRepository.saveAll(List.of(bookmark,bookmark2));
-
+        Event event = createEvent("산책 모임", "테스터");
         UserEvent userEvent = UserEvent.of(user, event);
-        UserEvent userEvent2 = UserEvent.of(user, event2);
-        userEventRepository.saveAll(List.of(userEvent, userEvent2));
+
+        User user2 = createUser("테스터2", ESFJ);
+        UserEvent userEvent2 = UserEvent.of(user2, event);
+        userRepository.saveAll(List.of(user, user2));
+        eventJpaRepository.save(event);
+        userEventRepository.saveAll(List.of(userEvent,userEvent2));
 
         //when
-        UserMyPageResponseDto myPage = userQueryRepository.findUserForMyPage(user.getId(), List.of(event.getId(), event2.getId()));
+        List<MyPageParticipatingEventQueryDto> response = userQueryRepository.findParticipatedEvents(List.of(event.getId()));
 
         //then
-        assertThat(myPage.getUserDto())
-                .extracting("name", "mbti")
-                .containsExactly("테스터", INTP);
+        assertThat(response).hasSize(1)
+                .extracting("eventName", "applicants")
+                .containsExactly(Tuple.tuple("산책 모임", 2L));
+    }
 
-        assertThat(myPage.getUserEventList()).hasSize(2)
-                .extracting("eventName")
-                .containsExactlyInAnyOrder("자전거 모임", "테스트 모임");
+    @DisplayName("회원이 북마크한 모임을 조회 할때 북마크 상태는 BOOKMARK 이다.")
+    @Test
+    void findBookmarkedEvents() {
+        //given
+        User user = createUser("테스터", INTP);
+        userRepository.save(user);
+        Event event = createEvent("산책 모임", "테스터");
+        eventJpaRepository.save(event);
 
-        assertThat(myPage.getBookmarkList()).hasSize(2)
-                .extracting("author")
-                .containsExactlyInAnyOrder("주최자", "테스터");
+        Bookmark bookmark = createBookmark(event, user);
+        bookmarkRepository.save(bookmark);
+
+        //when
+        List<MyPageBookmarkedEventQueryDto> response = userQueryRepository.findBookmarkedEvents(user.getId());
+
+        //then
+        assertThat(response).hasSize(1)
+                .extracting("status").containsExactly(BOOKMARK);
     }
 
     private Bookmark createBookmark(Event event, User user) {
