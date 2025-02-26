@@ -171,7 +171,7 @@ class EventServiceTest {
                 .containsExactly("자전거 모임", "테스터", NOT_BOOKMARK, false);
     }
 
-    @DisplayName("모임을 조회할때 회원이 참여한 모임, 북마크한 모임은 표시가 되어있다.")
+    @DisplayName("모임을 조회할때 회원이 참여한 모임은 참여 상태로 되어있다.")
     @Test
     void getEventWhenParticipatedEvent() {
         //given
@@ -184,15 +184,12 @@ class EventServiceTest {
         UserEvent userEvent = UserEvent.of(user, event);
         userEventRepository.save(userEvent);
 
-        Bookmark bookmark = Bookmark.create(event, user, BOOKMARK);
-        bookmarkRepository.save(bookmark);
-
         //when
         EventDetailResponseDto response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
 
         //then
         assertThat(response).extracting("bookmarkStatus", "isParticipated")
-                .containsExactly(BOOKMARK, true);
+                .containsExactly(NOT_BOOKMARK, true);
     }
 
     @Transactional
@@ -214,8 +211,8 @@ class EventServiceTest {
 
         //then
         assertThat(result).isNotNull()
-                .extracting("bookmarkStatus")
-                .isEqualTo(BOOKMARK);
+                .extracting("bookmarkStatus", "isParticipated")
+                .containsExactly(BOOKMARK, false);
     }
 
     @Transactional
