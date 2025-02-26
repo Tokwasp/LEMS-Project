@@ -1,7 +1,7 @@
 package lems.cowshed.api.controller.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.user.query.UserEventQueryDto;
+import lems.cowshed.domain.user.query.EventParticipantQueryDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class UserEventResponseDto {
 
-    private List<UserEventQueryDto> userList;
+    private List<EventParticipantQueryDto> userList;
 }

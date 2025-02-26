@@ -1,10 +1,9 @@
 package lems.cowshed.api.controller.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
-import lems.cowshed.domain.user.query.UserBookmarkMyPageQueryDto;
-import lems.cowshed.domain.user.query.UserEventMyPageQueryDto;
-import lems.cowshed.domain.user.query.UserMyPageQueryDto;
+import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
+import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
+import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,15 +16,15 @@ import java.util.List;
 public class UserMyPageResponseDto {
 
     @Schema(description = "유저 정보")
-    private UserMyPageQueryDto userDto;
+    private MyPageUserQueryDto userDto;
 
     @Schema(description = "참여 모임")
-    private List<UserEventMyPageQueryDto> userEventList;
+    private List<MyPageParticipatingEventQueryDto> userEventList;
 
     @Schema(description = "북마크 모임")
-    private List<UserBookmarkMyPageQueryDto> bookmarkList;
+    private List<MyPageBookmarkedEventQueryDto> bookmarkList;
 
-    public UserMyPageResponseDto(UserMyPageQueryDto userDto, List<UserEventMyPageQueryDto> userEventList, List<UserBookmarkMyPageQueryDto> bookmarkList) {
+    public UserMyPageResponseDto(MyPageUserQueryDto userDto, List<MyPageParticipatingEventQueryDto> userEventList, List<MyPageBookmarkedEventQueryDto> bookmarkList) {
         this.userDto = userDto;
         this.userEventList = userEventList;
         this.bookmarkList = bookmarkList;

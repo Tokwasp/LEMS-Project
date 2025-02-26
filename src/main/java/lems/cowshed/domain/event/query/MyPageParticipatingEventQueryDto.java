@@ -1,20 +1,17 @@
-package lems.cowshed.domain.user.query;
+package lems.cowshed.domain.event.query;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 
 @Data
 @Schema(description = "마이 페이지 참여 모임 정보")
-public class UserEventMyPageQueryDto {
+public class MyPageParticipatingEventQueryDto {
 
     @Schema(description = "이벤트 id", example = "1")
     private Long id;
@@ -35,8 +32,8 @@ public class UserEventMyPageQueryDto {
     private Long applicants;
 
     @QueryProjection
-    public UserEventMyPageQueryDto(Long id, String author, String eventName,
-                                   LocalDate eventDate, Long applicants) {
+    public MyPageParticipatingEventQueryDto(Long id, String author, String eventName,
+                                            LocalDate eventDate, Long applicants) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;

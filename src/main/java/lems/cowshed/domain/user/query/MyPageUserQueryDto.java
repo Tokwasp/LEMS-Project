@@ -11,7 +11,8 @@ import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserMyPageQueryDto {
+@Schema(description = "마이페이지 회원 정보")
+public class MyPageUserQueryDto {
 
     @Schema(description = "이름", example = "하상록")
     private String name;
@@ -23,7 +24,7 @@ public class UserMyPageQueryDto {
     private Mbti mbti;
 
     @QueryProjection
-    public UserMyPageQueryDto(String name, LocalDate birth, Mbti mbti) {
+    public MyPageUserQueryDto(String name, LocalDate birth, Mbti mbti) {
         this.name = name;
         this.birth = birth;
         this.mbti = mbti;
