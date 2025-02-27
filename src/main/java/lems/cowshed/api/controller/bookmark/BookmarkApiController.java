@@ -1,7 +1,6 @@
 package lems.cowshed.api.controller.bookmark;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.service.BookmarkService;
 import lems.cowshed.service.CustomUserDetails;
 import lombok.RequiredArgsConstructor;

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Schema(description = "메인 페이지의 모임 리스트 중 한 개의 모임 정보")
-public class EventPreviewResponseDto {
+public class EventSimpleInfo {
     @Schema(description = "모임 id", example = "1")
     Long eventId;
     @Schema(description = "모임 이름", example = "자전거 모임")
@@ -33,9 +33,9 @@ public class EventPreviewResponseDto {
     BookmarkStatus bookmarkStatus;
 
     @QueryProjection
-    public EventPreviewResponseDto(Long eventId, String name, String author,
-                                   String content, LocalDate eventDate,
-                                   int capacity, LocalDateTime createdDate, BookmarkStatus bookmarkStatus){
+    public EventSimpleInfo(Long eventId, String name, String author,
+                           String content, LocalDate eventDate,
+                           int capacity, LocalDateTime createdDate, BookmarkStatus bookmarkStatus){
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -47,10 +47,10 @@ public class EventPreviewResponseDto {
     }
 
     @Builder
-    public EventPreviewResponseDto(Long eventId, String name, String author,
-                                   String content, LocalDate eventDate,
-                                   int capacity, LocalDateTime createdDate, long applicants,
-                                   BookmarkStatus bookmarkStatus) {
+    public EventSimpleInfo(Long eventId, String name, String author,
+                           String content, LocalDate eventDate,
+                           int capacity, LocalDateTime createdDate, long applicants,
+                           BookmarkStatus bookmarkStatus) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -62,8 +62,8 @@ public class EventPreviewResponseDto {
         this.bookmarkStatus = bookmarkStatus;
     }
 
-    public static EventPreviewResponseDto of(Event event, long participantsCount, BookmarkStatus status){
-        return EventPreviewResponseDto.builder()
+    public static EventSimpleInfo of(Event event, long participantsCount, BookmarkStatus status){
+        return EventSimpleInfo.builder()
                 .eventId(event.getId())
                 .name(event.getName())
                 .author(event.getAuthor())

@@ -4,31 +4,26 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
-import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
+import lems.cowshed.api.controller.dto.event.response.BookmarkedEventsPagingInfo;
+import lems.cowshed.api.controller.dto.event.response.EventInfo;
+import lems.cowshed.api.controller.dto.event.response.EventsPagingInfo;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.service.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 public interface EventSpecification {
 
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<EventPagingResponse> getPagingEvents(Pageable pageable,
-                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventsPagingInfo> getPagingEvents(Pageable pageable,
+                                                     @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
@@ -37,8 +32,8 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 반환 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId,
-                                                    @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventInfo> getEvent(@PathVariable("event-id") Long eventId,
+                                       @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 참여", description = "회원이 모임에 참여 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
@@ -62,7 +57,7 @@ public interface EventSpecification {
                                      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "북마크 모임 페이징 조회", description = "북마크 모임 페이징 조회")
-    CommonResponse<BookmarkResponseDto> getPagingBookmarkEvents(Pageable pageable,
-                                                                @AuthenticationPrincipal CustomUserDetails userDetails);
+    CommonResponse<BookmarkedEventsPagingInfo> getPagingBookmarkedEvents(Pageable pageable,
+                                                                         @AuthenticationPrincipal CustomUserDetails userDetails);
 
 }

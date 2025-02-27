@@ -3,7 +3,6 @@ package lems.cowshed.api.controller.bookmark;
 import io.swagger.v3.oas.annotations.Operation;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
-import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.service.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

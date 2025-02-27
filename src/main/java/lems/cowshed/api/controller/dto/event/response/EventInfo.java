@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Getter
 @Schema(description = "모임 상세")
-public class EventDetailResponseDto {
+public class EventInfo {
     @Schema(description = "모임 id", example = "1")
     Long eventId;
     @Schema(description = "모임 이름", example = "농구 모임")
@@ -47,9 +47,9 @@ public class EventDetailResponseDto {
     String userList;
 
     @QueryProjection
-    public EventDetailResponseDto(Long eventId, String name, String author, Category category,
-                                  LocalDateTime createdDate, String location, String content,
-                                  LocalDate eventDate, int capacity, long applicants, String userList) {
+    public EventInfo(Long eventId, String name, String author, Category category,
+                     LocalDateTime createdDate, String location, String content,
+                     LocalDate eventDate, int capacity, long applicants, String userList) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -64,10 +64,10 @@ public class EventDetailResponseDto {
     }
 
     @Builder
-    private EventDetailResponseDto(Long eventId, String author, String name, Category category,
-                                  LocalDateTime createdDate, String location,
-                                  String content, LocalDate eventDate, int capacity, long applicants,
-                                   BookmarkStatus bookmarkStatus, boolean registeredByMe, boolean isParticipated) {
+    private EventInfo(Long eventId, String author, String name, Category category,
+                      LocalDateTime createdDate, String location,
+                      String content, LocalDate eventDate, int capacity, long applicants,
+                      BookmarkStatus bookmarkStatus, boolean registeredByMe, boolean isParticipated) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;

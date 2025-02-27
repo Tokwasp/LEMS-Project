@@ -1,11 +1,11 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
+import lems.cowshed.api.controller.dto.event.response.BookmarkedEventsPagingInfo;
+import lems.cowshed.api.controller.dto.event.response.EventInfo;
+import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
+import lems.cowshed.api.controller.dto.event.response.EventsPagingInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
@@ -44,15 +44,15 @@ public class EventService {
     private final BookmarkRepository bookmarkRepository;
     private final UserEventRepository userEventRepository;
 
-    public EventPagingResponse getPagingEvents(Pageable Pageable, Long userId) {
+    public EventsPagingInfo getPagingEvents(Pageable Pageable, Long userId) {
         Slice<Event> eventPaging = eventRepository.findSliceBy(Pageable);
         List<Long> eventIdList = eventPaging.stream().map(Event::getId).toList();
         Map<Long, Long> eventCountMap = findEventParticipantsCounting(eventIdList);
 
         Set<Long> bookmarkedEventIds = eventRepository.findBookmarkedEventIds(userId, eventIdList, BOOKMARK);
-        List<EventPreviewResponseDto> resultContent = bookmarkCountingAndCheckBookmarked(eventPaging, eventCountMap, bookmarkedEventIds);
+        List<EventSimpleInfo> resultContent = bookmarkCountingAndCheckBookmarked(eventPaging, eventCountMap, bookmarkedEventIds);
 
-        return EventPagingResponse.of(resultContent, eventPaging.isLast());
+        return EventsPagingInfo.of(resultContent, eventPaging.isLast());
     }
 
     public void saveEvent(EventSaveRequestDto requestDto, String username) {
@@ -60,8 +60,8 @@ public class EventService {
         eventRepository.save(event);
     }
 
-    public EventDetailResponseDto getEvent(Long eventId, Long userId, String username) {
-        EventDetailResponseDto response = eventQueryRepository.getEventWithParticipated(eventId);
+    public EventInfo getEvent(Long eventId, Long userId, String username) {
+        EventInfo response = eventQueryRepository.getEventWithParticipated(eventId);
         BookmarkStatus bookmarkStatus = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK)
                 .isEmpty() ? NOT_BOOKMARK : BOOKMARK;
 
@@ -102,18 +102,18 @@ public class EventService {
         eventRepository.delete(event);
     }
 
-    public BookmarkResponseDto getPagingBookmarkEvents(Pageable pageable, Long userId) {
+    public BookmarkedEventsPagingInfo getPagingBookmarkedEvents(Pageable pageable, Long userId) {
         Slice<Bookmark> bookmarks = bookmarkRepository.findSliceByUserId(pageable, userId);
         List<Long> bookmarkedEventIdList = bookmarks.stream().map(bookmark -> bookmark.getEvent().getId()).toList();
 
         Map<Long, Long> participantsCountingMap = getCountingMap(bookmarkedEventIdList);
-        List<EventPreviewResponseDto> result = bookmarks
+        List<EventSimpleInfo> result = bookmarks
                 .stream()
-                .map((Bookmark bookmark) -> EventPreviewResponseDto
+                .map((Bookmark bookmark) -> EventSimpleInfo
                         .of(bookmark.getEvent(), participantsCountingMap.getOrDefault(bookmark.getEvent().getId(), 0L), BOOKMARK)
         ).toList();
 
-        return BookmarkResponseDto.of(result, bookmarks.isLast());
+        return BookmarkedEventsPagingInfo.of(result, bookmarks.isLast());
     }
 
     public void deleteUserEvent(Long eventId, Long userId) {
@@ -141,9 +141,9 @@ public class EventService {
                 ));
     }
 
-    private List<EventPreviewResponseDto> bookmarkCountingAndCheckBookmarked(Slice<Event> eventPaging, Map<Long, Long> eventCountMap, Set<Long> bookmarkedEventIds) {
-        List<EventPreviewResponseDto> resultContent = eventPaging
-                .map(event -> EventPreviewResponseDto
+    private List<EventSimpleInfo> bookmarkCountingAndCheckBookmarked(Slice<Event> eventPaging, Map<Long, Long> eventCountMap, Set<Long> bookmarkedEventIds) {
+        List<EventSimpleInfo> resultContent = eventPaging
+                .map(event -> EventSimpleInfo
                         .of(event, eventCountMap.getOrDefault(event.getId(), 0L),
                                 bookmarkedEventIds.contains(event.getId()) ? BOOKMARK : NOT_BOOKMARK))
                 .toList();
