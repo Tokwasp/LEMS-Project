@@ -1,18 +1,15 @@
 package lems.cowshed.api.controller.event;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
+import lems.cowshed.api.controller.dto.event.response.BookmarkedEventsPagingInfo;
+import lems.cowshed.api.controller.dto.event.response.EventInfo;
+import lems.cowshed.api.controller.dto.event.response.EventsPagingInfo;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -27,22 +24,22 @@ public class EventController implements EventSpecification {
     private final EventService eventService;
 
     @GetMapping
-    public CommonResponse<EventPagingResponse> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                               @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public CommonResponse<EventsPagingInfo> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return CommonResponse.success(eventService.getPagingEvents(pageable, customUserDetails.getUserId()));
     }
 
     @GetMapping("/{event-id}")
-    public CommonResponse<EventDetailResponseDto> getEvent(@PathVariable("event-id") Long eventId,
-                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
-        EventDetailResponseDto response = eventService.getEvent(eventId, userDetails.getUserId(), userDetails.getUsername());
+    public CommonResponse<EventInfo> getEvent(@PathVariable("event-id") Long eventId,
+                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+        EventInfo response = eventService.getEvent(eventId, userDetails.getUserId(), userDetails.getUsername());
         return CommonResponse.success(response);
     }
 
     @GetMapping("/bookmarks")
-    public CommonResponse<BookmarkResponseDto> getPagingBookmarkEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                                @AuthenticationPrincipal CustomUserDetails userDetails){
-        BookmarkResponseDto bookmarkEvents = eventService.getPagingBookmarkEvents(pageable, userDetails.getUserId());
+    public CommonResponse<BookmarkedEventsPagingInfo> getPagingBookmarkedEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                                @AuthenticationPrincipal CustomUserDetails userDetails){
+        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getPagingBookmarkedEvents(pageable, userDetails.getUserId());
         return CommonResponse.success(bookmarkEvents);
     }
 

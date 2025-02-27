@@ -7,6 +7,7 @@ import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
+import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
@@ -17,6 +18,7 @@ import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.exception.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,17 +40,19 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
+    private final EventQueryRepository eventQueryRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserMyPageResponseDto findMyPage(Long userId) {
         MyPageUserQueryDto userDto = userQueryRepository.findUser(userId);
 
-        List<MyPageParticipatingEventQueryDto> participatedEvents = userQueryRepository
-                .findParticipatedEvents(userQueryRepository.getParticipatedEventsId(userId));
-        setBookmarkStatus(participatedEvents, userQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
+        List<MyPageParticipatingEventQueryDto> participatedEvents = eventQueryRepository
+                .findParticipatedEvents(eventQueryRepository.getParticipatedEventsId(userId, PageRequest.of(0, 5)));
+        setBookmarkStatus(participatedEvents, eventQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
 
-        List<MyPageBookmarkedEventQueryDto> bookmarkedEventList = userQueryRepository.findBookmarkedEvents(userId);
-        setApplicants(userQueryRepository.findEventIdParticipants(mapToEventIdList(bookmarkedEventList)), bookmarkedEventList);
+        List<MyPageBookmarkedEventQueryDto> bookmarkedEventList = eventQueryRepository
+                .findBookmarkedEvents(userId, PageRequest.of(0, 5));
+        setApplicants(eventQueryRepository.findEventIdParticipants(mapToEventIdList(bookmarkedEventList)), bookmarkedEventList);
 
         return UserMyPageResponseDto.of(userDto, participatedEvents, bookmarkedEventList);
     }
@@ -130,7 +134,7 @@ public class UserService {
         Map<Long, Long> eventIdParticipantsMap = eventIdParticipants.stream()
                 .collect(Collectors.toMap(
                         tuple -> tuple.get(userEvent.event.id), // eventId
-                        tuple -> Optional.ofNullable(tuple.get(userEvent.event.id.count())).orElse(0L) // participantCount, null일 경우 0으로 대체
+                        tuple -> Optional.ofNullable(tuple.get(userEvent.event.id.count())).orElse(0L)
                 ));
 
         bookmarkList

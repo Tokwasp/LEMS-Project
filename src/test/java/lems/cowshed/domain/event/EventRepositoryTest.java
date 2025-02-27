@@ -1,6 +1,5 @@
 package lems.cowshed.domain.event;
 
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,10 +13,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest

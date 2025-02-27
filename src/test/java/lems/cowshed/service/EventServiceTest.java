@@ -1,14 +1,13 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.dto.bookmark.response.BookmarkResponseDto;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.api.controller.dto.event.response.EventDetailResponseDto;
-import lems.cowshed.api.controller.dto.event.response.EventPagingResponse;
-import lems.cowshed.api.controller.dto.event.response.EventPreviewResponseDto;
+import lems.cowshed.api.controller.dto.event.response.BookmarkedEventsPagingInfo;
+import lems.cowshed.api.controller.dto.event.response.EventInfo;
+import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
+import lems.cowshed.api.controller.dto.event.response.EventsPagingInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
-import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
@@ -17,13 +16,11 @@ import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,7 +80,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(1, 3);
 
         //when
-        EventPagingResponse result = eventService.getPagingEvents(pageable, user.getId());
+        EventsPagingInfo result = eventService.getPagingEvents(pageable, user.getId());
 
         //then
         assertThat(result.getContent())
@@ -110,7 +107,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventPagingResponse result = eventService.getPagingEvents(pageable, 0L);
+        EventsPagingInfo result = eventService.getPagingEvents(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -128,7 +125,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventPagingResponse result = eventService.getPagingEvents(pageable, 0L);
+        EventsPagingInfo result = eventService.getPagingEvents(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -164,7 +161,7 @@ class EventServiceTest {
         eventRepository.save(event);
 
         //when
-        EventDetailResponseDto response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
+        EventInfo response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
 
         //then
         assertThat(response).extracting("name", "author", "bookmarkStatus", "isParticipated")
@@ -185,7 +182,7 @@ class EventServiceTest {
         userEventRepository.save(userEvent);
 
         //when
-        EventDetailResponseDto response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
+        EventInfo response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
 
         //then
         assertThat(response).extracting("bookmarkStatus", "isParticipated")
@@ -207,7 +204,7 @@ class EventServiceTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        EventDetailResponseDto result = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
+        EventInfo result = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
 
         //then
         assertThat(result).isNotNull()
@@ -390,7 +387,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 3);
 
         //when
-        BookmarkResponseDto bookmarkEvents = eventService.getPagingBookmarkEvents(pageable, user.getId());
+        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getPagingBookmarkedEvents(pageable, user.getId());
 
         //then
         assertThat(bookmarkEvents.getBookmarks())
@@ -418,7 +415,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 2);
 
         //when
-        List<EventPreviewResponseDto> result = eventService.getPagingEvents(pageable, user.getId()).getContent();
+        List<EventSimpleInfo> result = eventService.getPagingEvents(pageable, user.getId()).getContent();
 
         //then
         assertThat(result)
