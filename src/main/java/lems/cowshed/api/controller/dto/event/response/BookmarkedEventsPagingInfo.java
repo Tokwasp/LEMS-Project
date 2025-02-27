@@ -1,6 +1,7 @@
 package lems.cowshed.api.controller.dto.event.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,21 +12,16 @@ import java.util.List;
 public class BookmarkedEventsPagingInfo {
 
     @Schema(description = "북마크 모임 리스트")
-    List<EventSimpleInfo> bookmarks;
-
-    boolean isLast;
+    List<BookmarkedEventSimpleInfoQuery> bookmarks;
 
     @Builder
-    public BookmarkedEventsPagingInfo(List<EventSimpleInfo> bookmarks, boolean isLast) {
+    public BookmarkedEventsPagingInfo(List<BookmarkedEventSimpleInfoQuery> bookmarks) {
         this.bookmarks = bookmarks;
-        this.isLast = isLast;
     }
 
-    public static BookmarkedEventsPagingInfo of(List<EventSimpleInfo> bookmarks, boolean isLast){
+    public static BookmarkedEventsPagingInfo of(List<BookmarkedEventSimpleInfoQuery> bookmarks){
         return BookmarkedEventsPagingInfo.builder()
                 .bookmarks(bookmarks)
-                .isLast(isLast)
                 .build();
     }
-
 }

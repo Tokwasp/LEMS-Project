@@ -387,12 +387,12 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 3);
 
         //when
-        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getPagingBookmarkedEvents(pageable, user.getId());
+        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getBookmarkedEventsPaging(pageable, user.getId());
 
         //then
         assertThat(bookmarkEvents.getBookmarks())
                 .hasSize(3)
-                .extracting("name")
+                .extracting("eventName")
                 .containsExactlyInAnyOrder("테스트0", "테스트1", "테스트2");
     }
 

@@ -9,10 +9,12 @@ import lems.cowshed.api.controller.dto.event.response.EventInfo;
 import lems.cowshed.api.controller.dto.event.response.EventsPagingInfo;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.api.controller.dto.event.response.ParticipatingEventsPagingInfo;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.service.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,8 +58,12 @@ public interface EventSpecification {
     CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId,
                                      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
-    @Operation(summary = "북마크 모임 페이징 조회", description = "북마크 모임 페이징 조회")
-    CommonResponse<BookmarkedEventsPagingInfo> getPagingBookmarkedEvents(Pageable pageable,
+    @Operation(summary = "북마크 모임 페이징 조회", description = "북마크 모임 페이징 조회 합니다.")
+    CommonResponse<BookmarkedEventsPagingInfo> getBookmarkedEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                          @AuthenticationPrincipal CustomUserDetails userDetails);
+
+    @Operation(summary = "참여 모임 페이징 조회", description = "참여 모임 페이징 조회 합니다.")
+    CommonResponse<ParticipatingEventsPagingInfo> getParticipatingEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                               @AuthenticationPrincipal CustomUserDetails userDetails);
 
 }
