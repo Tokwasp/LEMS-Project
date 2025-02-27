@@ -1,11 +1,13 @@
 package lems.cowshed.domain.event.query;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 
@@ -34,15 +36,20 @@ public class ParticipatingEventSimpleInfoQuery {
     @Schema(description = "최대 인원 수", example = "50")
     private int capacity;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Schema(description = "생성일", example = "2024-10-11")
+    private LocalDateTime createdDateTime;
+
     @QueryProjection
     public ParticipatingEventSimpleInfoQuery(Long id, String author, String eventName,
-                                             LocalDate eventDate, Long applicants, int capacity) {
+                                             LocalDate eventDate, Long applicants, int capacity, LocalDateTime createdDateTime) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.applicants = applicants;
         this.capacity = capacity;
+        this.createdDateTime = createdDateTime;
     }
 
     public void statusBookmark(){

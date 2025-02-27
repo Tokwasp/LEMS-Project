@@ -1,5 +1,6 @@
 package lems.cowshed.domain.event.query;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "마이 페이지 북마크 모임 정보")
@@ -34,20 +36,25 @@ public class BookmarkedEventSimpleInfoQuery {
     @Schema(description = "최대 인원수", example = "50")
     private int capacity;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Schema(description = "생성일", example = "2024-10-11")
+    private LocalDateTime createdDateTime;
+
     @QueryProjection
     public BookmarkedEventSimpleInfoQuery(Long id, String author, String eventName,
-                                          LocalDate eventDate, BookmarkStatus status, int capacity) {
+                                          LocalDate eventDate, BookmarkStatus status, int capacity, LocalDateTime createdDateTime) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.status = status;
         this.capacity = capacity;
+        this.createdDateTime = createdDateTime;
     }
 
     @Builder
     public BookmarkedEventSimpleInfoQuery(Long id, String author, String eventName, LocalDate eventDate,
-                                          BookmarkStatus status, Long applicants, int capacity) {
+                                          BookmarkStatus status, Long applicants, int capacity, LocalDateTime createdDateTime) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
@@ -55,6 +62,7 @@ public class BookmarkedEventSimpleInfoQuery {
         this.status = status;
         this.applicants = applicants;
         this.capacity = capacity;
+        this.createdDateTime = createdDateTime;
     }
 
     public static BookmarkedEventSimpleInfoQuery of(Event event, long participantsCount, BookmarkStatus status){
@@ -65,6 +73,7 @@ public class BookmarkedEventSimpleInfoQuery {
                 .eventDate(event.getEventDate())
                 .capacity(event.getCapacity())
                 .applicants(participantsCount)
+                .createdDateTime(event.getCreatedDateTime())
                 .status(status)
                 .build();
     }
