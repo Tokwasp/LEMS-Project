@@ -11,6 +11,7 @@ import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,14 @@ class EventQueryRepositoryTest {
 
     @Autowired
     BookmarkRepository bookmarkRepository;
+
+    @BeforeEach
+    public void cleanUp(){
+        userEventRepository.deleteAllInBatch();
+        bookmarkRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+        eventJpaRepository.deleteAllInBatch();
+    }
 
     @DisplayName("회원이 참여한 모임을 조회 할때 참여자 수를 조회 한다.")
     @Test
