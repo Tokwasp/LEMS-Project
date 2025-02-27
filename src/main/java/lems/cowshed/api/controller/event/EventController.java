@@ -6,6 +6,7 @@ import lems.cowshed.api.controller.dto.event.response.EventInfo;
 import lems.cowshed.api.controller.dto.event.response.EventsPagingInfo;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.api.controller.dto.event.response.ParticipatingEventsPagingInfo;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +38,17 @@ public class EventController implements EventSpecification {
     }
 
     @GetMapping("/bookmarks")
-    public CommonResponse<BookmarkedEventsPagingInfo> getPagingBookmarkedEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public CommonResponse<BookmarkedEventsPagingInfo> getBookmarkedEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
-        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getPagingBookmarkedEvents(pageable, userDetails.getUserId());
+        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getBookmarkedEventsPaging(pageable, userDetails.getUserId());
         return CommonResponse.success(bookmarkEvents);
+    }
+
+    @GetMapping("/participating")
+    public CommonResponse<ParticipatingEventsPagingInfo> getParticipatingEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                            @AuthenticationPrincipal CustomUserDetails userDetails){
+        ParticipatingEventsPagingInfo ParticipatingEvents = eventService.getParticipatingEventsPaging(pageable, userDetails.getUserId());
+        return CommonResponse.success(ParticipatingEvents);
     }
 
     @PostMapping

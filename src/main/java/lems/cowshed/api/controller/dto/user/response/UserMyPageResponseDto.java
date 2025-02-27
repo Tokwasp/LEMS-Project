@@ -1,8 +1,8 @@
 package lems.cowshed.api.controller.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
-import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
+import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
+import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,21 +20,21 @@ public class UserMyPageResponseDto {
     private MyPageUserQueryDto userDto;
 
     @Schema(description = "참여 모임")
-    private List<MyPageParticipatingEventQueryDto> userEventList;
+    private List<ParticipatingEventSimpleInfoQuery> userEventList;
 
     @Schema(description = "북마크 모임")
-    private List<MyPageBookmarkedEventQueryDto> bookmarkList;
+    private List<BookmarkedEventSimpleInfoQuery> bookmarkList;
 
     @Builder
-    public UserMyPageResponseDto(MyPageUserQueryDto userDto, List<MyPageParticipatingEventQueryDto> userEventList, List<MyPageBookmarkedEventQueryDto> bookmarkList) {
+    public UserMyPageResponseDto(MyPageUserQueryDto userDto, List<ParticipatingEventSimpleInfoQuery> userEventList, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
         this.userDto = userDto;
         this.userEventList = userEventList;
         this.bookmarkList = bookmarkList;
     }
 
     public static UserMyPageResponseDto of(MyPageUserQueryDto userDto,
-                                           List<MyPageParticipatingEventQueryDto> userEventList,
-                                           List<MyPageBookmarkedEventQueryDto> bookmarkList){
+                                           List<ParticipatingEventSimpleInfoQuery> userEventList,
+                                           List<BookmarkedEventSimpleInfoQuery> bookmarkList){
         return UserMyPageResponseDto.builder()
                 .userDto(userDto)
                 .userEventList(userEventList)

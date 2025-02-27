@@ -7,7 +7,6 @@ import lems.cowshed.domain.event.EventJpaRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import org.assertj.core.groups.Tuple;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +25,6 @@ import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.user.Mbti.ESFJ;
 import static lems.cowshed.domain.user.Mbti.INTP;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -72,7 +69,7 @@ class EventQueryRepositoryTest {
         userEventRepository.saveAll(List.of(userEvent,userEvent2));
 
         //when
-        List<MyPageParticipatingEventQueryDto> response = eventQueryRepository.findParticipatedEvents(List.of(event.getId()));
+        List<ParticipatingEventSimpleInfoQuery> response = eventQueryRepository.findParticipatedEvents(List.of(event.getId()));
 
         //then
         assertThat(response).hasSize(1)
@@ -93,8 +90,8 @@ class EventQueryRepositoryTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        List<MyPageBookmarkedEventQueryDto> response = eventQueryRepository
-                .findBookmarkedEvents(user.getId(), PageRequest.of(0, 5));
+        List<BookmarkedEventSimpleInfoQuery> response = eventQueryRepository
+                .findBookmarkedEventsPaging(user.getId(), PageRequest.of(0, 5));
 
         //then
         assertThat(response).hasSize(1)

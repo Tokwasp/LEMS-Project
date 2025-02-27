@@ -11,7 +11,7 @@ import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 
 @Data
 @Schema(description = "마이 페이지 참여 모임 정보")
-public class MyPageParticipatingEventQueryDto {
+public class ParticipatingEventSimpleInfoQuery {
 
     @Schema(description = "이벤트 id", example = "1")
     private Long id;
@@ -35,8 +35,8 @@ public class MyPageParticipatingEventQueryDto {
     private int capacity;
 
     @QueryProjection
-    public MyPageParticipatingEventQueryDto(Long id, String author, String eventName,
-                                            LocalDate eventDate, Long applicants, int capacity) {
+    public ParticipatingEventSimpleInfoQuery(Long id, String author, String eventName,
+                                             LocalDate eventDate, Long applicants, int capacity) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;

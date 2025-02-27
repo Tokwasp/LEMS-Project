@@ -50,10 +50,10 @@ public class EventQueryRepository {
                 .fetchOne();
     }
 
-    public List<MyPageParticipatingEventQueryDto> findParticipatedEvents(List<Long> eventIds) {
+    public List<ParticipatingEventSimpleInfoQuery> findParticipatedEvents(List<Long> eventIds) {
         // 회원이 참여한 모임과 참여 인원수 북마크 여부 X
         return queryFactory
-                .select(new QMyPageParticipatingEventQueryDto(
+                .select(new QParticipatingEventSimpleInfoQuery(
                         event.id,
                         event.author,
                         event.name.as("eventName"),
@@ -68,10 +68,10 @@ public class EventQueryRepository {
                 .fetch();
     }
 
-    public List<MyPageBookmarkedEventQueryDto> findBookmarkedEvents(Long userId, Pageable pageable) {
+    public List<BookmarkedEventSimpleInfoQuery> findBookmarkedEventsPaging(Long userId, Pageable pageable) {
         // 북마크 여부 O 참여 인원수 X
         return queryFactory
-                .select(new QMyPageBookmarkedEventQueryDto(
+                .select(new QBookmarkedEventSimpleInfoQuery(
                                 event.id.as("eventId"),
                                 event.author,
                                 event.name,
@@ -86,6 +86,7 @@ public class EventQueryRepository {
                         .and(bookmark.user.id.eq(userId))
                         .and(bookmark.status.eq(BOOKMARK)))
                 .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
     }
 
@@ -96,6 +97,7 @@ public class EventQueryRepository {
                 .from(userEvent)
                 .where(userEvent.user.id.eq(userId))
                 .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
     }
 

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Data
 @Schema(description = "마이 페이지 북마크 모임 정보")
-public class MyPageBookmarkedEventQueryDto {
+public class BookmarkedEventSimpleInfoQuery {
 
     @Schema(description = "이벤트 id", example = "1")
     private Long id;
@@ -35,8 +35,8 @@ public class MyPageBookmarkedEventQueryDto {
     private int capacity;
 
     @QueryProjection
-    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName,
-                                         LocalDate eventDate, BookmarkStatus status, int capacity) {
+    public BookmarkedEventSimpleInfoQuery(Long id, String author, String eventName,
+                                          LocalDate eventDate, BookmarkStatus status, int capacity) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
@@ -46,8 +46,8 @@ public class MyPageBookmarkedEventQueryDto {
     }
 
     @Builder
-    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName, LocalDate eventDate,
-                                         BookmarkStatus status, Long applicants, int capacity) {
+    public BookmarkedEventSimpleInfoQuery(Long id, String author, String eventName, LocalDate eventDate,
+                                          BookmarkStatus status, Long applicants, int capacity) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
@@ -57,8 +57,8 @@ public class MyPageBookmarkedEventQueryDto {
         this.capacity = capacity;
     }
 
-    public static MyPageBookmarkedEventQueryDto of(Event event, long participantsCount, BookmarkStatus status){
-        return MyPageBookmarkedEventQueryDto.builder()
+    public static BookmarkedEventSimpleInfoQuery of(Event event, long participantsCount, BookmarkStatus status){
+        return BookmarkedEventSimpleInfoQuery.builder()
                 .id(event.getId())
                 .eventName(event.getName())
                 .author(event.getAuthor())

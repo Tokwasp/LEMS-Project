@@ -1,17 +1,13 @@
 package lems.cowshed.domain.user.query;
 
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventJpaRepository;
-import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
-import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

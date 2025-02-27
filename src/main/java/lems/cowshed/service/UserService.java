@@ -7,12 +7,12 @@ import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
 import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
+import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.domain.event.query.EventQueryRepository;
-import lems.cowshed.domain.event.query.MyPageBookmarkedEventQueryDto;
+import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.event.query.MyPageParticipatingEventQueryDto;
 import lems.cowshed.domain.user.query.EventParticipantQueryDto;
 import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lems.cowshed.domain.user.query.UserQueryRepository;
@@ -46,12 +46,12 @@ public class UserService {
     public UserMyPageResponseDto findMyPage(Long userId) {
         MyPageUserQueryDto userDto = userQueryRepository.findUser(userId);
 
-        List<MyPageParticipatingEventQueryDto> participatedEvents = eventQueryRepository
+        List<ParticipatingEventSimpleInfoQuery> participatedEvents = eventQueryRepository
                 .findParticipatedEvents(eventQueryRepository.getParticipatedEventsId(userId, PageRequest.of(0, 5)));
         setBookmarkStatus(participatedEvents, eventQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
 
-        List<MyPageBookmarkedEventQueryDto> bookmarkedEventList = eventQueryRepository
-                .findBookmarkedEvents(userId, PageRequest.of(0, 5));
+        List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList = eventQueryRepository
+                .findBookmarkedEventsPaging(userId, PageRequest.of(0, 5));
         setApplicants(eventQueryRepository.findEventIdParticipants(mapToEventIdList(bookmarkedEventList)), bookmarkedEventList);
 
         return UserMyPageResponseDto.of(userDto, participatedEvents, bookmarkedEventList);
@@ -130,7 +130,7 @@ public class UserService {
         return !editDto.getUsername().equals(myUsername);
     }
 
-    private void setApplicants(List<Tuple> eventIdParticipants, List<MyPageBookmarkedEventQueryDto> bookmarkList) {
+    private void setApplicants(List<Tuple> eventIdParticipants, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
         Map<Long, Long> eventIdParticipantsMap = eventIdParticipants.stream()
                 .collect(Collectors.toMap(
                         tuple -> tuple.get(userEvent.event.id), // eventId
@@ -141,17 +141,17 @@ public class UserService {
                 .forEach(dto -> dto.setApplicants(eventIdParticipantsMap.getOrDefault(dto.getId(), 0L)));
     }
 
-    private List<Long> mapToEventIdList(List<MyPageBookmarkedEventQueryDto> bookmarkedEventList) {
-        return bookmarkedEventList.stream().map(MyPageBookmarkedEventQueryDto::getId).toList();
+    private List<Long> mapToEventIdList(List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList) {
+        return bookmarkedEventList.stream().map(BookmarkedEventSimpleInfoQuery::getId).toList();
     }
 
-    private void setBookmarkStatus(List<MyPageParticipatingEventQueryDto> participatedEvents, List<Long> bookmarkedEventIdSet) {
+    private void setBookmarkStatus(List<ParticipatingEventSimpleInfoQuery> participatedEvents, List<Long> bookmarkedEventIdSet) {
         participatedEvents
                 .forEach(dto -> dto.setStatus(bookmarkedEventIdSet.contains(dto.getId()) ? BOOKMARK : NOT_BOOKMARK));
     }
 
-    private List<Long> getParticipatedEventIds(List<MyPageParticipatingEventQueryDto> participatedEvents) {
+    private List<Long> getParticipatedEventIds(List<ParticipatingEventSimpleInfoQuery> participatedEvents) {
         return participatedEvents.stream()
-                .map(MyPageParticipatingEventQueryDto::getId).toList();
+                .map(ParticipatingEventSimpleInfoQuery::getId).toList();
     }
 }
