@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @Schema(description = "모임에 참여한 회원")
 @AllArgsConstructor
-public class UserEventResponseDto {
+public class ParticipatingUserListInfo {
 
     private List<EventParticipantQueryDto> userList;
 }

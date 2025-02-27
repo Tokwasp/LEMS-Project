@@ -3,7 +3,7 @@ package lems.cowshed.service;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
@@ -11,18 +11,15 @@ import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
-import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +29,6 @@ import java.util.List;
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
 import static lems.cowshed.domain.user.Mbti.INTP;
-import static lems.cowshed.exception.Message.*;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
@@ -51,8 +47,6 @@ class UserServiceTest {
     UserEventRepository userEventRepository;
     @Autowired
     BookmarkRepository bookmarkRepository;
-    @Autowired
-    UserQueryRepository userQueryRepository;
 
     @BeforeEach
     void cleanUp(){
@@ -212,7 +206,7 @@ class UserServiceTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        UserMyPageResponseDto result = userService.findMyPage(user.getId());
+        UserMyPageInfo result = userService.findMyPage(user.getId());
 
         //then
         assertThat(result.getUserEventList())

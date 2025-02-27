@@ -4,9 +4,9 @@ import com.querydsl.core.Tuple;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
-import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
+import lems.cowshed.api.controller.dto.user.response.ParticipatingUserListInfo;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
+import lems.cowshed.api.controller.dto.user.response.UserInfo;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
@@ -43,7 +43,7 @@ public class UserService {
     private final EventQueryRepository eventQueryRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserMyPageResponseDto findMyPage(Long userId) {
+    public UserMyPageInfo findMyPage(Long userId) {
         MyPageUserQueryDto userDto = userQueryRepository.findUser(userId);
 
         List<ParticipatingEventSimpleInfoQuery> participatedEvents = eventQueryRepository
@@ -54,14 +54,14 @@ public class UserService {
                 .findBookmarkedEventsPaging(userId, PageRequest.of(0, 5));
         setApplicants(eventQueryRepository.findEventIdParticipants(mapToEventIdList(bookmarkedEventList)), bookmarkedEventList);
 
-        return UserMyPageResponseDto.of(userDto, participatedEvents, bookmarkedEventList);
+        return UserMyPageInfo.of(userDto, participatedEvents, bookmarkedEventList);
     }
 
-    public UserEventResponseDto findUserParticipatingInEvent(LocalDate currentYear, Long userId){
+    public ParticipatingUserListInfo findUserParticipatingInEvent(LocalDate currentYear, Long userId){
         List<EventParticipantQueryDto> userEventDtoList = userQueryRepository.findUserParticipatingInEvent(userId);
         calculateAndSetDtoAge(currentYear, userEventDtoList);
 
-        return new UserEventResponseDto(userEventDtoList);
+        return new ParticipatingUserListInfo(userEventDtoList);
     }
 
     public void signUp(UserSaveRequestDto saveDto) {
@@ -104,11 +104,11 @@ public class UserService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    public UserResponseDto findUser(Long userId) {
+    public UserInfo findUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        return UserResponseDto.from(user);
+        return UserInfo.from(user);
     }
 
     private void calculateAndSetDtoAge(LocalDate currentYear, List<EventParticipantQueryDto> userEventDtoList) {

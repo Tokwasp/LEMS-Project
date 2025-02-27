@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "회원 조회")
-public class UserResponseDto {
+public class UserInfo {
 
     @Schema(description = "닉네임", example = "외양간")
     private String username;
@@ -31,7 +31,7 @@ public class UserResponseDto {
     private Mbti mbti;
 
     @Builder
-    private UserResponseDto(String username, String introduction, String localName, LocalDate birth, Mbti mbti) {
+    private UserInfo(String username, String introduction, String localName, LocalDate birth, Mbti mbti) {
         this.username = username;
         this.introduction = introduction;
         this.localName = localName;
@@ -39,8 +39,8 @@ public class UserResponseDto {
         this.mbti = mbti;
     }
 
-    public static UserResponseDto from(User user){
-        return UserResponseDto.builder()
+    public static UserInfo from(User user){
+        return UserInfo.builder()
                 .username(user.getUsername())
                 .introduction(user.getIntroduction())
                 .localName(user.getLocation())
