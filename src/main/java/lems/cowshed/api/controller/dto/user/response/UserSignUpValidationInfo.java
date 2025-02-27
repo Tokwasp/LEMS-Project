@@ -6,17 +6,17 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserSignUpValidationDto {
+public class UserSignUpValidationInfo {
 
     private boolean isExists;
 
     @Builder
-    public UserSignUpValidationDto(boolean isExists) {
+    public UserSignUpValidationInfo(boolean isExists) {
         this.isExists = isExists;
     }
 
-    public static UserSignUpValidationDto from(boolean isExists){
-        return UserSignUpValidationDto.builder()
+    public static UserSignUpValidationInfo from(boolean isExists){
+        return UserSignUpValidationInfo.builder()
                 .isExists(isExists)
                 .build();
     }

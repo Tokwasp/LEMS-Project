@@ -1,13 +1,9 @@
 package lems.cowshed.api.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
-import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationDto;
+import lems.cowshed.api.controller.dto.user.response.UserInfo;
+import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationInfo;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.api.controller.CommonResponse;
@@ -15,13 +11,12 @@ import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
+import lems.cowshed.api.controller.dto.user.response.ParticipatingUserListInfo;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
 import lems.cowshed.service.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Tag(name="user-controller", description="회원 API")
@@ -41,20 +36,20 @@ public interface UserSpecification {
                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 다수 회원을 조회 합니다. [이벤트 상세 > 참여자 목록]")
-    CommonResponse<UserEventResponseDto> findUserParticipatingInEvent(@PathVariable("event-id")  long eventId,
-                                                                      @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<ParticipatingUserListInfo> findUserParticipatingInEvent(@PathVariable("event-id")  long eventId,
+                                                                           @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "회원 조회", description = "회원의 세부 사항을 조회 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<UserResponseDto> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<UserInfo> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "내 정보 조회", description = "내 정보, 북마크 목록, 참가한 이벤트 조회")
-    CommonResponse<UserMyPageResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "회원 가입 검증", description = "중복된 닉네임을 가진 회원을 찾습니다.")
-    CommonResponse<UserSignUpValidationDto> signUpValidationForUsername(@PathVariable String username);
+    CommonResponse<UserSignUpValidationInfo> signUpValidationForUsername(@PathVariable String username);
 
     @Operation(summary = "회원 가입 검증", description = "중복된 이메일을 가진 회원을 찾습니다.")
-    CommonResponse<UserSignUpValidationDto> signUpValidationForEmail(@PathVariable String email);
+    CommonResponse<UserSignUpValidationInfo> signUpValidationForEmail(@PathVariable String email);
 
 }

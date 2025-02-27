@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "마이 페이지 회원 정보")
-public class UserMyPageResponseDto {
+public class UserMyPageInfo {
 
     @Schema(description = "유저 정보")
     private MyPageUserQueryDto userDto;
@@ -26,16 +26,16 @@ public class UserMyPageResponseDto {
     private List<BookmarkedEventSimpleInfoQuery> bookmarkList;
 
     @Builder
-    public UserMyPageResponseDto(MyPageUserQueryDto userDto, List<ParticipatingEventSimpleInfoQuery> userEventList, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
+    public UserMyPageInfo(MyPageUserQueryDto userDto, List<ParticipatingEventSimpleInfoQuery> userEventList, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
         this.userDto = userDto;
         this.userEventList = userEventList;
         this.bookmarkList = bookmarkList;
     }
 
-    public static UserMyPageResponseDto of(MyPageUserQueryDto userDto,
-                                           List<ParticipatingEventSimpleInfoQuery> userEventList,
-                                           List<BookmarkedEventSimpleInfoQuery> bookmarkList){
-        return UserMyPageResponseDto.builder()
+    public static UserMyPageInfo of(MyPageUserQueryDto userDto,
+                                    List<ParticipatingEventSimpleInfoQuery> userEventList,
+                                    List<BookmarkedEventSimpleInfoQuery> bookmarkList){
+        return UserMyPageInfo.builder()
                 .userDto(userDto)
                 .userEventList(userEventList)
                 .bookmarkList(bookmarkList)

@@ -1,17 +1,14 @@
 package lems.cowshed.api.controller.user;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.UserEventResponseDto;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageResponseDto;
-import lems.cowshed.api.controller.dto.user.response.UserResponseDto;
-import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationDto;
-import lems.cowshed.config.swagger.ApiErrorCodeExample;
+import lems.cowshed.api.controller.dto.user.response.ParticipatingUserListInfo;
+import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
+import lems.cowshed.api.controller.dto.user.response.UserInfo;
+import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationInfo;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -28,16 +25,16 @@ public class UserApiController implements UserSpecification{
     private final UserService userService;
 
     @GetMapping("/my-page")
-    public CommonResponse<UserMyPageResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        UserMyPageResponseDto myPage = userService.findMyPage(customUserDetails.getUserId());
+    public CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        UserMyPageInfo myPage = userService.findMyPage(customUserDetails.getUserId());
         return CommonResponse.success(myPage);
     }
 
     @GetMapping("/{event-id}")
-    public CommonResponse<UserEventResponseDto> findUserParticipatingInEvent(@PathVariable("event-id") long eventId,
-                                                                             @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<ParticipatingUserListInfo> findUserParticipatingInEvent(@PathVariable("event-id") long eventId,
+                                                                                  @AuthenticationPrincipal CustomUserDetails customUserDetails){
         LocalDate now = LocalDate.now();
-        UserEventResponseDto userEvent = userService.findUserParticipatingInEvent(now, customUserDetails.getUserId());
+        ParticipatingUserListInfo userEvent = userService.findUserParticipatingInEvent(now, customUserDetails.getUserId());
         return CommonResponse.success(userEvent);
     }
 
@@ -61,20 +58,20 @@ public class UserApiController implements UserSpecification{
     }
 
     @GetMapping
-    public CommonResponse<UserResponseDto> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        UserResponseDto response = userService.findUser(customUserDetails.getUserId());
+    public CommonResponse<UserInfo> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        UserInfo response = userService.findUser(customUserDetails.getUserId());
         return CommonResponse.success(response);
     }
 
     @GetMapping("/username/{username}")
-    public CommonResponse<UserSignUpValidationDto> signUpValidationForUsername(@PathVariable String username){
-        UserSignUpValidationDto response = UserSignUpValidationDto.from(userService.signUpValidationForUsername(username));
+    public CommonResponse<UserSignUpValidationInfo> signUpValidationForUsername(@PathVariable String username){
+        UserSignUpValidationInfo response = UserSignUpValidationInfo.from(userService.signUpValidationForUsername(username));
         return CommonResponse.success(response);
     }
 
     @GetMapping("/email/{email}")
-    public CommonResponse<UserSignUpValidationDto> signUpValidationForEmail(@PathVariable String email){
-        UserSignUpValidationDto response = UserSignUpValidationDto.from(userService.signUpValidationForEmail(email));
+    public CommonResponse<UserSignUpValidationInfo> signUpValidationForEmail(@PathVariable String email){
+        UserSignUpValidationInfo response = UserSignUpValidationInfo.from(userService.signUpValidationForEmail(email));
         return CommonResponse.success(response);
     }
 
