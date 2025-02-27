@@ -2,6 +2,7 @@ package lems.cowshed.domain.user.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Mbti;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -23,10 +24,14 @@ public class MyPageUserQueryDto {
     @Schema(description = "성격유형", example = "ISTP")
     private Mbti mbti;
 
+    @Schema(description = "성별", example = "MALE")
+    private Gender gender;
+
     @QueryProjection
-    public MyPageUserQueryDto(String name, LocalDate birth, Mbti mbti) {
+    public MyPageUserQueryDto(String name, LocalDate birth, Mbti mbti, Gender gender) {
         this.name = name;
         this.birth = birth;
         this.mbti = mbti;
+        this.gender = gender;
     }
 }

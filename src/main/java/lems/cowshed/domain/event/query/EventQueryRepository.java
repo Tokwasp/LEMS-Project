@@ -58,7 +58,8 @@ public class EventQueryRepository {
                         event.author,
                         event.name.as("eventName"),
                         event.eventDate,
-                        userEvent.user.id.countDistinct().as("applicants")
+                        userEvent.user.id.countDistinct().as("applicants"),
+                        event.capacity
                 ))
                 .from(userEvent)
                 .rightJoin(userEvent.event, event)
@@ -75,7 +76,8 @@ public class EventQueryRepository {
                                 event.author,
                                 event.name,
                                 event.eventDate,
-                                bookmark.status
+                                bookmark.status,
+                                event.capacity
                         )
                 )
                 .from(bookmark)

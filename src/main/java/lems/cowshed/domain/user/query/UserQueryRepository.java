@@ -41,7 +41,8 @@ public class UserQueryRepository {
                 .select(new QMyPageUserQueryDto(
                         user.username.as("name"),
                         user.birth,
-                        user.mbti
+                        user.mbti,
+                        user.gender
                 ))
                 .from(user)
                 .where(user.id.eq(userId))

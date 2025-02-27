@@ -31,23 +31,30 @@ public class MyPageBookmarkedEventQueryDto {
     @Schema(description = "참여자 수 ", example = "15")
     private Long applicants;
 
+    @Schema(description = "최대 인원수", example = "50")
+    private int capacity;
+
     @QueryProjection
-    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status) {
+    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName,
+                                         LocalDate eventDate, BookmarkStatus status, int capacity) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.status = status;
+        this.capacity = capacity;
     }
 
     @Builder
-    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName, LocalDate eventDate, BookmarkStatus status, Long applicants) {
+    public MyPageBookmarkedEventQueryDto(Long id, String author, String eventName, LocalDate eventDate,
+                                         BookmarkStatus status, Long applicants, int capacity) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.status = status;
         this.applicants = applicants;
+        this.capacity = capacity;
     }
 
     public static MyPageBookmarkedEventQueryDto of(Event event, long participantsCount, BookmarkStatus status){
@@ -56,6 +63,7 @@ public class MyPageBookmarkedEventQueryDto {
                 .eventName(event.getName())
                 .author(event.getAuthor())
                 .eventDate(event.getEventDate())
+                .capacity(event.getCapacity())
                 .applicants(participantsCount)
                 .status(status)
                 .build();
