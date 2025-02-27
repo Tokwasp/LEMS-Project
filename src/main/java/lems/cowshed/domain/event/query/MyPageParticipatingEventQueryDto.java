@@ -31,14 +31,18 @@ public class MyPageParticipatingEventQueryDto {
     @Schema(description = "참여자 수 ", example = "15")
     private Long applicants;
 
+    @Schema(description = "최대 인원 수", example = "50")
+    private int capacity;
+
     @QueryProjection
     public MyPageParticipatingEventQueryDto(Long id, String author, String eventName,
-                                            LocalDate eventDate, Long applicants) {
+                                            LocalDate eventDate, Long applicants, int capacity) {
         this.id = id;
         this.author = author;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.applicants = applicants;
+        this.capacity = capacity;
     }
 
     public void statusBookmark(){
