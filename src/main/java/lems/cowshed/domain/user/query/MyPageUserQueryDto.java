@@ -27,11 +27,20 @@ public class MyPageUserQueryDto {
     @Schema(description = "성별", example = "MALE")
     private Gender gender;
 
+    @Schema(description = "지역명", example = "대구 광역시 수성구")
+    private String location;
+
+    @Schema(description = "소개", example = "안녕하세요")
+    private String introduction;
+
     @QueryProjection
-    public MyPageUserQueryDto(String name, LocalDate birth, Mbti mbti, Gender gender) {
+    public MyPageUserQueryDto(String name, LocalDate birth, Mbti mbti,
+                              Gender gender, String location, String introduction) {
         this.name = name;
         this.birth = birth;
         this.mbti = mbti;
         this.gender = gender;
+        this.location = location;
+        this.introduction = introduction;
     }
 }

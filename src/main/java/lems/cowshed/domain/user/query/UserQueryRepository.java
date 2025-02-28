@@ -42,7 +42,9 @@ public class UserQueryRepository {
                         user.username.as("name"),
                         user.birth,
                         user.mbti,
-                        user.gender
+                        user.gender,
+                        user.location,
+                        user.introduction
                 ))
                 .from(user)
                 .where(user.id.eq(userId))
