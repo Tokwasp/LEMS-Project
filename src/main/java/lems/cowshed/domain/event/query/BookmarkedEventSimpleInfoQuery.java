@@ -39,12 +39,12 @@ public class BookmarkedEventSimpleInfoQuery {
     private LocalDate createdDate;
 
     @Schema(description = "북마크 여부", example = "BOOKMARK")
-    private BookmarkStatus status;
+    private BookmarkStatus bookmarkStatus;
 
     @QueryProjection
     public BookmarkedEventSimpleInfoQuery(Long id, String name, LocalDate eventDate,
                                           String author, String content, int capacity,
-                                          LocalDateTime createdDateTime, BookmarkStatus status) {
+                                          LocalDateTime createdDateTime, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
         this.eventDate = eventDate;
@@ -52,13 +52,13 @@ public class BookmarkedEventSimpleInfoQuery {
         this.content = content;
         this.capacity = capacity;
         this.createdDate = createdDateTime.toLocalDate();
-        this.status = status;
+        this.bookmarkStatus = bookmarkStatus;
     }
 
     @Builder
     public BookmarkedEventSimpleInfoQuery(Long id, String name, LocalDate eventDate,
                                           String author, String content, Long applicants,
-                                          int capacity, LocalDate createdDate, BookmarkStatus status) {
+                                          int capacity, LocalDate createdDate, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
         this.eventDate = eventDate;
@@ -67,10 +67,10 @@ public class BookmarkedEventSimpleInfoQuery {
         this.applicants = applicants;
         this.capacity = capacity;
         this.createdDate = createdDate;
-        this.status = status;
+        this.bookmarkStatus = bookmarkStatus;
     }
 
-    public static BookmarkedEventSimpleInfoQuery of(Event event, long participantsCount, BookmarkStatus status){
+    public static BookmarkedEventSimpleInfoQuery of(Event event, long participantsCount, BookmarkStatus bookmarkStatus){
         return BookmarkedEventSimpleInfoQuery.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -80,7 +80,7 @@ public class BookmarkedEventSimpleInfoQuery {
                 .applicants(participantsCount)
                 .capacity(event.getCapacity())
                 .createdDate(event.getCreatedDateTime().toLocalDate())
-                .status(status)
+                .bookmarkStatus(bookmarkStatus)
                 .build();
     }
 
