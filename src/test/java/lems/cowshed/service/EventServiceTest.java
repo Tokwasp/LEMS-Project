@@ -392,7 +392,7 @@ class EventServiceTest {
         //then
         assertThat(bookmarkEvents.getBookmarks())
                 .hasSize(3)
-                .extracting("eventName")
+                .extracting("name")
                 .containsExactlyInAnyOrder("테스트0", "테스트1", "테스트2");
     }
 

@@ -54,9 +54,31 @@ class EventQueryRepositoryTest {
         eventJpaRepository.deleteAllInBatch();
     }
 
-    @DisplayName("회원이 참여한 모임을 조회 할때 참여자 수를 조회 한다.")
+    @DisplayName("모임에 대한 정보와 참여 인원수를 조회 한다.")
     @Test
-    void findParticipatedEvents() {
+    void getEventWithParticipated() {
+        //given
+        User user = createUser("테스터", INTP);
+        userRepository.save(user);
+
+        Event event = createEvent("산책 모임", "테스터");
+        eventJpaRepository.save(event);
+
+        UserEvent userEvent = UserEvent.of(user, event);
+        userEventRepository.save(userEvent);
+
+        //when
+        List<ParticipatingEventSimpleInfoQuery> result = eventQueryRepository.findParticipatedEvents(List.of(event.getId()));
+
+        //then
+        assertThat(result)
+                .extracting("name", "applicants", "author")
+                .containsExactly(Tuple.tuple("산책 모임", 1L, "테스터"));
+    }
+
+    @DisplayName("두명의 회원이 하나의 모임에 참여 하였을 때 참여자 수는 두명 이다.")
+    @Test
+    void getEventWithParticipatedWhenTwoParticipated() {
         //given
         User user = createUser("테스터", INTP);
         Event event = createEvent("산책 모임", "테스터");
@@ -73,13 +95,13 @@ class EventQueryRepositoryTest {
 
         //then
         assertThat(response).hasSize(1)
-                .extracting("eventName", "applicants")
+                .extracting("name", "applicants")
                 .containsExactly(Tuple.tuple("산책 모임", 2L));
     }
 
     @DisplayName("회원이 북마크한 모임을 조회 할때 북마크 상태는 BOOKMARK 이다.")
     @Test
-    void findBookmarkedEvents() {
+    void findBookmarkedEventsPaging() {
         //given
         User user = createUser("테스터", INTP);
         userRepository.save(user);
@@ -90,11 +112,11 @@ class EventQueryRepositoryTest {
         bookmarkRepository.save(bookmark);
 
         //when
-        List<BookmarkedEventSimpleInfoQuery> response = eventQueryRepository
+        List<BookmarkedEventSimpleInfoQuery> result = eventQueryRepository
                 .findBookmarkedEventsPaging(user.getId(), PageRequest.of(0, 5));
 
         //then
-        assertThat(response).hasSize(1)
+        assertThat(result).hasSize(1)
                 .extracting("status").containsExactly(BOOKMARK);
     }
 

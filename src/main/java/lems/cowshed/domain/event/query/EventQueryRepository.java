@@ -55,9 +55,10 @@ public class EventQueryRepository {
         return queryFactory
                 .select(new QParticipatingEventSimpleInfoQuery(
                         event.id,
-                        event.author,
-                        event.name.as("eventName"),
+                        event.name,
                         event.eventDate,
+                        event.author,
+                        event.content,
                         userEvent.user.id.countDistinct().as("applicants"),
                         event.capacity,
                         event.createdDateTime
@@ -73,13 +74,14 @@ public class EventQueryRepository {
         // 북마크 여부 O 참여 인원수 X
         return queryFactory
                 .select(new QBookmarkedEventSimpleInfoQuery(
-                                event.id.as("eventId"),
-                                event.author,
+                                event.id,
                                 event.name,
                                 event.eventDate,
-                                bookmark.status,
+                                event.author,
+                                event.content,
                                 event.capacity,
-                                event.createdDateTime
+                                event.createdDateTime,
+                                bookmark.status
                         )
                 )
                 .from(bookmark)

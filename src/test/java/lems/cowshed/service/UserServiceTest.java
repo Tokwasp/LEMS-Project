@@ -210,7 +210,7 @@ class UserServiceTest {
 
         //then
         assertThat(result.getUserEventList())
-                .extracting("status")
+                .extracting("bookmarkStatus")
                 .containsExactlyInAnyOrder(BOOKMARK, NOT_BOOKMARK);
     }
 
