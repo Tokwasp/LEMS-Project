@@ -11,47 +11,56 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
-@Schema(description = "메인 페이지의 모임 리스트 중 한 개의 모임 정보")
+@Schema(description = "메인 모임 리스트중 하나의 모임")
 public class EventSimpleInfo {
+
     @Schema(description = "모임 id", example = "1")
-    Long eventId;
+    private Long id;
+
     @Schema(description = "모임 이름", example = "자전거 모임")
-    String name;
-    @Schema(description = "모임 등록자", example = "김철수")
-    String author;
-    @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
-    String content;
+    private String name;
+
     @Schema(description = "모임 날짜", example = "2024-09-12")
-    LocalDate eventDate;
-    @Schema(description = "수용 최대 인원", example = "100")
-    int capacity;
+    private LocalDate eventDate;
+
+    @Schema(description = "모임 등록자", example = "김철수")
+    private String author;
+
+    @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
+    private String content;
+
     @Schema(description = "참여 인원", example = "50")
-    long applicants;
-    @Schema(description = "등록일", example = "yyyy-mm-dd hh:mm:ss")
-    LocalDateTime createdDate;
+    private long applicants;
+
+    @Schema(description = "수용 최대 인원", example = "100")
+    private int capacity;
+
+    @Schema(description = "등록일", example = "2015-10-03")
+    private LocalDate createdDate;
+
     @Schema(description = "북마크 여부 ", example = "Y")
-    BookmarkStatus bookmarkStatus;
+    private BookmarkStatus bookmarkStatus;
 
     @QueryProjection
-    public EventSimpleInfo(Long eventId, String name, String author,
+    public EventSimpleInfo(Long id, String name, String author,
                            String content, LocalDate eventDate,
-                           int capacity, LocalDateTime createdDate, BookmarkStatus bookmarkStatus){
-        this.eventId = eventId;
+                           int capacity, LocalDateTime createdDateTime, BookmarkStatus bookmarkStatus){
+        this.id = id;
         this.name = name;
         this.author = author;
         this.content = content;
         this.eventDate = eventDate;
         this.capacity = capacity;
-        this.createdDate = createdDate;
+        this.createdDate = createdDateTime.toLocalDate();
         this.bookmarkStatus = bookmarkStatus;
     }
 
     @Builder
-    public EventSimpleInfo(Long eventId, String name, String author,
+    public EventSimpleInfo(Long id, String name, String author,
                            String content, LocalDate eventDate,
-                           int capacity, LocalDateTime createdDate, long applicants,
+                           int capacity, LocalDate createdDate, long applicants,
                            BookmarkStatus bookmarkStatus) {
-        this.eventId = eventId;
+        this.id = id;
         this.name = name;
         this.author = author;
         this.content = content;
@@ -64,13 +73,13 @@ public class EventSimpleInfo {
 
     public static EventSimpleInfo of(Event event, long participantsCount, BookmarkStatus status){
         return EventSimpleInfo.builder()
-                .eventId(event.getId())
+                .id(event.getId())
                 .name(event.getName())
                 .author(event.getAuthor())
                 .content(event.getContent())
                 .eventDate(event.getEventDate())
                 .capacity(event.getCapacity())
-                .createdDate(event.getCreatedDateTime())
+                .createdDate(event.getCreatedDateTime().toLocalDate())
                 .applicants(participantsCount)
                 .bookmarkStatus(status)
                 .build();
