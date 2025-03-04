@@ -117,7 +117,7 @@ class EventQueryRepositoryTest {
 
         //then
         assertThat(result).hasSize(1)
-                .extracting("status").containsExactly(BOOKMARK);
+                .extracting("bookmarkStatus").containsExactly(BOOKMARK);
     }
 
     private Bookmark createBookmark(Event event, User user) {
