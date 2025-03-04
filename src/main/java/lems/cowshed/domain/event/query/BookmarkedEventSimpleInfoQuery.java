@@ -35,8 +35,8 @@ public class BookmarkedEventSimpleInfoQuery {
     @Schema(description = "최대 인원수", example = "50")
     private int capacity;
 
-    @Schema(description = "생성일", example = "2024-10-11")
-    private LocalDate createdDate;
+    @Schema(description = "생성일", example = "2024-10-11 21:30:20")
+    private LocalDateTime createdDateTime;
 
     @Schema(description = "북마크 여부", example = "BOOKMARK")
     private BookmarkStatus bookmarkStatus;
@@ -51,14 +51,14 @@ public class BookmarkedEventSimpleInfoQuery {
         this.author = author;
         this.content = content;
         this.capacity = capacity;
-        this.createdDate = createdDateTime.toLocalDate();
+        this.createdDateTime = createdDateTime;
         this.bookmarkStatus = bookmarkStatus;
     }
 
     @Builder
     public BookmarkedEventSimpleInfoQuery(Long id, String name, LocalDate eventDate,
                                           String author, String content, Long applicants,
-                                          int capacity, LocalDate createdDate, BookmarkStatus bookmarkStatus) {
+                                          int capacity, LocalDateTime createdDateTime, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
         this.eventDate = eventDate;
@@ -66,7 +66,7 @@ public class BookmarkedEventSimpleInfoQuery {
         this.content = content;
         this.applicants = applicants;
         this.capacity = capacity;
-        this.createdDate = createdDate;
+        this.createdDateTime = createdDateTime;
         this.bookmarkStatus = bookmarkStatus;
     }
 
@@ -79,7 +79,7 @@ public class BookmarkedEventSimpleInfoQuery {
                 .content(event.getContent())
                 .applicants(participantsCount)
                 .capacity(event.getCapacity())
-                .createdDate(event.getCreatedDateTime().toLocalDate())
+                .createdDateTime(event.getCreatedDateTime())
                 .bookmarkStatus(bookmarkStatus)
                 .build();
     }

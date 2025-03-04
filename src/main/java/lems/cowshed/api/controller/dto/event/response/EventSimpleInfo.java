@@ -35,8 +35,8 @@ public class EventSimpleInfo {
     @Schema(description = "수용 최대 인원", example = "100")
     private int capacity;
 
-    @Schema(description = "등록일", example = "2015-10-03")
-    private LocalDate createdDate;
+    @Schema(description = "등록일", example = "2015-10-03 21:30:20")
+    private LocalDateTime createdDateTime;
 
     @Schema(description = "북마크 여부 ", example = "Y")
     private BookmarkStatus bookmarkStatus;
@@ -51,22 +51,21 @@ public class EventSimpleInfo {
         this.content = content;
         this.eventDate = eventDate;
         this.capacity = capacity;
-        this.createdDate = createdDateTime.toLocalDate();
+        this.createdDateTime = createdDateTime;
         this.bookmarkStatus = bookmarkStatus;
     }
 
     @Builder
     public EventSimpleInfo(Long id, String name, String author,
-                           String content, LocalDate eventDate,
-                           int capacity, LocalDate createdDate, long applicants,
-                           BookmarkStatus bookmarkStatus) {
+                           String content, LocalDate eventDate, int capacity,
+                           LocalDateTime createdDateTime, long applicants, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.content = content;
         this.eventDate = eventDate;
         this.capacity = capacity;
-        this.createdDate = createdDate;
+        this.createdDateTime = createdDateTime;
         this.applicants = applicants;
         this.bookmarkStatus = bookmarkStatus;
     }
@@ -79,7 +78,7 @@ public class EventSimpleInfo {
                 .content(event.getContent())
                 .eventDate(event.getEventDate())
                 .capacity(event.getCapacity())
-                .createdDate(event.getCreatedDateTime().toLocalDate())
+                .createdDateTime(event.getCreatedDateTime())
                 .applicants(participantsCount)
                 .bookmarkStatus(status)
                 .build();

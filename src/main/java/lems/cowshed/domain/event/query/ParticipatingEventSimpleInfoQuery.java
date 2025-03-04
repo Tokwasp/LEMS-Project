@@ -35,8 +35,8 @@ public class ParticipatingEventSimpleInfoQuery {
     @Schema(description = "최대 인원 수", example = "50")
     private int capacity;
 
-    @Schema(description = "생성일", example = "2024-10-11")
-    private LocalDate createdDate;
+    @Schema(description = "생성일", example = "2024-10-11 20:30:10")
+    private LocalDateTime createdDateTime;
 
     @Schema(description = "북마크 여부", example = "BOOKMARK")
     private BookmarkStatus bookmarkStatus;
@@ -51,7 +51,7 @@ public class ParticipatingEventSimpleInfoQuery {
         this.content = content;
         this.applicants = applicants;
         this.capacity = capacity;
-        this.createdDate = createdDateTime.toLocalDate();
+        this.createdDateTime = createdDateTime;
     }
 
     public void statusBookmark(){
