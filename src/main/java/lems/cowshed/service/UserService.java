@@ -22,9 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,10 +54,8 @@ public class UserService {
         return UserMyPageInfo.of(userDto, participatedEvents, bookmarkedEventList);
     }
 
-    public ParticipatingUserListInfo findUserParticipatingInEvent(LocalDate currentYear, Long userId){
-        List<EventParticipantQueryDto> userEventDtoList = userQueryRepository.findUserParticipatingInEvent(userId);
-        calculateAndSetDtoAge(currentYear, userEventDtoList);
-
+    public ParticipatingUserListInfo findParticipants(Long eventId){
+        List<EventParticipantQueryDto> userEventDtoList = userQueryRepository.findParticipants(eventId);
         return new ParticipatingUserListInfo(userEventDtoList);
     }
 
@@ -116,17 +111,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
         userRepository.delete(user);
-    }
-
-    private void calculateAndSetDtoAge(LocalDate currentYear, List<EventParticipantQueryDto> userEventDtoList) {
-        userEventDtoList.forEach((EventParticipantQueryDto dto) -> {
-            if (dto.getBirth() == null){
-                dto.setAge(null);
-            }
-            else {
-                dto.setAge((int) ChronoUnit.YEARS.between(dto.getBirth(), currentYear) + 1);
-            }
-        });
     }
 
     private boolean isPasswordValidationFail(UserLoginRequestDto loginDto, User user) {

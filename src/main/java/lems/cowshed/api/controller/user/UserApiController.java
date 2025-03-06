@@ -30,12 +30,10 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success(myPage);
     }
 
-    @GetMapping("/{event-id}")
-    public CommonResponse<ParticipatingUserListInfo> findUserParticipatingInEvent(@PathVariable("event-id") long eventId,
-                                                                                  @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        LocalDate now = LocalDate.now();
-        ParticipatingUserListInfo userEvent = userService.findUserParticipatingInEvent(now, customUserDetails.getUserId());
-        return CommonResponse.success(userEvent);
+    @GetMapping("/events/{event-id}")
+    public CommonResponse<ParticipatingUserListInfo> findParticipants(@PathVariable("event-id") Long eventId){
+        ParticipatingUserListInfo participatingUser = userService.findParticipants(eventId);
+        return CommonResponse.success(participatingUser);
     }
 
     @PostMapping("/signUp")
