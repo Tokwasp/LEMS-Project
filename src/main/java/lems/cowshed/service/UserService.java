@@ -111,6 +111,13 @@ public class UserService {
         return UserInfo.from(user);
     }
 
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
+
+        userRepository.delete(user);
+    }
+
     private void calculateAndSetDtoAge(LocalDate currentYear, List<EventParticipantQueryDto> userEventDtoList) {
         userEventDtoList.forEach((EventParticipantQueryDto dto) -> {
             if (dto.getBirth() == null){
@@ -154,4 +161,5 @@ public class UserService {
         return participatedEvents.stream()
                 .map(ParticipatingEventSimpleInfoQuery::getId).toList();
     }
+
 }

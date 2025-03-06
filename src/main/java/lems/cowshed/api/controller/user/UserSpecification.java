@@ -52,4 +52,6 @@ public interface UserSpecification {
     @Operation(summary = "회원 가입 검증", description = "중복된 이메일을 가진 회원을 찾습니다.")
     CommonResponse<UserSignUpValidationInfo> signUpValidationForEmail(@PathVariable String email);
 
+    @Operation(summary = "회원 삭제", description = "회원을 삭제 합니다.")
+    CommonResponse<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 }

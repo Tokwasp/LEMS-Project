@@ -75,4 +75,9 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success(response);
     }
 
+    @DeleteMapping
+    public CommonResponse<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        userService.deleteUser(customUserDetails.getUserId());
+        return CommonResponse.success();
+    }
 }
