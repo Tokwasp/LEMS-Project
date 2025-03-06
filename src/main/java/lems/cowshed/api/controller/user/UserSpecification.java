@@ -35,9 +35,8 @@ public interface UserSpecification {
     CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto,
                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
-    @Operation(summary = "모임 회원 조회", description = "특정 모임에 속한 다수 회원을 조회 합니다. [이벤트 상세 > 참여자 목록]")
-    CommonResponse<ParticipatingUserListInfo> findUserParticipatingInEvent(@PathVariable("event-id")  long eventId,
-                                                                           @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    @Operation(summary = "모임에 참여한 회원 조회", description = "특정 모임에 참여한 회원들을 조회 합니다. [이벤트 상세 > 참여자 목록]")
+    CommonResponse<ParticipatingUserListInfo> findParticipants(@PathVariable("event-id") Long eventId);
 
     @Operation(summary = "회원 조회", description = "회원의 세부 사항을 조회 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
@@ -52,4 +51,6 @@ public interface UserSpecification {
     @Operation(summary = "회원 가입 검증", description = "중복된 이메일을 가진 회원을 찾습니다.")
     CommonResponse<UserSignUpValidationInfo> signUpValidationForEmail(@PathVariable String email);
 
+    @Operation(summary = "회원 삭제", description = "회원을 삭제 합니다.")
+    CommonResponse<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 }

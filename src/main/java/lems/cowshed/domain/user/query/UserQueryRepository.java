@@ -20,19 +20,16 @@ public class UserQueryRepository {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    // 모임에 참가한 회원 정보
-    public List<EventParticipantQueryDto> findUserParticipatingInEvent (Long userId) {
+    // 특정 모임에 참여한 회원들 정보
+    public List<EventParticipantQueryDto> findParticipants (Long eventId) {
         return queryFactory
                 .select(new QEventParticipantQueryDto(
-                        user.username,
-                        user.gender,
-                        user.mbti,
-                        user.birth,
-                        user.location
+                        user.username.as("name"),
+                        user.gender
                 ))
                 .from(userEvent)
                 .join(userEvent.user, user)
-                .where(user.id.eq(userId))
+                .on(userEvent.event.id.eq(eventId))
                 .fetch();
     }
 

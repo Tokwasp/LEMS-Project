@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ParticipatingUserListInfo {
 
-    private List<EventParticipantQueryDto> userList;
+    private List<EventParticipantQueryDto> participants;
 }
