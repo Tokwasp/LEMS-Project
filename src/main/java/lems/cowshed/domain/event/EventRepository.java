@@ -22,5 +22,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Event findByName(String name);
     Optional<Event> findByIdAndAuthor(Long eventId, String author);
     @Query("SELECT b.event.id FROM Bookmark b WHERE b.user.id = :userId AND b.event.id IN :eventIds AND b.status = :bookmarkStatus")
-    Set<Long> findBookmarkedEventIds(@Param("userId") Long userId, @Param("eventIds") List<Long> eventIds, @Param("bookmarkStatus") BookmarkStatus bookmarkStatus);
+    Set<Long> findBookmarkedEventsFromMe(@Param("userId") Long userId, @Param("eventIds") List<Long> eventIds, @Param("bookmarkStatus") BookmarkStatus bookmarkStatus);
 }

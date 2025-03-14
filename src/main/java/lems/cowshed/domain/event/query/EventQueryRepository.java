@@ -4,8 +4,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lems.cowshed.api.controller.dto.event.response.EventInfo;
-import lems.cowshed.api.controller.dto.event.response.QEventInfo;
+import lems.cowshed.api.controller.dto.event.response.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -28,7 +27,7 @@ public class EventQueryRepository {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    public EventInfo getEventWithParticipated(Long eventId){
+    public EventInfo findEventWithUserIds(Long eventId) {
         return queryFactory
                 .select(new QEventInfo(
                         event.id,
@@ -95,7 +94,7 @@ public class EventQueryRepository {
     }
 
 
-    public List<Long> getParticipatedEventsId(Long userId, Pageable pageable){
+    public List<Long> getParticipatedEventsId(Long userId, Pageable pageable) {
         return queryFactory
                 .select(event.id)
                 .from(userEvent)
@@ -105,7 +104,7 @@ public class EventQueryRepository {
                 .fetch();
     }
 
-    public List<Long> getBookmarkedEventIdSet(Long userId, List<Long> eventIds){
+    public List<Long> getBookmarkedEventIdSet(Long userId, List<Long> eventIds) {
         return queryFactory.select(bookmark.event.id)
                 .from(bookmark)
                 .where(user.id.eq(userId)
@@ -113,11 +112,32 @@ public class EventQueryRepository {
                 .fetch();
     }
 
-    public List<Tuple> findEventIdParticipants(List<Long> eventIds){
+    public List<Tuple> findEventIdParticipants(List<Long> eventIds) {
         return queryFactory.select(userEvent.event.id, userEvent.event.id.count())
                 .from(userEvent)
                 .where(userEvent.event.id.in(eventIds))
                 .groupBy(userEvent.event.id)
+                .fetch();
+    }
+
+    public List<EventSimpleInfo> searchEventsWithBookmarkStatus(String content, Long userId) {
+        return queryFactory.select(
+                new QEventSimpleInfo(
+                        event.id,
+                        event.name,
+                        event.author,
+                        event.content,
+                        event.eventDate,
+                        event.capacity,
+                        event.createdDateTime,
+                        bookmark.status
+                ))
+                .from(bookmark)
+                .rightJoin(bookmark.event, event)
+                .on(bookmark.event.id.eq(event.id)
+                        .and(bookmark.user.id.eq(userId))
+                        .and(bookmark.status.eq(BOOKMARK)))
+                .where(event.name.contains(content).or(event.content.contains(content)))
                 .fetch();
     }
 }
