@@ -1,5 +1,6 @@
 package lems.cowshed.domain.event.query;
 
+import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
@@ -9,6 +10,7 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +26,7 @@ import java.util.List;
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.user.Mbti.ESFJ;
 import static lems.cowshed.domain.user.Mbti.INTP;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -56,7 +59,7 @@ class EventQueryRepositoryTest {
 
     @DisplayName("모임에 대한 정보와 참여 인원수를 조회 한다.")
     @Test
-    void getEventWithParticipated() {
+    void findEventWithUserIds() {
         //given
         User user = createUser("테스터", INTP);
         userRepository.save(user);
@@ -78,7 +81,7 @@ class EventQueryRepositoryTest {
 
     @DisplayName("두명의 회원이 하나의 모임에 참여 하였을 때 참여자 수는 두명 이다.")
     @Test
-    void getEventWithParticipatedWhenTwoParticipated() {
+    void findEventWithParticipatedWhenTwoUserIds() {
         //given
         User user = createUser("테스터", INTP);
         Event event = createEvent("산책 모임", "테스터");
@@ -120,6 +123,27 @@ class EventQueryRepositoryTest {
                 .extracting("bookmarkStatus").containsExactly(BOOKMARK);
     }
 
+    @DisplayName("모임 검색을 할때 모임 이름 혹은 내용이 포함된 모임을 찾는다.")
+    @Test
+    void searchEventsWithBookmarkStatus() {
+        //given
+        User user = createUser("테스터", INTP);
+        userRepository.save(user);
+        Event event = createEvent("산책 모임", "테스터", "테스트 내용");
+        eventJpaRepository.save(event);
+
+        Bookmark bookmark = createBookmark(event, user);
+        bookmarkRepository.save(bookmark);
+
+        //when
+        List<EventSimpleInfo> result = eventQueryRepository.searchEventsWithBookmarkStatus("테스트", user.getId());
+
+        //then
+        assertThat(result).isNotEmpty()
+                .extracting("name", "content", "bookmarkStatus")
+                .containsExactly(Tuple.tuple("산책 모임", "테스트 내용", BOOKMARK));
+    }
+
     private Bookmark createBookmark(Event event, User user) {
         return Bookmark.builder()
                 .event(event)
@@ -139,6 +163,13 @@ class EventQueryRepositoryTest {
         return Event.builder()
                 .name(name)
                 .author(author)
+                .build();
+    }
+
+    private Event createEvent(String name, String author, String content){
+        return Event.builder()
+                .name(name)
+                .content(content)
                 .build();
     }
 }

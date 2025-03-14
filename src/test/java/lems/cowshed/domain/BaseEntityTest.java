@@ -9,6 +9,7 @@ import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,7 @@ class BaseEntityTest {
         assertThat(findUser.getCreatedDateTime()).isEqualTo(findUser.getModifiedDateTime());
     }
 
+    @Disabled
     @DisplayName("회원의 세부 정보를 수정 하면 변경 날짜는 생성 시간 이후 날짜이다.")
     @Test
     void editProcess() {

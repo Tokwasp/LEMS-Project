@@ -463,6 +463,21 @@ class EventServiceTest {
                 .isInstanceOf(NotFoundException.class);
     }
 
+    @DisplayName("모임을 검색 한다.")
+    @Test
+    void getSearchEvent() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        //when
+
+        //then
+    }
+
     private static Event createEvent(String author, String name) {
         return Event.builder()
                 .name(name)

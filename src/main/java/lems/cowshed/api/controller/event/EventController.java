@@ -1,12 +1,9 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.event.response.BookmarkedEventsPagingInfo;
-import lems.cowshed.api.controller.dto.event.response.EventInfo;
-import lems.cowshed.api.controller.dto.event.response.EventsPagingInfo;
+import lems.cowshed.api.controller.dto.event.response.*;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.api.controller.dto.event.response.ParticipatingEventsPagingInfo;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +46,13 @@ public class EventController implements EventSpecification {
                                                                             @AuthenticationPrincipal CustomUserDetails userDetails){
         ParticipatingEventsPagingInfo ParticipatingEvents = eventService.getParticipatingEventsPaging(pageable, userDetails.getUserId());
         return CommonResponse.success(ParticipatingEvents);
+    }
+
+    @GetMapping("/search")
+    public CommonResponse<EventsSearchInfo> getSearchEvent(@RequestParam("content") String content,
+                                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        EventsSearchInfo searchEvent = eventService.getSearchEvent(content, customUserDetails.getUserId());
+        return CommonResponse.success(searchEvent);
     }
 
     @PostMapping

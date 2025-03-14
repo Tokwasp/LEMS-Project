@@ -84,7 +84,12 @@ public class EventSimpleInfo {
                 .build();
     }
 
+
     public void changeApplicants(Long applicants){
         this.applicants = applicants;
+    }
+
+    public void updateBookmarkStatus(BookmarkStatus bookmarkStatus){
+        this.bookmarkStatus = bookmarkStatus;
     }
 }
