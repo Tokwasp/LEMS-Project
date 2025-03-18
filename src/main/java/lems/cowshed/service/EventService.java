@@ -9,11 +9,13 @@ import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.userevent.Participants;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
@@ -47,16 +49,18 @@ public class EventService {
     private final UserEventRepository userEventRepository;
 
     public EventsPagingInfo getPagingEvents(Pageable Pageable, Long userId) {
-        Slice<Event> events = eventRepository.findSliceBy(Pageable);
+        Slice<Event> eventSlice = eventRepository.findSliceBy(Pageable);
 
-        List<Long> eventIdList = getEventIdList(events);
-        List<UserEvent> participants = userEventRepository.findByEventIdIn(eventIdList);
-        Map<Long, Long> participantsCountByGroupId = findNumberOfParticipants(participants);
+        Events events = Events.of(eventSlice.getContent());
+        List<Long> eventIds = events.extractIds();
 
-        Set<Long> bookmarkedEventIds = eventRepository.findBookmarkedEventsFromMe(userId, eventIdList, BOOKMARK);
-        List<EventSimpleInfo> result = setApplicantsAndBookmark(events, participantsCountByGroupId, bookmarkedEventIds);
+        Participants participants = Participants.of(userEventRepository.findByEventIdIn(eventIds));
+        Map<Long, Long> participantsCountByGroupId = participants.findNumberOfParticipants();
 
-        return EventsPagingInfo.of(result, events.isLast());
+        Set<Long> userBookmarkedEventIds = eventRepository.findBookmarkedEventIdsFromUser(userId, eventIds, BOOKMARK);
+        List<EventSimpleInfo> result = setApplicantsAndBookmark(eventSlice, participantsCountByGroupId, userBookmarkedEventIds );
+
+        return EventsPagingInfo.of(result, eventSlice.isLast());
     }
 
     public void saveEvent(EventSaveRequestDto requestDto, String username) {
@@ -160,10 +164,6 @@ public class EventService {
         return searchEventWithoutApplicants.stream()
                 .map(dto -> dto.getId())
                 .toList();
-    }
-
-    private List<Long> getEventIdList(Slice<Event> events) {
-        return events.stream().map(Event::getId).toList();
     }
 
     private Map<Long, Long> findNumberOfParticipants(List<UserEvent> participants) {
