@@ -9,6 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.bookmark.QBookmark.bookmark;
@@ -27,7 +30,7 @@ public class EventQueryRepository {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    public EventInfo findEventWithUserIds(Long eventId) {
+    public EventInfo findEventWithApplicantUserIds(Long eventId) {
         return queryFactory
                 .select(new QEventInfo(
                         event.id,
@@ -49,7 +52,7 @@ public class EventQueryRepository {
                 .fetchOne();
     }
 
-    public List<ParticipatingEventSimpleInfoQuery> findParticipatedEvents(List<Long> eventIds) {
+    public List<ParticipatingEventSimpleInfoQuery> findEventsParticipatedByUserWithApplicants(List<Long> eventIds) {
         // 회원이 참여한 모임과 참여 인원수 북마크 여부 X
         return queryFactory
                 .select(new QParticipatingEventSimpleInfoQuery(
@@ -69,7 +72,7 @@ public class EventQueryRepository {
                 .fetch();
     }
 
-    public List<BookmarkedEventSimpleInfoQuery> findBookmarkedEventsPaging(Long userId, Pageable pageable) {
+    public List<BookmarkedEventSimpleInfoQuery> findBookmarkedEventsFromUser(Long userId, Pageable pageable) {
         // 북마크 여부 O 참여 인원수 X
         return queryFactory
                 .select(new QBookmarkedEventSimpleInfoQuery(
@@ -94,7 +97,7 @@ public class EventQueryRepository {
     }
 
 
-    public List<Long> getParticipatedEventsId(Long userId, Pageable pageable) {
+    public List<Long> getEventIdsParticipatedByUser(Long userId, Pageable pageable) {
         return queryFactory
                 .select(event.id)
                 .from(userEvent)
@@ -112,12 +115,18 @@ public class EventQueryRepository {
                 .fetch();
     }
 
-    public List<Tuple> findEventIdParticipants(List<Long> eventIds) {
-        return queryFactory.select(userEvent.event.id, userEvent.event.id.count())
+    public Map<Long,Long> findEventParticipantCountByEventIds(List<Long> eventIds) {
+        List<Tuple> tuples = queryFactory.select(userEvent.event.id, userEvent.event.id.count())
                 .from(userEvent)
                 .where(userEvent.event.id.in(eventIds))
                 .groupBy(userEvent.event.id)
                 .fetch();
+
+        return tuples.stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(userEvent.event.id),
+                        tuple -> Optional.ofNullable(tuple.get(userEvent.event.id.count())).orElse(0L)
+                ));
     }
 
     public List<EventSimpleInfo> searchEventsWithBookmarkStatus(String content, Long userId) {

@@ -2,7 +2,9 @@ package lems.cowshed.domain.event.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.api.controller.dto.event.EventIdProvider;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -12,7 +14,7 @@ import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 
 @Getter
 @Schema(description = "마이 페이지 회원이 참여한 모임 정보")
-public class ParticipatingEventSimpleInfoQuery {
+public class ParticipatingEventSimpleInfoQuery implements EventIdProvider {
 
     @Schema(description = "이벤트 id", example = "1")
     private Long id;
@@ -43,7 +45,8 @@ public class ParticipatingEventSimpleInfoQuery {
 
     @QueryProjection
     public ParticipatingEventSimpleInfoQuery(Long id, String name, LocalDate eventDate, String author,
-                                             String content, Long applicants, int capacity, LocalDateTime createdDateTime) {
+                                             String content, Long applicants, int capacity,
+                                             LocalDateTime createdDateTime) {
         this.id = id;
         this.author = author;
         this.name = name;
@@ -54,12 +57,38 @@ public class ParticipatingEventSimpleInfoQuery {
         this.createdDateTime = createdDateTime;
     }
 
-    public void statusBookmark(){
-        this.bookmarkStatus = BOOKMARK;
+    @Builder
+    private ParticipatingEventSimpleInfoQuery(Long id, String name, LocalDate eventDate,
+                                             String author, String content, Long applicants,
+                                             int capacity, LocalDateTime createdDateTime, BookmarkStatus bookmarkStatus) {
+        this.id = id;
+        this.name = name;
+        this.eventDate = eventDate;
+        this.author = author;
+        this.content = content;
+        this.applicants = applicants;
+        this.capacity = capacity;
+        this.createdDateTime = createdDateTime;
+        this.bookmarkStatus = bookmarkStatus;
     }
 
-    public void statusNotBookmark(){
-        this.bookmarkStatus = NOT_BOOKMARK;
+    public static ParticipatingEventSimpleInfoQuery from(ParticipatingEventSimpleInfoQuery query, BookmarkStatus bookmarkStatus){
+        return ParticipatingEventSimpleInfoQuery.builder()
+                .id(query.getId())
+                .name(query.getName())
+                .eventDate(query.getEventDate())
+                .author(query.getAuthor())
+                .content(query.getContent())
+                .applicants(query.getApplicants())
+                .capacity(query.getCapacity())
+                .createdDateTime(query.getCreatedDateTime())
+                .bookmarkStatus(bookmarkStatus)
+                .build();
+    }
+
+    @Override
+    public Long getEventId() {
+        return this.id;
     }
 
     public void setBookmarkStatus(BookmarkStatus bookmarkStatus) {

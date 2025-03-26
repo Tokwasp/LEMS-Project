@@ -65,8 +65,12 @@ public class Event extends BaseEntity {
         if(requestDto.getLocation() != null) this.location = requestDto.getLocation();
     }
 
-    public boolean isNotParticipate(long participateCount){
-        return capacity == participateCount;
+    public boolean isOverCapacity(long capacity){
+        return this.capacity <= capacity;
+    }
+
+    public boolean isNotSameAuthor(String author) {
+        return !this.author.equals(author);
     }
 }
 

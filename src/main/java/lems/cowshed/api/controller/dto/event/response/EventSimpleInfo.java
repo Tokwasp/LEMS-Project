@@ -2,17 +2,25 @@ package lems.cowshed.api.controller.dto.event.response;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.api.controller.dto.event.EventIdProvider;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
 
 @Getter
 @Schema(description = "메인 모임 리스트중 하나의 모임")
-public class EventSimpleInfo {
+public class EventSimpleInfo implements EventIdProvider {
 
     @Schema(description = "모임 id", example = "1")
     private Long id;
@@ -70,7 +78,7 @@ public class EventSimpleInfo {
         this.bookmarkStatus = bookmarkStatus;
     }
 
-    public static EventSimpleInfo of(Event event, long participantsCount, BookmarkStatus status){
+    public static EventSimpleInfo of(Event event, long participantsCount, BookmarkStatus bookmarkStatus){
         return EventSimpleInfo.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -80,10 +88,14 @@ public class EventSimpleInfo {
                 .capacity(event.getCapacity())
                 .createdDateTime(event.getCreatedDateTime())
                 .applicants(participantsCount)
-                .bookmarkStatus(status)
+                .bookmarkStatus(bookmarkStatus)
                 .build();
     }
 
+    @Override
+    public Long getEventId() {
+        return this.id;
+    }
 
     public void changeApplicants(Long applicants){
         this.applicants = applicants;
@@ -92,4 +104,5 @@ public class EventSimpleInfo {
     public void updateBookmarkStatus(BookmarkStatus bookmarkStatus){
         this.bookmarkStatus = bookmarkStatus;
     }
+
 }

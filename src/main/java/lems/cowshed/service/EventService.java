@@ -1,6 +1,6 @@
 package lems.cowshed.service;
 
-import com.querydsl.core.Tuple;
+import lems.cowshed.api.controller.dto.event.EventIdProvider;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.*;
@@ -9,11 +9,13 @@ import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.userevent.Participants;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
 import lems.cowshed.exception.BusinessException;
@@ -24,14 +26,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
-import static lems.cowshed.domain.userevent.QUserEvent.userEvent;
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
 
@@ -46,17 +44,21 @@ public class EventService {
     private final BookmarkRepository bookmarkRepository;
     private final UserEventRepository userEventRepository;
 
-    public EventsPagingInfo getPagingEvents(Pageable Pageable, Long userId) {
-        Slice<Event> events = eventRepository.findSliceBy(Pageable);
+    public EventsPagingInfo getEvents(Pageable Pageable, Long userId) {
+        Slice<Event> eventsToLookFor = eventRepository.findEventsBy(Pageable);
 
-        List<Long> eventIdList = getEventIdList(events);
-        List<UserEvent> participants = userEventRepository.findByEventIdIn(eventIdList);
-        Map<Long, Long> participantsCountByGroupId = findNumberOfParticipants(participants);
+        List<Event> content = eventsToLookFor.getContent();
+        Events events = Events.of(content);
+        List<Long> eventIds = events.extractIds();
 
-        Set<Long> bookmarkedEventIds = eventRepository.findBookmarkedEventsFromMe(userId, eventIdList, BOOKMARK);
-        List<EventSimpleInfo> result = setApplicantsAndBookmark(events, participantsCountByGroupId, bookmarkedEventIds);
+        List<UserEvent> participatedEvent = userEventRepository.findEventParticipationByEventIdIn(eventIds);
+        Participants participants = Participants.of(participatedEvent);
+        Map<Long, Long> participantsCountByGroupId = participants.findNumberOfParticipants();
 
-        return EventsPagingInfo.of(result, events.isLast());
+        Set<Long> userBookmarkedEventIds = eventRepository.findEventIdsBookmarkedByUser(userId, eventIds, BOOKMARK);
+        List<EventSimpleInfo> result = createEventSimpleInfo(content, participantsCountByGroupId, userBookmarkedEventIds);
+
+        return EventsPagingInfo.of(result, eventsToLookFor.isLast());
     }
 
     public void saveEvent(EventSaveRequestDto requestDto, String username) {
@@ -64,21 +66,12 @@ public class EventService {
         eventRepository.save(event);
     }
 
-    public EventInfo getEvent(Long eventId, Long userId, String username) {
-        EventInfo response = eventQueryRepository.findEventWithUserIds(eventId);
-        Optional<Bookmark> bookmark = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK);
+    public long saveEventParticipation(Long eventId, Long userId) {
+        Event event = eventRepository.findPessimisticLockById(eventId)
+                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        BookmarkStatus bookmarkStatus = bookmark.isPresent() ? BOOKMARK : NOT_BOOKMARK;
-
-        response.setParticipatedAndRegisteredByMeAndBookmarked(userId, username, bookmarkStatus);
-        return response;
-    }
-
-    public long joinEvent(Long eventId, Long userId) {
-        Event event = eventRepository.findPessimisticLockById(eventId).orElseThrow(
-                () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
-
-        if(isNotPossibleToParticipate(event)){
+        long participantsCount = userEventRepository.countParticipantByEventId(event.getId());
+        if (isNotPossibleParticipateToEvent(event, participantsCount)) {
             throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
         }
 
@@ -90,13 +83,30 @@ public class EventService {
         return userEvent.getId();
     }
 
-    public void editEvent(Long eventId, EventUpdateRequestDto requestDto, String userName) {
-        Event event = eventRepository.findByIdAndAuthor(eventId, userName).orElseThrow(
-                () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+    public EventInfo getEvent(Long eventId, Long userId, String username) {
+        EventInfo response = eventQueryRepository.findEventWithApplicantUserIds(eventId);
 
-        if(notRegisteredEventByUser(userName, event)){
+        Optional<Bookmark> bookmark = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK);
+        BookmarkStatus bookmarkStatus = bookmark.isPresent() ? BOOKMARK : NOT_BOOKMARK;
+        response.updateBookmarkStatus(bookmarkStatus);
+
+        boolean isEventRegistrant = response.isEventRegistrant(username);
+        response.updateRegistrant(isEventRegistrant);
+
+        boolean isParticipated = findIsParticipated(userId, response.getUserList());
+        response.updateParticipated(isParticipated);
+
+        return response;
+    }
+
+    public void editEvent(Long eventId, EventUpdateRequestDto requestDto, String userName) {
+        Event event = eventRepository.findByIdAndAuthor(eventId, userName)
+                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+
+        if (isNotRegisteredEventByUser(event, userName)) {
             throw new BusinessException(BusinessReason, EVENT_NOT_REGISTERED_BY_USER);
         }
+
         event.edit(requestDto);
     }
 
@@ -107,23 +117,28 @@ public class EventService {
         eventRepository.delete(event);
     }
 
-    public BookmarkedEventsPagingInfo getBookmarkedEventsPaging(Pageable pageable, Long userId) {
-        List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList = eventQueryRepository
-                .findBookmarkedEventsPaging(userId, pageable);
+    public BookmarkedEventsPagingInfo getEventsBookmarkedByUser(Pageable pageable, Long userId) {
+        List<BookmarkedEventSimpleInfoQuery> bookmarkedEvents = eventQueryRepository.findBookmarkedEventsFromUser(userId, pageable);
 
-        setApplicants(eventQueryRepository.findEventIdParticipants(mapToEventIdList(bookmarkedEventList)), bookmarkedEventList);
-        return BookmarkedEventsPagingInfo.of(bookmarkedEventList);
+        List<Long> eventIds = getEventIds(bookmarkedEvents);
+        Map<Long, Long> eventParticipantCountByEventId = eventQueryRepository.findEventParticipantCountByEventIds(eventIds);
+        List<BookmarkedEventSimpleInfoQuery> result = setApplicants(eventParticipantCountByEventId, bookmarkedEvents);
+
+        return BookmarkedEventsPagingInfo.of(result);
     }
 
-    public ParticipatingEventsPagingInfo getParticipatingEventsPaging(Pageable pageable, Long userId) {
-        List<ParticipatingEventSimpleInfoQuery> participatedEvents = eventQueryRepository
-                .findParticipatedEvents(eventQueryRepository.getParticipatedEventsId(userId, pageable));
+    public ParticipatingEventsPagingInfo getEventsParticipatedInUser(Pageable pageable, Long userId) {
+        List<Long> eventIds = eventQueryRepository.getEventIdsParticipatedByUser(userId, pageable);
+        List<ParticipatingEventSimpleInfoQuery> queryResponse = eventQueryRepository.findEventsParticipatedByUserWithApplicants(eventIds);
 
-        setBookmarkStatus(participatedEvents, eventQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
-        return ParticipatingEventsPagingInfo.from(participatedEvents);
+        List<Long> participatedEventIds = getEventIds(queryResponse);
+        List<Long> bookmarkedEventIds = eventQueryRepository.getBookmarkedEventIdSet(userId, participatedEventIds);
+
+        List<ParticipatingEventSimpleInfoQuery> bookmarkedResponse = updateBookmarkStatus(queryResponse, bookmarkedEventIds);
+        return ParticipatingEventsPagingInfo.from(bookmarkedResponse);
     }
 
-    public void deleteUserEvent(Long eventId, Long userId) {
+    public void deleteEventParticipation(Long eventId, Long userId) {
         UserEvent userEvent = userEventRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException(USER_EVENT, USER_EVENT_NOT_FOUND));
 
@@ -131,16 +146,38 @@ public class EventService {
     }
 
     public EventsSearchInfo getSearchEvent(String content, Long userId) {
-        List<EventSimpleInfo> searchEventWithoutApplicants = eventQueryRepository.searchEventsWithBookmarkStatus(content, userId);
+        List<EventSimpleInfo> EventWithbookmarkStatus = eventQueryRepository.searchEventsWithBookmarkStatus(content, userId);
 
-        List<Long> eventIdList = getEventIdList(searchEventWithoutApplicants);
-        List<UserEvent> participants = userEventRepository.findByEventIdIn(eventIdList);
-        Map<Long, Long> participantsCountByGroupId = findNumberOfParticipants(participants);
+        List<Long> eventIdList = getEventIds(EventWithbookmarkStatus);
+        List<UserEvent> participants = userEventRepository.findEventParticipationByEventIdIn(eventIdList);
+        Map<Long, Long> participantsCountByGroupId = getNumberOfParticipants(participants);
 
-        updateApplicants(searchEventWithoutApplicants, participantsCountByGroupId);
-        updateBookmarkStatus(searchEventWithoutApplicants);
-        
-        return EventsSearchInfo.of(searchEventWithoutApplicants);
+        updateApplicants(EventWithbookmarkStatus, participantsCountByGroupId);
+        updateBookmarkStatus(EventWithbookmarkStatus);
+
+        return EventsSearchInfo.of(EventWithbookmarkStatus);
+    }
+
+    private boolean isNotRegisteredEventByUser(Event event, String userName) {
+        return event.isNotSameAuthor(userName);
+    }
+
+    private boolean isNotPossibleParticipateToEvent(Event event, long capacity) {
+        return event.isOverCapacity(capacity);
+    }
+
+    private Boolean findIsParticipated(Long userId, String userIds) {
+        return Optional.ofNullable(userIds)
+                .map(s -> Arrays.stream(userIds.split(","))
+                        .map(Long::parseLong)
+                        .anyMatch(id -> id.equals(userId)))
+                .orElse(false);
+    }
+
+    private <T extends EventIdProvider> List<Long> getEventIds(List<T> events){
+        return events.stream()
+                .map(EventIdProvider::getEventId)
+                .toList();
     }
 
     private void updateBookmarkStatus(List<EventSimpleInfo> searchEventWithoutApplicants) {
@@ -151,22 +188,15 @@ public class EventService {
         });
     }
 
-    private void updateApplicants(List<EventSimpleInfo> searchEventWithoutApplicants, Map<Long, Long> participantsCountByGroupId) {
-        searchEventWithoutApplicants
-                .forEach(dto -> dto.changeApplicants(participantsCountByGroupId.getOrDefault(dto.getId(), 0L)));
-    }
-
-    private List<Long> getEventIdList(List<EventSimpleInfo> searchEventWithoutApplicants) {
-        return searchEventWithoutApplicants.stream()
-                .map(dto -> dto.getId())
+    private List<ParticipatingEventSimpleInfoQuery> updateBookmarkStatus(List<ParticipatingEventSimpleInfoQuery> events,
+                                                                         List<Long> bookmarkedEventIdSet) {
+        return events.stream()
+                .map(dto ->
+                        ParticipatingEventSimpleInfoQuery.from(dto, bookmarkedEventIdSet.contains(dto.getId()) ? BOOKMARK : NOT_BOOKMARK))
                 .toList();
     }
 
-    private List<Long> getEventIdList(Slice<Event> events) {
-        return events.stream().map(Event::getId).toList();
-    }
-
-    private Map<Long, Long> findNumberOfParticipants(List<UserEvent> participants) {
+    private Map<Long, Long> getNumberOfParticipants(List<UserEvent> participants) {
         return participants.stream()
                 .collect(Collectors.groupingBy(
                         userEvent -> userEvent.getEvent().getId()
@@ -174,45 +204,26 @@ public class EventService {
                 ));
     }
 
-    private List<EventSimpleInfo> setApplicantsAndBookmark(Slice<Event> eventPaging,
-                                                           Map<Long, Long> eventCountMap, Set<Long> bookmarkedEventIds) {
-        return eventPaging
+    private List<EventSimpleInfo> createEventSimpleInfo(List<Event> events,
+                                                        Map<Long, Long> eventCountMap, Set<Long> bookmarkedEventIds) {
+        return events.stream()
                 .map(event -> EventSimpleInfo
                         .of(event, eventCountMap.getOrDefault(event.getId(), 0L),
                                 bookmarkedEventIds.contains(event.getId()) ? BOOKMARK : NOT_BOOKMARK))
                 .toList();
     }
 
-    private boolean notRegisteredEventByUser(String userName, Event event) {
-        return !event.getAuthor().equals(userName);
+    private void updateApplicants(List<EventSimpleInfo> searchEventWithoutApplicants,
+                                  Map<Long, Long> participantsCountByGroupId) {
+        searchEventWithoutApplicants
+                .forEach(dto -> dto.changeApplicants(participantsCountByGroupId.getOrDefault(dto.getId(), 0L)));
     }
 
-    private boolean isNotPossibleToParticipate(Event event) {
-        return event.isNotParticipate(userEventRepository.countParticipantByEventId(event.getId()));
-    }
-
-    private List<Long> mapToEventIdList(List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList) {
-        return bookmarkedEventList.stream().map(BookmarkedEventSimpleInfoQuery::getId).toList();
-    }
-
-    private void setApplicants(List<Tuple> eventIdParticipants, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
-        Map<Long, Long> eventIdParticipantsMap = eventIdParticipants.stream()
-                .collect(Collectors.toMap(
-                        tuple -> tuple.get(userEvent.event.id),
-                        tuple -> Optional.ofNullable(tuple.get(userEvent.event.id.count())).orElse(0L)
-                ));
-
-        bookmarkList
-                .forEach(dto -> dto.setApplicants(eventIdParticipantsMap.getOrDefault(dto.getId(), 0L)));
-    }
-
-    private List<Long> getParticipatedEventIds(List<ParticipatingEventSimpleInfoQuery> participatedEvents) {
-        return participatedEvents.stream()
-                .map(ParticipatingEventSimpleInfoQuery::getId).toList();
-    }
-
-    private void setBookmarkStatus(List<ParticipatingEventSimpleInfoQuery> participatedEvents, List<Long> bookmarkedEventIdSet) {
-        participatedEvents
-                .forEach(dto -> dto.setBookmarkStatus(bookmarkedEventIdSet.contains(dto.getId()) ? BOOKMARK : NOT_BOOKMARK));
+    private List<BookmarkedEventSimpleInfoQuery> setApplicants(Map<Long, Long> eventParticipantsCountByEventId,
+                                                               List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
+        return bookmarkList.stream()
+                .map(dto ->
+                        BookmarkedEventSimpleInfoQuery.updateApplicants(dto, eventParticipantsCountByEventId.getOrDefault(dto.getId(), 0L)))
+                .toList();
     }
 }
