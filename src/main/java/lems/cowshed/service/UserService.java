@@ -1,6 +1,5 @@
 package lems.cowshed.service;
 
-import com.querydsl.core.Tuple;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
@@ -23,10 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
-import static lems.cowshed.domain.userevent.QUserEvent.userEvent;
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
 
@@ -44,12 +41,14 @@ public class UserService {
         MyPageUserQueryDto userDto = userQueryRepository.findUser(userId);
 
         List<ParticipatingEventSimpleInfoQuery> participatedEvents = eventQueryRepository
-                .findParticipatedEvents(eventQueryRepository.getParticipatedEventsId(userId, PageRequest.of(0, 5)));
+                .findEventsParticipatedByUserWithApplicants(eventQueryRepository.getEventIdsParticipatedByUser(userId, PageRequest.of(0, 5)));
         setBookmarkStatus(participatedEvents, eventQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
 
         List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList = eventQueryRepository
-                .findBookmarkedEventsPaging(userId, PageRequest.of(0, 5));
-        setApplicants(eventQueryRepository.findEventIdParticipants(mapToEventIdList(bookmarkedEventList)), bookmarkedEventList);
+                .findBookmarkedEventsFromUser(userId, PageRequest.of(0, 5));
+
+        Map<Long, Long> participantsCountByGroupId = eventQueryRepository.findEventParticipantCountByEventIds(mapToEventIdList(bookmarkedEventList));
+        setApplicants(participantsCountByGroupId, bookmarkedEventList);
 
         return UserMyPageInfo.of(userDto, participatedEvents, bookmarkedEventList);
     }
@@ -121,15 +120,9 @@ public class UserService {
         return !editDto.getUsername().equals(myUsername);
     }
 
-    private void setApplicants(List<Tuple> eventIdParticipants, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
-        Map<Long, Long> eventIdParticipantsMap = eventIdParticipants.stream()
-                .collect(Collectors.toMap(
-                        tuple -> tuple.get(userEvent.event.id), // eventId
-                        tuple -> Optional.ofNullable(tuple.get(userEvent.event.id.count())).orElse(0L)
-                ));
-
+    private void setApplicants(Map<Long,Long> participantsCountByGroupId, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {
         bookmarkList
-                .forEach(dto -> dto.setApplicants(eventIdParticipantsMap.getOrDefault(dto.getId(), 0L)));
+                .forEach(dto -> dto.setApplicants(participantsCountByGroupId.getOrDefault(dto.getId(), 0L)));
     }
 
     private List<Long> mapToEventIdList(List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList) {

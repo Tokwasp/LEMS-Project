@@ -10,7 +10,6 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +25,6 @@ import java.util.List;
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.user.Mbti.ESFJ;
 import static lems.cowshed.domain.user.Mbti.INTP;
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -59,7 +57,7 @@ class EventQueryRepositoryTest {
 
     @DisplayName("모임에 대한 정보와 참여 인원수를 조회 한다.")
     @Test
-    void findEventWithUserIds() {
+    void findEventWithApplicantUserIds() {
         //given
         User user = createUser("테스터", INTP);
         userRepository.save(user);
@@ -71,7 +69,7 @@ class EventQueryRepositoryTest {
         userEventRepository.save(userEvent);
 
         //when
-        List<ParticipatingEventSimpleInfoQuery> result = eventQueryRepository.findParticipatedEvents(List.of(event.getId()));
+        List<ParticipatingEventSimpleInfoQuery> result = eventQueryRepository.findEventsParticipatedByUserWithApplicants(List.of(event.getId()));
 
         //then
         assertThat(result)
@@ -94,7 +92,7 @@ class EventQueryRepositoryTest {
         userEventRepository.saveAll(List.of(userEvent,userEvent2));
 
         //when
-        List<ParticipatingEventSimpleInfoQuery> response = eventQueryRepository.findParticipatedEvents(List.of(event.getId()));
+        List<ParticipatingEventSimpleInfoQuery> response = eventQueryRepository.findEventsParticipatedByUserWithApplicants(List.of(event.getId()));
 
         //then
         assertThat(response).hasSize(1)
@@ -104,7 +102,7 @@ class EventQueryRepositoryTest {
 
     @DisplayName("회원이 북마크한 모임을 조회 할때 북마크 상태는 BOOKMARK 이다.")
     @Test
-    void findBookmarkedEventsPaging() {
+    void findBookmarkedEventsFromUser() {
         //given
         User user = createUser("테스터", INTP);
         userRepository.save(user);
@@ -116,7 +114,7 @@ class EventQueryRepositoryTest {
 
         //when
         List<BookmarkedEventSimpleInfoQuery> result = eventQueryRepository
-                .findBookmarkedEventsPaging(user.getId(), PageRequest.of(0, 5));
+                .findBookmarkedEventsFromUser(user.getId(), PageRequest.of(0, 5));
 
         //then
         assertThat(result).hasSize(1)

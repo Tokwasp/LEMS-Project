@@ -38,7 +38,7 @@ class EventRepositoryTest {
 
     @DisplayName("모임을 요청 받은 페이지의 사이즈 만큼 조회 한다.")
     @Test
-    void findSliceBy() {
+    void findEventsBy() {
         //given
         for(int i = 0; i < 10; i++) {
             Event event = createEvent("테스터" + i);
@@ -48,7 +48,7 @@ class EventRepositoryTest {
         Pageable pageable = PageRequest.of(1, 3);
 
         //when
-        Slice<Event> slice = eventRepository.findSliceBy(pageable);
+        Slice<Event> slice = eventRepository.findEventsBy(pageable);
 
         //then
         assertThat(slice.getContent())
@@ -58,7 +58,7 @@ class EventRepositoryTest {
 
     @DisplayName("모임 페이징 정보를 조회 할때 다음 페이지 없는지 확인 한다.")
     @Test
-    void findSliceByWhenNotExistNextPage() {
+    void findEventsByWhenNotExistNextPage() {
         //given
         for(int i = 0; i < 10; i++) {
             Event event = createEvent("테스터" + i);
@@ -68,7 +68,7 @@ class EventRepositoryTest {
         Pageable pageable = PageRequest.of(3, 3);
 
         //when
-        Slice<Event> slice = eventRepository.findSliceBy(pageable);
+        Slice<Event> slice = eventRepository.findEventsBy(pageable);
 
         //then
         assertThat(slice.hasNext()).isFalse();

@@ -10,8 +10,6 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Optional;
 
 @Getter
 @Schema(description = "모임 상세")
@@ -38,9 +36,9 @@ public class EventInfo {
     long applicants;
     @Schema(description = "북마크 여부", example = "BOOKMARK")
     BookmarkStatus bookmarkStatus;
-    @Schema(description = "내가 등록한 모임 인지 여부", example = "YES")
+    @Schema(description = "내가 등록한 모임 인지 여부", example = "true")
     boolean registeredByMe;
-    @Schema(description = "내가 참여한 모임 인지 여부", example = "YES")
+    @Schema(description = "내가 참여한 모임 인지 여부", example = "true")
     boolean isParticipated;
 
     @JsonIgnore
@@ -83,26 +81,19 @@ public class EventInfo {
         this.isParticipated = isParticipated;
     }
 
-    public void setParticipatedAndRegisteredByMeAndBookmarked(Long userId, String username, BookmarkStatus bookmarkStatus){
-        isParticipated(userId);
-        isRegisteredByMe(username);
-        isBookmarked(bookmarkStatus);
+    public boolean isEventRegistrant(String username) {
+        return username.equals(author);
     }
 
-    private void isParticipated(Long userId) {
-        isParticipated = Optional.ofNullable(userList)
-                .filter(s -> !s.isEmpty())
-                .map(s -> Arrays.stream(userList.split(","))
-                        .map(Long::parseLong)
-                        .anyMatch(id -> id.equals(userId)))
-                .orElse(false);
+    public void updateRegistrant(boolean isRegistrant) {
+        if(isRegistrant) this.registeredByMe = true;
     }
 
-    private void isRegisteredByMe(String username){
-        registeredByMe = username.equals(author);
-    }
-
-    private void isBookmarked(BookmarkStatus bookmarkStatus){
+    public void updateBookmarkStatus(BookmarkStatus bookmarkStatus) {
         this.bookmarkStatus = bookmarkStatus;
+    }
+
+    public void updateParticipated(boolean isParticipated) {
+        this.isParticipated = isParticipated;
     }
 }

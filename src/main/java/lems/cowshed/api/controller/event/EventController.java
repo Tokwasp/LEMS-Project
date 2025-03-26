@@ -21,12 +21,6 @@ public class EventController implements EventSpecification {
 
     private final EventService eventService;
 
-    @GetMapping
-    public CommonResponse<EventsPagingInfo> getPagingEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return CommonResponse.success(eventService.getPagingEvents(pageable, customUserDetails.getUserId()));
-    }
-
     @GetMapping("/{event-id}")
     public CommonResponse<EventInfo> getEvent(@PathVariable("event-id") Long eventId,
                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -34,17 +28,24 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(response);
     }
 
+    @GetMapping
+    public CommonResponse<EventsPagingInfo> getEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        EventsPagingInfo events = eventService.getEvents(pageable, customUserDetails.getUserId());
+        return CommonResponse.success(events);
+    }
+
     @GetMapping("/bookmarks")
-    public CommonResponse<BookmarkedEventsPagingInfo> getBookmarkedEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public CommonResponse<BookmarkedEventsPagingInfo> getEventsBookmarkedByUser(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
-        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getBookmarkedEventsPaging(pageable, userDetails.getUserId());
+        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getEventsBookmarkedByUser(pageable, userDetails.getUserId());
         return CommonResponse.success(bookmarkEvents);
     }
 
     @GetMapping("/participating")
-    public CommonResponse<ParticipatingEventsPagingInfo> getParticipatingEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                                            @AuthenticationPrincipal CustomUserDetails userDetails){
-        ParticipatingEventsPagingInfo ParticipatingEvents = eventService.getParticipatingEventsPaging(pageable, userDetails.getUserId());
+    public CommonResponse<ParticipatingEventsPagingInfo> getEventsParticipatedInUser(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                                     @AuthenticationPrincipal CustomUserDetails userDetails){
+        ParticipatingEventsPagingInfo ParticipatingEvents = eventService.getEventsParticipatedInUser(pageable, userDetails.getUserId());
         return CommonResponse.success(ParticipatingEvents);
     }
 
@@ -63,9 +64,9 @@ public class EventController implements EventSpecification {
     }
 
     @PostMapping("/{event-id}/join")
-    public CommonResponse<Void> saveUserEvent(@PathVariable("event-id") Long eventId,
-                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        eventService.joinEvent(eventId, customUserDetails.getUserId());
+    public CommonResponse<Void> saveEventParticipation(@PathVariable("event-id") Long eventId,
+                                                       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        eventService.saveEventParticipation(eventId, customUserDetails.getUserId());
         return CommonResponse.success();
     }
 
@@ -85,9 +86,9 @@ public class EventController implements EventSpecification {
     }
 
     @DeleteMapping("{event-id}/join")
-    public CommonResponse<Void> deleteUserEvent(@PathVariable("event-id") Long eventId,
-                                                @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        eventService.deleteUserEvent(eventId, customUserDetails.getUserId());
+    public CommonResponse<Void> deleteEventParticipation(@PathVariable("event-id") Long eventId,
+                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        eventService.deleteEventParticipation(eventId, customUserDetails.getUserId());
         return CommonResponse.success();
     }
 

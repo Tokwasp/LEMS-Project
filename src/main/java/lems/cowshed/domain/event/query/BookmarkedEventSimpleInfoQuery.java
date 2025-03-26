@@ -2,6 +2,7 @@ package lems.cowshed.domain.event.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.api.controller.dto.event.EventIdProvider;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Schema(description = "마이 페이지 회원이 북마크한 모임 정보")
-public class BookmarkedEventSimpleInfoQuery {
+public class BookmarkedEventSimpleInfoQuery implements EventIdProvider {
 
     @Schema(description = "이벤트 id", example = "1")
     private Long id;
@@ -82,6 +83,25 @@ public class BookmarkedEventSimpleInfoQuery {
                 .createdDateTime(event.getCreatedDateTime())
                 .bookmarkStatus(bookmarkStatus)
                 .build();
+    }
+
+    public static BookmarkedEventSimpleInfoQuery updateApplicants(BookmarkedEventSimpleInfoQuery dto, Long applicants){
+        return BookmarkedEventSimpleInfoQuery.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .eventDate(dto.getEventDate())
+                .author(dto.getAuthor())
+                .content(dto.getContent())
+                .applicants(applicants)
+                .capacity(dto.getCapacity())
+                .createdDateTime(dto.getCreatedDateTime())
+                .bookmarkStatus(dto.bookmarkStatus)
+                .build();
+    }
+
+    @Override
+    public Long getEventId() {
+        return this.id;
     }
 
     public void setApplicants(Long applicants) {

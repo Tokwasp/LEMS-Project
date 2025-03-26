@@ -21,8 +21,8 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<EventsPagingInfo> getPagingEvents(Pageable pageable,
-                                                     @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventsPagingInfo> getEvents(Pageable pageable,
+                                               @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
@@ -36,7 +36,7 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 참여", description = "회원이 모임에 참여 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> saveUserEvent(@Parameter(name="event-id", description = "모임 id", example = "1") @PathVariable Long eventId
+    CommonResponse<Void> saveEventParticipation(@Parameter(name="event-id", description = "모임 id", example = "1") @PathVariable Long eventId
     , @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 수정", description = "모임의 세부 사항을 수정 합니다.")
@@ -47,7 +47,7 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 참여 제거", description = "회원의 모임 참석을 제거 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> deleteUserEvent(@Parameter(name="event-id", description = "모임 id", example = "1") @PathVariable Long eventId
+    CommonResponse<Void> deleteEventParticipation(@Parameter(name="event-id", description = "모임 id", example = "1") @PathVariable Long eventId
             , @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 삭제", description = "모임을 삭제 합니다.")
@@ -56,12 +56,12 @@ public interface EventSpecification {
                                      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "북마크 모임 페이징 조회", description = "북마크 모임 페이징 조회 합니다.")
-    CommonResponse<BookmarkedEventsPagingInfo> getBookmarkedEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    CommonResponse<BookmarkedEventsPagingInfo> getEventsBookmarkedByUser(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                          @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "참여 모임 페이징 조회", description = "참여 모임 페이징 조회 합니다.")
-    CommonResponse<ParticipatingEventsPagingInfo> getParticipatingEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                                               @AuthenticationPrincipal CustomUserDetails userDetails);
+    CommonResponse<ParticipatingEventsPagingInfo> getEventsParticipatedInUser(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                              @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "모임 검색", description = "해당 제목 혹은 내용이 포함된 모임을 검색 합니다.")
     CommonResponse<EventsSearchInfo> getSearchEvent(@PathVariable("content") String content,

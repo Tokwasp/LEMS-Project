@@ -67,7 +67,7 @@ class EventServiceTest {
     @Transactional
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
-    void getPagingEvents() {
+    void getEvents() {
         //given
         User user = createUser("테스터", "testEmail");
         userRepository.save(user);
@@ -80,7 +80,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(1, 3);
 
         //when
-        EventsPagingInfo result = eventService.getPagingEvents(pageable, user.getId());
+        EventsPagingInfo result = eventService.getEvents(pageable, user.getId());
 
         //then
         assertThat(result.getContent())
@@ -91,7 +91,7 @@ class EventServiceTest {
     @Transactional
     @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
     @Test
-    void getPagingEventsWithApplicants() {
+    void getEventsWithApplicants() {
         //given
         Event event = createEvent("테스터", "테스트 모임", 2);
         eventRepository.save(event);
@@ -101,13 +101,13 @@ class EventServiceTest {
         for(int i = 0; i < userCount; i++){
             User user = createUser("테스터", "testEmail");
             userRepository.save(user);
-            eventService.joinEvent(event.getId(), user.getId());
+            eventService.saveEventParticipation(event.getId(), user.getId());
         }
 
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventsPagingInfo result = eventService.getPagingEvents(pageable, 0L);
+        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -117,7 +117,7 @@ class EventServiceTest {
 
     @DisplayName("모임에 참여한 회원이 없을 경우 참여자 수는 0명이다.")
     @Test
-    void getPagingEventsWhenNothingApplicants() {
+    void getEventsWhenNothingApplicants() {
         //given
         Event event = createEvent("테스터", "테스트 모임", 2);
         eventRepository.save(event);
@@ -125,7 +125,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventsPagingInfo result = eventService.getPagingEvents(pageable, 0L);
+        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -248,7 +248,7 @@ class EventServiceTest {
     @Transactional
     @DisplayName("유저가 모임에 참여 한다.")
     @Test
-    void joinEvent() {
+    void saveEventParticipation() {
         //given
         Event event = createEvent("테스터", "자전거 모임", 10);
         eventRepository.save(event);
@@ -257,7 +257,7 @@ class EventServiceTest {
         userRepository.save(user);
 
         //when
-        long userEventId = eventService.joinEvent(event.getId(), user.getId());
+        long userEventId = eventService.saveEventParticipation(event.getId(), user.getId());
 
         //then
         UserEvent userEvent = userEventRepository.findById(userEventId).orElseThrow();
@@ -267,7 +267,7 @@ class EventServiceTest {
 
     @DisplayName("3명이 최대 인원인 모임에 5명이 참가 할때 두 회원은 참가 하지 못한다.")
     @Test
-    void joinEventWhenNumberOfParticipantsExceeded() throws Exception {
+    void saveEventParticipationWhenNumberOfParticipantsExceeded() throws Exception {
         //given
         int taskCount = 5;
         ExecutorService executorService = Executors.newFixedThreadPool(5);
@@ -288,7 +288,7 @@ class EventServiceTest {
         AtomicInteger exceptionCount = new AtomicInteger(0);
         users.forEach((User user) -> {
                     try {
-                        eventService.joinEvent(findEvent.getId(), user.getId());
+                        eventService.saveEventParticipation(findEvent.getId(), user.getId());
                     } catch (BusinessException ex){
                         exceptionCount.incrementAndGet();
                     } finally {
@@ -307,7 +307,7 @@ class EventServiceTest {
 
     @DisplayName("5명의 회원이 동시에 최대 인원이 3명인 모임에 참가 할때 3명만 참여 할 수 있다.")
     @Test
-    void joinEventWhenParticipateAtTheSameTimeWithConcurrency() throws Exception {
+    void saveEventParticipationWhenParticipateAtTheSameTimeWithConcurrency() throws Exception {
         //given
         int taskCount = 5;
         ExecutorService executorService = Executors.newFixedThreadPool(5);
@@ -330,7 +330,7 @@ class EventServiceTest {
         for (User user : users) {
             executorService.submit(() -> {
                 try {
-                    eventService.joinEvent(findEvent.getId(), user.getId());
+                    eventService.saveEventParticipation(findEvent.getId(), user.getId());
                 } catch (BusinessException ex) {
                     exceptionCount.incrementAndGet();
                 } finally {
@@ -387,7 +387,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 3);
 
         //when
-        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getBookmarkedEventsPaging(pageable, user.getId());
+        BookmarkedEventsPagingInfo bookmarkEvents = eventService.getEventsBookmarkedByUser(pageable, user.getId());
 
         //then
         assertThat(bookmarkEvents.getBookmarks())
@@ -399,7 +399,7 @@ class EventServiceTest {
     @Transactional
     @DisplayName("북마크한 모임을 페이징 조회 할 때 북마크 여부를 확인 한다.")
     @Test
-    void getPagingEventsForBookmark() {
+    void getEventsForBookmark() {
         //given
         User user = createUser("북마크 테스터", "test@naver.com");
         userRepository.save(user);
@@ -415,7 +415,7 @@ class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 2);
 
         //when
-        List<EventSimpleInfo> result = eventService.getPagingEvents(pageable, user.getId()).getContent();
+        List<EventSimpleInfo> result = eventService.getEvents(pageable, user.getId()).getContent();
 
         //then
         assertThat(result)
@@ -426,7 +426,7 @@ class EventServiceTest {
     @Transactional
     @DisplayName("회원이 참석한 모임의 참석을 해제 한다.")
     @Test
-    void deleteUserEvent() {
+    void deleteEventParticipation() {
         //given
         User user = createUser("테스터", "test@naver.com");
         userRepository.save(user);
@@ -438,7 +438,7 @@ class EventServiceTest {
         userEventRepository.save(userEvent);
 
         //when
-        eventService.deleteUserEvent(event.getId(), user.getId());
+        eventService.deleteEventParticipation(event.getId(), user.getId());
 
         //then
         assertThatThrownBy(() -> userEventRepository.findById(userEvent.getId()).orElseThrow())
@@ -447,7 +447,7 @@ class EventServiceTest {
 
     @DisplayName("회원이 모임 참석을 해제 할때 등록 하지 않은 모임 이라면 예외가 발생 한다.")
     @Test
-    void deleteUserEventWhenNotParticipated() {
+    void deleteEventParticipationWhenNotParticipated() {
         //given
         User user = createUser("테스터", "test@naver.com");
         userRepository.save(user);
@@ -459,7 +459,7 @@ class EventServiceTest {
         userEventRepository.save(userEvent);
 
         //when //then
-        assertThatThrownBy(() -> eventService.deleteUserEvent(null, user.getId()))
+        assertThatThrownBy(() -> eventService.deleteEventParticipation(null, user.getId()))
                 .isInstanceOf(NotFoundException.class);
     }
 
