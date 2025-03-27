@@ -50,9 +50,9 @@ public class EventController implements EventSpecification {
     }
 
     @GetMapping("/search")
-    public CommonResponse<EventsSearchInfo> getSearchEvent(@RequestParam("content") String content,
-                                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        EventsSearchInfo searchEvent = eventService.getSearchEvent(content, customUserDetails.getUserId());
+    public CommonResponse<EventsSearchInfo> searchEventsByNameOrContent(@RequestParam("keyword") String keyword,
+                                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        EventsSearchInfo searchEvent = eventService.searchEventsByNameOrContent(keyword, customUserDetails.getUserId());
         return CommonResponse.success(searchEvent);
     }
 

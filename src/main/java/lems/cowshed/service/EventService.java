@@ -145,7 +145,7 @@ public class EventService {
         userEventRepository.delete(userEvent);
     }
 
-    public EventsSearchInfo getSearchEvent(String content, Long userId) {
+    public EventsSearchInfo searchEventsByNameOrContent(String content, Long userId) {
         List<EventSimpleInfo> EventWithbookmarkStatus = eventQueryRepository.searchEventsWithBookmarkStatus(content, userId);
 
         List<Long> eventIdList = getEventIds(EventWithbookmarkStatus);

@@ -7,18 +7,18 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-@Description("모임 서칭 검색 결과")
+@Description("모임 이름 혹은 내용 검색 결과")
 public class EventsSearchInfo {
-    private List<EventSimpleInfo> content;
+    private List<EventSimpleInfo> searchResults;
 
     @Builder
-    public EventsSearchInfo(List<EventSimpleInfo> content) {
-        this.content = content;
+    public EventsSearchInfo(List<EventSimpleInfo> searchResults) {
+        this.searchResults = searchResults;
     }
 
     public static EventsSearchInfo of(List<EventSimpleInfo> content){
         return EventsSearchInfo.builder()
-                .content(content)
+                .searchResults(content)
                 .build();
     }
 }
