@@ -16,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public interface EventSpecification {
 
@@ -64,6 +65,6 @@ public interface EventSpecification {
                                                                               @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "모임 검색", description = "해당 제목 혹은 내용이 포함된 모임을 검색 합니다.")
-    CommonResponse<EventsSearchInfo> getSearchEvent(@PathVariable("content") String content,
-                                                    @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventsSearchInfo> searchEventsByNameOrContent(@RequestParam("keyword") String keyword,
+                                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails);
 }
