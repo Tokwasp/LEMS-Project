@@ -1,5 +1,6 @@
 package lems.cowshed.api.controller.dto.event.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.api.controller.dto.event.EventIdProvider;
@@ -92,6 +93,7 @@ public class EventSimpleInfo implements EventIdProvider {
                 .build();
     }
 
+    @JsonIgnore
     @Override
     public Long getEventId() {
         return this.id;
