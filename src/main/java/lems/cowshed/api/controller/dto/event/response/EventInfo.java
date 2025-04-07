@@ -37,7 +37,7 @@ public class EventInfo {
     @Schema(description = "북마크 여부", example = "BOOKMARK")
     BookmarkStatus bookmarkStatus;
     @Schema(description = "내가 등록한 모임 인지 여부", example = "true")
-    boolean registeredByMe;
+    boolean isEventRegistrant;
     @Schema(description = "내가 참여한 모임 인지 여부", example = "true")
     boolean isParticipated;
 
@@ -65,7 +65,7 @@ public class EventInfo {
     private EventInfo(Long eventId, String author, String name, Category category,
                       LocalDateTime createdDate, String location,
                       String content, LocalDate eventDate, int capacity, long applicants,
-                      BookmarkStatus bookmarkStatus, boolean registeredByMe, boolean isParticipated) {
+                      BookmarkStatus bookmarkStatus, boolean isEventRegistrant, boolean isParticipated) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
@@ -77,7 +77,7 @@ public class EventInfo {
         this.capacity = capacity;
         this.applicants = applicants;
         this.bookmarkStatus = bookmarkStatus;
-        this.registeredByMe = registeredByMe;
+        this.isEventRegistrant = isEventRegistrant;
         this.isParticipated = isParticipated;
     }
 
@@ -86,7 +86,7 @@ public class EventInfo {
     }
 
     public void updateRegistrant(boolean isRegistrant) {
-        if(isRegistrant) this.registeredByMe = true;
+        if(isRegistrant) this.isEventRegistrant = true;
     }
 
     public void updateBookmarkStatus(BookmarkStatus bookmarkStatus) {
