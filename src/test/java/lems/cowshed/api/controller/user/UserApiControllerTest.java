@@ -1,11 +1,11 @@
 package lems.cowshed.api.controller.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.domain.user.Gender;
+import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.service.BookmarkService;
+import lems.cowshed.service.MailService;
 import lems.cowshed.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,20 +35,17 @@ class UserApiControllerTest {
     @MockBean
     private BookmarkService bookmarkService;
 
+    @MockBean
+    private MailService mailService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @DisplayName("신규 회원이 회원 가입을 합니다.")
     @Test
     void saveUser() throws Exception {
-
         //given
-        UserSaveRequestDto request = UserSaveRequestDto.builder()
-                .username("test")
-                .email("test@naver.com")
-                .password("tempPassword")
-                .gender(MALE)
-                .build();
+        UserSaveRequestDto request = createRequestDto();
 
         //when //then
         mockMvc.perform(
@@ -68,7 +65,9 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .email("test@naver.com")
                 .password("tempPassword")
+                .verifyPassword("tempPassword")
                 .gender(MALE)
+                .mbti(Mbti.INTP)
                 .build();
 
         //when //then
@@ -91,7 +90,9 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .password("tempPassword")
+                .verifyPassword("tempPassword")
                 .gender(MALE)
+                .mbti(Mbti.INTP)
                 .build();
 
         //when //then
@@ -113,7 +114,9 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .email("test@naver.com")
+                .verifyPassword("tempPassword")
                 .gender(MALE)
+                .mbti(Mbti.INTP)
                 .build();
 
         //when //then
@@ -135,7 +138,9 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .password("tempPassword")
+                .verifyPassword("tempPassword")
                 .email("test@naver.com")
+                .mbti(Mbti.INTP)
                 .build();
 
         //when //then
@@ -192,4 +197,15 @@ class UserApiControllerTest {
                 .andExpect(jsonPath("$.errors[0].message").value("패스워드는 필수 입니다."));
     }
 
+    private UserSaveRequestDto createRequestDto(){
+        return UserSaveRequestDto.builder()
+                .username("test")
+                .email("test@naver.com")
+                .code("1234")
+                .password("tempPassword")
+                .verifyPassword("tempPassword")
+                .gender(MALE)
+                .mbti(Mbti.INFJ)
+                .build();
+    }
 }
