@@ -5,17 +5,18 @@ import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.ParticipatingUserListInfo;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
-import lems.cowshed.api.controller.dto.user.response.UserInfo;
-import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationInfo;
+import lems.cowshed.api.controller.dto.user.response.*;
+import lems.cowshed.domain.mail.Mail;
+import lems.cowshed.exception.BusinessException;
 import lems.cowshed.service.CustomUserDetails;
+import lems.cowshed.service.MailService;
 import lems.cowshed.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import static lems.cowshed.exception.Message.USER_NOT_CERTIFICATION_CODE;
+import static lems.cowshed.exception.Reason.USER_CERTIFICATION_CODE;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 public class UserApiController implements UserSpecification{
 
     private final UserService userService;
+    private final MailService mailService;
 
     @GetMapping("/my-page")
     public CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -37,8 +39,12 @@ public class UserApiController implements UserSpecification{
     }
 
     @PostMapping("/signUp")
-    public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequestDto userSaveRequestDto) {
-        userService.signUp(userSaveRequestDto);
+    public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequestDto request) {
+        if(mailService.isMailExpired(Mail.of(request.getEmail(),request.getCode()))){
+            throw new BusinessException(USER_CERTIFICATION_CODE, USER_NOT_CERTIFICATION_CODE);
+        }
+
+        userService.signUp(request);
         return CommonResponse.success();
     }
 
@@ -61,16 +67,14 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success(response);
     }
 
-    @GetMapping("/username/{username}")
-    public CommonResponse<UserSignUpValidationInfo> signUpValidationForUsername(@PathVariable String username){
-        UserSignUpValidationInfo response = UserSignUpValidationInfo.from(userService.signUpValidationForUsername(username));
-        return CommonResponse.success(response);
+    @GetMapping("/validate/username/{username}")
+    public CommonResponse<DuplicateCheckResult> findDuplicatedUsername(@PathVariable String username){
+        return CommonResponse.success(DuplicateCheckResult.of(userService.signUpValidationForUsername(username)));
     }
 
-    @GetMapping("/email/{email}")
-    public CommonResponse<UserSignUpValidationInfo> signUpValidationForEmail(@PathVariable String email){
-        UserSignUpValidationInfo response = UserSignUpValidationInfo.from(userService.signUpValidationForEmail(email));
-        return CommonResponse.success(response);
+    @GetMapping("/validate/email/{email}")
+    public CommonResponse<DuplicateCheckResult> findDuplicatedEmail(@PathVariable String email){
+        return CommonResponse.success(DuplicateCheckResult.of(userService.signUpValidationForEmail(email)));
     }
 
     @DeleteMapping

@@ -56,9 +56,9 @@ class UserServiceTest {
         userRepository.deleteAllInBatch();
     }
 
-    @DisplayName("신규 회원을 등록 한다.")
+    @DisplayName("신규 회원 가입을 한다.")
     @Test
-    void JoinProcess() {
+    void signUp() {
         //given
         String email = "test@naver.com";
         UserSaveRequestDto request = createSaveDto(email, "테스트", "tempPassword");
@@ -73,20 +73,36 @@ class UserServiceTest {
                 .containsExactly("테스트", "test@naver.com");
     }
 
-    @DisplayName("신규 회원을 등록 할 때 이미 등록된 닉네임 혹은 이메일이 있을 경우 예외가 발생 한다.")
-    @CsvSource(value = {"PriorRegister@naver.com-비등록", "NonRegister@naver.com-사전등록", "PriorRegister@naver.com-사전등록"}, delimiter = '-')
+    @DisplayName("신규 회원 가입을 할 때 이미 등록된 닉네임 혹은 이메일이 있을 경우 예외가 발생 한다.")
     @ParameterizedTest
-    void JoinProcessWhenDuplicateNameOrEmail(String email, String username) {
+    @CsvSource(value = {"registeredEmail@naver.com-신규 닉네임",
+                        "nonRegisteredEmail@naver.com-중복 닉네임",
+                        "registeredEmail@naver.com-중복 닉네임"}, delimiter = '-')
+    void signUp_WhenDuplicateNameOrEmail_ThrowsException(String email, String username) {
         //given
-        UserSaveRequestDto oldRequest = createSaveDto("PriorRegister@naver.com", "사전등록");
-        userService.signUp(oldRequest);
+        UserSaveRequestDto request = createSaveDto("registeredEmail@naver.com", "중복 닉네임");
+        userService.signUp(request);
 
-        UserSaveRequestDto request = createSaveDto(email, username);
+        UserSaveRequestDto newMember = createSaveDto(email, username);
+
+        //when //then
+        assertThatThrownBy(() -> userService.signUp(newMember))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.");
+    }
+
+    @DisplayName("신규 회원 가입을 할 때 비밀번호가 일치 하지 않는다면 예외가 발생 한다.")
+    @Test
+    void signUp_WhenPasswordMismatch_ThrowsException() {
+        //given
+        String password = "password";
+        String wrongPassword = "wrongPassword";
+        UserSaveRequestDto request = createSaveDto("test@naver.com", "테스트", password, wrongPassword);
 
         //when //then
         assertThatThrownBy(() -> userService.signUp(request))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.");
+                .hasMessage("검증 비밀번호가 일치 하지 않습니다.");
     }
 
     @DisplayName("회원이 로그인을 한다.")
@@ -221,11 +237,21 @@ class UserServiceTest {
                 .build();
     }
 
+    private UserSaveRequestDto createSaveDto(String email, String username, String password, String verifyPassword) {
+        return UserSaveRequestDto.builder()
+                .email(email)
+                .username(username)
+                .password(password)
+                .verifyPassword(verifyPassword)
+                .build();
+    }
+
     private UserSaveRequestDto createSaveDto(String email, String username, String password) {
         return UserSaveRequestDto.builder()
                 .email(email)
                 .username(username)
                 .password(password)
+                .verifyPassword(password)
                 .build();
     }
 
@@ -234,6 +260,7 @@ class UserServiceTest {
                 .email(email)
                 .username(username)
                 .password("tempPassword")
+                .verifyPassword("tempPassword")
                 .build();
     }
 

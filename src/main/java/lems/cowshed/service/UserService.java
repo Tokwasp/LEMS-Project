@@ -58,12 +58,16 @@ public class UserService {
         return new ParticipatingUserListInfo(userEventDtoList);
     }
 
-    public void signUp(UserSaveRequestDto saveDto) {
-        if(userRepository.existsByEmailOrUsername(saveDto.getEmail(), saveDto.getUsername())){
+    public void signUp(UserSaveRequestDto request) {
+        if(userRepository.existsByEmailOrUsername(request.getEmail(), request.getUsername())){
             throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
         }
 
-        User user = saveDto.toEntityForRegister(bCryptPasswordEncoder, Role.ROLE_USER);
+        if(request.hasPasswordMismatch()){
+            throw new BusinessException(USER_VERIFY_PASSWORD, USER_NOT_VERIFY_PASSWORD);
+        }
+        
+        User user = request.toEntityForRegister(bCryptPasswordEncoder, Role.ROLE_USER);
         userRepository.save(user);
     }
 
@@ -138,5 +142,4 @@ public class UserService {
         return participatedEvents.stream()
                 .map(ParticipatingEventSimpleInfoQuery::getId).toList();
     }
-
 }

@@ -2,8 +2,7 @@ package lems.cowshed.api.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lems.cowshed.api.controller.dto.user.response.UserInfo;
-import lems.cowshed.api.controller.dto.user.response.UserSignUpValidationInfo;
+import lems.cowshed.api.controller.dto.user.response.*;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.api.controller.CommonResponse;
@@ -11,18 +10,15 @@ import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.ParticipatingUserListInfo;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
 import lems.cowshed.service.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @Tag(name="user-controller", description="회원 API")
 public interface UserSpecification {
 
-    @Operation(summary = "회원 가입", description = "이메일/비밀번호 + 닉네임을 통해 회원 가입을 합니다. [회원 가입]")
+    @Operation(summary = "회원 가입", description = "회원정보를 받아 회원 가입을 합니다. [회원 가입]")
     @ApiErrorCodeExample(ErrorCode.BUSINESS_ERROR)
     CommonResponse<Void> signUp(@RequestBody UserSaveRequestDto userSaveRequestDto);
 
@@ -46,10 +42,10 @@ public interface UserSpecification {
     CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "회원 가입 검증", description = "중복된 닉네임을 가진 회원을 찾습니다.")
-    CommonResponse<UserSignUpValidationInfo> signUpValidationForUsername(@PathVariable String username);
+    CommonResponse<DuplicateCheckResult> findDuplicatedUsername(@PathVariable String username);
 
     @Operation(summary = "회원 가입 검증", description = "중복된 이메일을 가진 회원을 찾습니다.")
-    CommonResponse<UserSignUpValidationInfo> signUpValidationForEmail(@PathVariable String email);
+    CommonResponse<DuplicateCheckResult> findDuplicatedEmail(@PathVariable String email);
 
     @Operation(summary = "회원 삭제", description = "회원을 삭제 합니다.")
     CommonResponse<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails customUserDetails);
