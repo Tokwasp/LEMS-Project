@@ -17,6 +17,8 @@ public enum Reason {
     MAIL("mail"),
     MAIL_CERTIFICATION_CODE("mail_certification_code"),
 
+    CODE_TYPE("code_type"),
+
     BOOKMARK_ID("boomark"),
 
     EVENT_ID("event_id"),

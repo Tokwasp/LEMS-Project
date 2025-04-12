@@ -8,6 +8,7 @@ import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
@@ -20,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,8 @@ class UserServiceTest {
     UserService userService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     EventRepository eventRepository;
@@ -131,7 +135,7 @@ class UserServiceTest {
         //when //then
         assertThatThrownBy(() -> userService.login(request))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("유저를 찾지 못했습니다.");
+                .hasMessage("회원을 찾지 못했습니다.");
     }
 
     @DisplayName("회원이 로그인 할때 비밀번호가 틀리면 예외가 발생한다.")
@@ -200,7 +204,24 @@ class UserServiceTest {
         //when //then
         assertThatThrownBy(() -> userService.editUser(request, 2L, user.getUsername()))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("유저를 찾지 못했습니다.");
+                .hasMessage("회원을 찾지 못했습니다.");
+    }
+
+    @DisplayName("회원의 비밀번호를 변경 한다.")
+    @Test
+    void modifyPassword() {
+        //given
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        User user = createUser("test", "test@naver.com", oldPassword);
+        userRepository.save(user);
+
+        //when
+        userService.modifyPassword(user, newPassword);
+
+        //then
+        User findUser = userRepository.findByEmail(user.getEmail()).orElseThrow();
+        assertThat(bCryptPasswordEncoder.matches(newPassword, findUser.getPassword())).isTrue();
     }
 
     @DisplayName("회원의 마이 페이지 조회 할 때 북마크 되지 않은 모임은 북마크 되지 않음을 표기 한다.")
@@ -234,6 +255,14 @@ class UserServiceTest {
         return User.builder()
                 .username(username)
                 .email(email)
+                .build();
+    }
+
+    private User createUser(String username, String email, String password) {
+        return User.builder()
+                .username(username)
+                .email(email)
+                .password((password))
                 .build();
     }
 

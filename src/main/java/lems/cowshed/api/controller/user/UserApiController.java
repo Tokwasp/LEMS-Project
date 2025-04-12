@@ -7,6 +7,8 @@ import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.*;
 import lems.cowshed.domain.mail.Mail;
+import lems.cowshed.domain.mail.code.CodeType;
+import lems.cowshed.domain.user.User;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.service.CustomUserDetails;
 import lems.cowshed.service.MailService;
@@ -40,7 +42,9 @@ public class UserApiController implements UserSpecification{
 
     @PostMapping("/signUp")
     public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequestDto request) {
-        if(mailService.isMailExpired(Mail.of(request.getEmail(),request.getCode()))){
+        Mail mail = Mail.of(request.getEmail(), request.getCode());
+
+        if(mailService.isMailExpired(mail)){
             throw new BusinessException(USER_CERTIFICATION_CODE, USER_NOT_CERTIFICATION_CODE);
         }
 
@@ -58,6 +62,16 @@ public class UserApiController implements UserSpecification{
     public CommonResponse<Void> editUser(@RequestBody UserEditRequestDto userEditRequestDto,
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
         userService.editUser(userEditRequestDto, customUserDetails.getUserId(), customUserDetails.getUsername());
+        return CommonResponse.success();
+    }
+
+    @PostMapping("/password-reset")
+    public CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email){
+        User user = userService.findUserFrom(email);
+        String password = mailService.findCodeFrom(CodeType.PASSWORD);
+
+        mailService.sendCodeToMail(CodeType.PASSWORD, Mail.of(email, password));
+        userService.modifyPassword(user, password);
         return CommonResponse.success();
     }
 

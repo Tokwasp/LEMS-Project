@@ -14,6 +14,7 @@ import lems.cowshed.service.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name="user-controller", description="회원 API")
 public interface UserSpecification {
@@ -30,6 +31,9 @@ public interface UserSpecification {
     @ApiErrorCodeExamples({ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto,
                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
+    @Operation(summary = "회원 이메일 임시 비밀번호 전송", description = "회원의 메일로 임시 비밀번호를 전송 합니다.")
+    CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email);
 
     @Operation(summary = "모임에 참여한 회원 조회", description = "특정 모임에 참여한 회원들을 조회 합니다. [이벤트 상세 > 참여자 목록]")
     CommonResponse<ParticipatingUserListInfo> findParticipants(@PathVariable("event-id") Long eventId);

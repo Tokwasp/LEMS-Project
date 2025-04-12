@@ -60,6 +60,7 @@ public class UserSaveRequestDto {
                 .email(email)
                 .gender(gender)
                 .role(role)
+                .mbti(mbti)
                 .build();
     }
 

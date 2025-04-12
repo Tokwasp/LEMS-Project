@@ -94,12 +94,22 @@ public class UserService {
         user.modifyContents(editDto);
     }
 
+    public User findUserFrom(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_EMAIL_NOT_FOUND));
+    }
+
     public boolean signUpValidationForUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
 
     public boolean signUpValidationForEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
+    }
+
+    public void modifyPassword(User user, String password) {
+        User findUser = userRepository.findById(user.getId()).orElseThrow();
+        findUser.modifyPassword(bCryptPasswordEncoder.encode(password));
     }
 
     public UserInfo findUser(Long userId) {
