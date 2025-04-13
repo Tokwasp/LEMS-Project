@@ -3,7 +3,8 @@ package lems.cowshed.service;
 import lems.cowshed.api.controller.dto.mail.request.MailVerificationRequest;
 import lems.cowshed.api.controller.dto.mail.response.MailExpirationInfo;
 import lems.cowshed.domain.mail.Mail;
-import lems.cowshed.domain.mail.RandomIntCodeGenerator;
+import lems.cowshed.domain.mail.code.CodeFinder;
+import lems.cowshed.domain.mail.code.CodeType;
 import lems.cowshed.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -21,29 +22,31 @@ import static lems.cowshed.exception.Reason.*;
 public class MailService {
 
     private final JavaMailSender javaMailSender;
-    private final RandomIntCodeGenerator stringGenerator;
+    private final CodeFinder codeFinder;
     private final Map<Mail, LocalDateTime> mailExpirationsPeriod = new HashMap<>();
 
-    public void sendSignUpMessageToEmail(String email) {
+    public void sendCodeToMail(CodeType codeType, Mail mail) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
 
         try {
-            simpleMailMessage.setTo(email);
-
+            simpleMailMessage.setTo(mail.getEmail());
             // 메일의 제목 설정
-            simpleMailMessage.setSubject("회원가입 인증 번호");
-
+            simpleMailMessage.setSubject(codeType.getDescription());
             // 메일의 내용 설정
-            String code = stringGenerator.generateRandomString();
-            simpleMailMessage.setText(code);
+            simpleMailMessage.setText(mail.getCode());
 
-            mailExpirationsPeriod.put(Mail.of(email, code), nowDateTimePlusTenMinutes());
+            if(codeType.isSignUpCode()) {
+                mailExpirationsPeriod.put(mail, nowDateTimePlusTenMinutes());
+            }
             javaMailSender.send(simpleMailMessage);
-
         } catch (Exception e) {
             throw new BusinessException(MAIL, MAIL_SEND_ERROR);
         }
 
+    }
+
+    public String findCodeFrom(CodeType codeType){
+        return codeFinder.findCodeFrom(codeType);
     }
 
     public MailExpirationInfo verifyMail(MailVerificationRequest request) {

@@ -64,8 +64,7 @@ public class SwaggerConfig {
         );
 
         // 제외할 경로를 리스트로 정의
-        var excludedPaths = List.of("/users/login", "/users/signUp", "/users/username/.*", "/users/email/.*");
-        var registerPath = List.of("/users/register");
+        var excludedPaths = List.of("/users/login", "/users/signUp", "/users/validate.*", "/mails/verification.*", "/users/password-reset");
 
         return openApi -> {
             var paths = openApi.getPaths();
@@ -78,7 +77,7 @@ public class SwaggerConfig {
                 for (var operation : operations) {
                     ApiResponses responses = operation.getResponses();
 
-                    if(registerPath.stream().noneMatch(pathName::matches)) {
+                    if(excludedPaths.stream().noneMatch(pathName::matches)) {
                         ErrorCode errorCode = CERTIFICATION_ERROR;
                         ExampleHolder exampleHolder = ExampleHolder.builder()
                                 .holder(getSwaggerExample(errorCode))

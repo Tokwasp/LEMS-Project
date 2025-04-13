@@ -84,4 +84,7 @@ public class User extends BaseEntity {
         if(userEditRequestDto.getMbti() != null) {this.mbti = userEditRequestDto.getMbti();}
     }
 
+    public void modifyPassword(String password) {
+        this.password = password;
+    }
 }
