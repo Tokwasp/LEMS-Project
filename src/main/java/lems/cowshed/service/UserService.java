@@ -62,10 +62,6 @@ public class UserService {
         if(userRepository.existsByEmailOrUsername(request.getEmail(), request.getUsername())){
             throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
         }
-
-        if(request.hasPasswordMismatch()){
-            throw new BusinessException(USER_VERIFY_PASSWORD, USER_NOT_VERIFY_PASSWORD);
-        }
         
         User user = request.toEntityForRegister(bCryptPasswordEncoder, Role.ROLE_USER);
         userRepository.save(user);
@@ -99,11 +95,11 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_EMAIL_NOT_FOUND));
     }
 
-    public boolean signUpValidationForUsername(String username) {
+    public boolean isDuplicatedUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
 
-    public boolean signUpValidationForEmail(String email) {
+    public boolean isExistEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 

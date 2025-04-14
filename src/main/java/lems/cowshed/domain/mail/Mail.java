@@ -8,18 +8,18 @@ import java.util.Objects;
 @Getter
 public class Mail {
 
-    private String email;
+    private String mail;
     private String code;
 
     @Builder
-    private Mail(String email, String code) {
-        this.email = email;
+    private Mail(String mail, String code) {
+        this.mail = mail;
         this.code = code;
     }
 
     public static Mail of(String email, String code){
         return Mail.builder()
-                .email(email)
+                .mail(email)
                 .code(code)
                 .build();
     }
@@ -27,12 +27,12 @@ public class Mail {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Mail another = (Mail) o;
-        return Objects.equals(email, another.email) && Objects.equals(code, another.code);
+        Mail mail = (Mail) o;
+        return Objects.equals(this.mail, mail.mail) && Objects.equals(this.code, mail.code);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(email, code);
+        return Objects.hash(this.mail, this.code);
     }
 }

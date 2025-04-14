@@ -102,7 +102,6 @@ class BaseEntityTest {
                 .email(email)
                 .username(username)
                 .password(password)
-                .verifyPassword(password)
                 .build();
     }
 
