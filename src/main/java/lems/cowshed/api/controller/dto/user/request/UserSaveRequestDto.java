@@ -29,10 +29,6 @@ public class UserSaveRequestDto {
     @NotBlank(message = "패스워드는 필수 입니다.")
     private String password;
 
-    @Schema(description = "비밀번호 확인", example = "****")
-    @NotBlank(message = "비밀번호 확인은 필수 입니다.")
-    private String verifyPassword;
-
     @Schema(description = "성별", example = "MALE")
     @Enum(message = "성별은 `MALE`, `FEMALE`을 허용 합니다.")
     private Gender gender;
@@ -43,12 +39,11 @@ public class UserSaveRequestDto {
 
     @Builder
     private UserSaveRequestDto(String username, String email, String code,
-                               String password, String verifyPassword, Gender gender, Mbti mbti) {
+                               String password, Gender gender, Mbti mbti) {
         this.username = username;
         this.email = email;
         this.code = code;
         this.password = password;
-        this.verifyPassword = verifyPassword;
         this.gender = gender;
         this.mbti = mbti;
     }
@@ -64,7 +59,4 @@ public class UserSaveRequestDto {
                 .build();
     }
 
-    public boolean hasPasswordMismatch() {
-        return !this.password.equals(verifyPassword);
-    }
 }
