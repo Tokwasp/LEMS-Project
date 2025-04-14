@@ -1,7 +1,9 @@
-package lems.cowshed.api.controller.dto.mail.request;
+package lems.cowshed.api.controller.dto.verification.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lems.cowshed.domain.mail.Mail;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -17,9 +19,20 @@ public class MailVerificationRequest {
 
     private MailVerificationRequest() {}
 
-    public MailVerificationRequest(String email, String code) {
+    @Builder
+    private MailVerificationRequest(String email, String code) {
         this.email = email;
         this.code = code;
     }
 
+    public static MailVerificationRequest of(String email, String code){
+        return MailVerificationRequest.builder()
+                .email(email)
+                .code(code)
+                .build();
+    }
+
+    public Mail toMail() {
+        return Mail.of(this.email, this.code);
+    }
 }
