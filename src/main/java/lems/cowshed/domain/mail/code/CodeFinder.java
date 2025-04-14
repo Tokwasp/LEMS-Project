@@ -1,8 +1,12 @@
 package lems.cowshed.domain.mail.code;
 
+import lems.cowshed.exception.BusinessException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static lems.cowshed.exception.Message.*;
+import static lems.cowshed.exception.Reason.*;
 
 @Component
 public class CodeFinder {
@@ -17,6 +21,6 @@ public class CodeFinder {
                 .filter(provider -> provider.isSupport(codeType))
                 .findFirst()
                 .map(provider -> provider.provide(codeType))
-                .orElseThrow(() -> new IllegalArgumentException("찾을수 없는 코드 입니다."));
+                .orElseThrow(() -> new BusinessException(CODE_PROVIDER, CODE_PROVIDER_MISMATCH));
     }
 }

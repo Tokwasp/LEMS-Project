@@ -33,6 +33,7 @@ public interface UserSpecification {
                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "회원 이메일 임시 비밀번호 전송", description = "회원의 메일로 임시 비밀번호를 전송 합니다.")
+    @ApiErrorCodeExamples({ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email);
 
     @Operation(summary = "모임에 참여한 회원 조회", description = "특정 모임에 참여한 회원들을 조회 합니다. [이벤트 상세 > 참여자 목록]")
@@ -44,12 +45,6 @@ public interface UserSpecification {
 
     @Operation(summary = "내 정보 조회", description = "내 정보, 북마크 목록, 참가한 이벤트 조회")
     CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails);
-
-    @Operation(summary = "회원 가입 검증", description = "중복된 닉네임을 가진 회원을 찾습니다.")
-    CommonResponse<DuplicateCheckResult> findDuplicatedUsername(@PathVariable String username);
-
-    @Operation(summary = "회원 가입 검증", description = "중복된 이메일을 가진 회원을 찾습니다.")
-    CommonResponse<DuplicateCheckResult> findDuplicatedEmail(@PathVariable String email);
 
     @Operation(summary = "회원 삭제", description = "회원을 삭제 합니다.")
     CommonResponse<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails customUserDetails);

@@ -3,6 +3,7 @@ package lems.cowshed.api.controller.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.service.BookmarkService;
 import lems.cowshed.service.MailService;
@@ -31,6 +32,9 @@ class UserApiControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private CodeFinder codeFinder;
 
     @MockBean
     private BookmarkService bookmarkService;
@@ -65,7 +69,6 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .email("test@naver.com")
                 .password("tempPassword")
-                .verifyPassword("tempPassword")
                 .gender(MALE)
                 .mbti(Mbti.INTP)
                 .build();
@@ -90,7 +93,6 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .password("tempPassword")
-                .verifyPassword("tempPassword")
                 .gender(MALE)
                 .mbti(Mbti.INTP)
                 .build();
@@ -114,7 +116,6 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .email("test@naver.com")
-                .verifyPassword("tempPassword")
                 .gender(MALE)
                 .mbti(Mbti.INTP)
                 .build();
@@ -138,7 +139,6 @@ class UserApiControllerTest {
         UserSaveRequestDto request = UserSaveRequestDto.builder()
                 .username("test")
                 .password("tempPassword")
-                .verifyPassword("tempPassword")
                 .email("test@naver.com")
                 .mbti(Mbti.INTP)
                 .build();
@@ -203,7 +203,6 @@ class UserApiControllerTest {
                 .email("test@naver.com")
                 .code("1234")
                 .password("tempPassword")
-                .verifyPassword("tempPassword")
                 .gender(MALE)
                 .mbti(Mbti.INFJ)
                 .build();

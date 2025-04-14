@@ -8,7 +8,6 @@ import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
-import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
@@ -93,20 +92,6 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.signUp(newMember))
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("이미 존재하는 닉네임 혹은 이메일 입니다.");
-    }
-
-    @DisplayName("신규 회원 가입을 할 때 비밀번호가 일치 하지 않는다면 예외가 발생 한다.")
-    @Test
-    void signUp_WhenPasswordMismatch_ThrowsException() {
-        //given
-        String password = "password";
-        String wrongPassword = "wrongPassword";
-        UserSaveRequestDto request = createSaveDto("test@naver.com", "테스트", password, wrongPassword);
-
-        //when //then
-        assertThatThrownBy(() -> userService.signUp(request))
-                .isInstanceOf(BusinessException.class)
-                .hasMessage("검증 비밀번호가 일치 하지 않습니다.");
     }
 
     @DisplayName("회원이 로그인을 한다.")
@@ -266,21 +251,11 @@ class UserServiceTest {
                 .build();
     }
 
-    private UserSaveRequestDto createSaveDto(String email, String username, String password, String verifyPassword) {
-        return UserSaveRequestDto.builder()
-                .email(email)
-                .username(username)
-                .password(password)
-                .verifyPassword(verifyPassword)
-                .build();
-    }
-
     private UserSaveRequestDto createSaveDto(String email, String username, String password) {
         return UserSaveRequestDto.builder()
                 .email(email)
                 .username(username)
                 .password(password)
-                .verifyPassword(password)
                 .build();
     }
 
@@ -289,7 +264,6 @@ class UserServiceTest {
                 .email(email)
                 .username(username)
                 .password("tempPassword")
-                .verifyPassword("tempPassword")
                 .build();
     }
 

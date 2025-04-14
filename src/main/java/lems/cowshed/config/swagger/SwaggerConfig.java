@@ -64,7 +64,7 @@ public class SwaggerConfig {
         );
 
         // 제외할 경로를 리스트로 정의
-        var excludedPaths = List.of("/users/login", "/users/signUp", "/users/validate.*", "/mails/verification.*", "/users/password-reset");
+        var excludedPaths = List.of("/users/login", "/users/signUp", "/verification/.*", "/users/password-reset");
 
         return openApi -> {
             var paths = openApi.getPaths();

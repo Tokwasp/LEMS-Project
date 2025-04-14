@@ -7,6 +7,7 @@ import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.api.controller.dto.user.response.*;
 import lems.cowshed.domain.mail.Mail;
+import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.domain.mail.code.CodeType;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.exception.BusinessException;
@@ -27,6 +28,7 @@ public class UserApiController implements UserSpecification{
 
     private final UserService userService;
     private final MailService mailService;
+    private final CodeFinder codeFinder;
 
     @GetMapping("/my-page")
     public CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -44,7 +46,7 @@ public class UserApiController implements UserSpecification{
     public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequestDto request) {
         Mail mail = Mail.of(request.getEmail(), request.getCode());
 
-        if(mailService.isMailExpired(mail)){
+        if(mailService.isMailVerifyFail(mail)){
             throw new BusinessException(USER_CERTIFICATION_CODE, USER_NOT_CERTIFICATION_CODE);
         }
 
@@ -68,7 +70,7 @@ public class UserApiController implements UserSpecification{
     @PostMapping("/password-reset")
     public CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email){
         User user = userService.findUserFrom(email);
-        String password = mailService.findCodeFrom(CodeType.PASSWORD);
+        String password = codeFinder.findCodeFrom(CodeType.PASSWORD);
 
         mailService.sendCodeToMail(CodeType.PASSWORD, Mail.of(email, password));
         userService.modifyPassword(user, password);
@@ -79,16 +81,6 @@ public class UserApiController implements UserSpecification{
     public CommonResponse<UserInfo> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
         UserInfo response = userService.findUser(customUserDetails.getUserId());
         return CommonResponse.success(response);
-    }
-
-    @GetMapping("/validate/username/{username}")
-    public CommonResponse<DuplicateCheckResult> findDuplicatedUsername(@PathVariable String username){
-        return CommonResponse.success(DuplicateCheckResult.of(userService.signUpValidationForUsername(username)));
-    }
-
-    @GetMapping("/validate/email/{email}")
-    public CommonResponse<DuplicateCheckResult> findDuplicatedEmail(@PathVariable String email){
-        return CommonResponse.success(DuplicateCheckResult.of(userService.signUpValidationForEmail(email)));
     }
 
     @DeleteMapping
