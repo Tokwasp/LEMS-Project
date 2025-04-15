@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import static lems.cowshed.domain.mail.code.CodeType.SIGN_UP;
 
 @RequiredArgsConstructor
-@RequestMapping("/user/verification")
+@RequestMapping("/users/verification")
 @RestController
 public class UserVerificationController implements UserVerificationSpecification {
 
