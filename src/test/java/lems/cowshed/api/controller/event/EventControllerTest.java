@@ -137,7 +137,6 @@ class EventControllerTest {
     private static Event createEvent(String author, String name, String content){
         return Event.builder()
                 .name(name)
-                .email("test@naver.com")
                 .author(author)
                 .content(content)
                 .build();

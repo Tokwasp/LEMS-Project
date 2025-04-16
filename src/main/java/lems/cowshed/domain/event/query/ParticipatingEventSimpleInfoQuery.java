@@ -22,9 +22,6 @@ public class ParticipatingEventSimpleInfoQuery implements EventIdProvider {
     @Schema(description = "모임 이름", example = "자전거 모임")
     private String name;
 
-    @Schema(description = "이벤트 날짜", example = "2024-10-19")
-    private LocalDate eventDate;
-
     @Schema(description = "주최자", example = "김철수")
     private String author;
 
@@ -44,13 +41,12 @@ public class ParticipatingEventSimpleInfoQuery implements EventIdProvider {
     private BookmarkStatus bookmarkStatus;
 
     @QueryProjection
-    public ParticipatingEventSimpleInfoQuery(Long id, String name, LocalDate eventDate, String author,
+    public ParticipatingEventSimpleInfoQuery(Long id, String name, String author,
                                              String content, Long applicants, int capacity,
                                              LocalDateTime createdDateTime) {
         this.id = id;
         this.author = author;
         this.name = name;
-        this.eventDate = eventDate;
         this.content = content;
         this.applicants = applicants;
         this.capacity = capacity;
@@ -58,12 +54,10 @@ public class ParticipatingEventSimpleInfoQuery implements EventIdProvider {
     }
 
     @Builder
-    private ParticipatingEventSimpleInfoQuery(Long id, String name, LocalDate eventDate,
-                                             String author, String content, Long applicants,
+    private ParticipatingEventSimpleInfoQuery(Long id, String name, String author, String content, Long applicants,
                                              int capacity, LocalDateTime createdDateTime, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
-        this.eventDate = eventDate;
         this.author = author;
         this.content = content;
         this.applicants = applicants;
@@ -76,7 +70,6 @@ public class ParticipatingEventSimpleInfoQuery implements EventIdProvider {
         return ParticipatingEventSimpleInfoQuery.builder()
                 .id(query.getId())
                 .name(query.getName())
-                .eventDate(query.getEventDate())
                 .author(query.getAuthor())
                 .content(query.getContent())
                 .applicants(query.getApplicants())

@@ -24,12 +24,8 @@ public class EventInfo {
     Category category;
     @Schema(description = "등록일", example = "yyyy-mm-dd hh:mm:ss")
     LocalDateTime createdDate;
-    @Schema(description = "장소 이름", example = "스카이 휘트니스")
-    String location;
     @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
     String content;
-    @Schema(description = "모임 날짜", example = "2024-09-12")
-    LocalDate eventDate;
     @Schema(description = "수용 인원", example = "100")
     int capacity;
     @Schema(description = "참여 신청 인원", example = "50")
@@ -46,16 +42,14 @@ public class EventInfo {
 
     @QueryProjection
     public EventInfo(Long eventId, String name, String author, Category category,
-                     LocalDateTime createdDate, String location, String content,
-                     LocalDate eventDate, int capacity, long applicants, String userList) {
+                     LocalDateTime createdDate, String content,
+                     int capacity, long applicants, String userList) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
         this.category = category;
         this.createdDate = createdDate;
-        this.location = location;
         this.content = content;
-        this.eventDate = eventDate;
         this.capacity = capacity;
         this.applicants = applicants;
         this.userList = userList;
@@ -63,17 +57,14 @@ public class EventInfo {
 
     @Builder
     private EventInfo(Long eventId, String author, String name, Category category,
-                      LocalDateTime createdDate, String location,
-                      String content, LocalDate eventDate, int capacity, long applicants,
+                      LocalDateTime createdDate,String content, int capacity, long applicants,
                       BookmarkStatus bookmarkStatus, boolean isEventRegistrant, boolean isParticipated) {
         this.eventId = eventId;
         this.name = name;
         this.author = author;
         this.category = category;
         this.createdDate = createdDate;
-        this.location = location;
         this.content = content;
-        this.eventDate = eventDate;
         this.capacity = capacity;
         this.applicants = applicants;
         this.bookmarkStatus = bookmarkStatus;

@@ -141,8 +141,8 @@ class EventServiceTest {
 
         //then
         Event findEvent = eventRepository.findByName("자전거 모임");
-        assertThat(findEvent).extracting("name", "location", "capacity")
-                .containsExactly("자전거 모임", "서울", 10);
+        assertThat(findEvent).extracting("name", "capacity")
+                .containsExactly("자전거 모임", 10);
     }
 
     @DisplayName("모임을 조회 한다.")
@@ -540,7 +540,6 @@ class EventServiceTest {
     private static Event createEvent(String author, String name) {
         return Event.builder()
                 .name(name)
-                .email("test@naver.com")
                 .author(author)
                 .build();
     }
@@ -548,7 +547,6 @@ class EventServiceTest {
     private static Event createEvent(String author, String name, String content){
         return Event.builder()
                 .name(name)
-                .email("test@naver.com")
                 .author(author)
                 .content(content)
                 .build();
@@ -557,7 +555,6 @@ class EventServiceTest {
     private static Event createEvent(String author, String name, int capacity) {
         return Event.builder()
                 .name(name)
-                .email("test@naver.com")
                 .author(author)
                 .capacity(capacity)
                 .build();
