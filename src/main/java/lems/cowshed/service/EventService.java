@@ -4,6 +4,8 @@ import lems.cowshed.api.controller.dto.event.EventIdProvider;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.*;
+import lems.cowshed.config.aws.AwsS3Util;
+import lems.cowshed.domain.UploadFile;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
@@ -26,6 +28,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,6 +46,7 @@ public class EventService {
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final UserEventRepository userEventRepository;
+    private final AwsS3Util awsS3Util;
 
     public EventsPagingInfo getEvents(Pageable Pageable, Long userId) {
         Slice<Event> eventsToLookFor = eventRepository.findEventsBy(Pageable);
@@ -61,8 +65,10 @@ public class EventService {
         return EventsPagingInfo.of(result, eventsToLookFor.isLast());
     }
 
-    public void saveEvent(EventSaveRequestDto requestDto, String username) {
-        Event event = requestDto.toEntity(username);
+    public void saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
+        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
+        Event event = requestDto.toEntity(username, uploadFile);
+
         eventRepository.save(event);
     }
 

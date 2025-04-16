@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.BaseEntity;
+import lems.cowshed.domain.UploadFile;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,13 +34,18 @@ public class Event extends BaseEntity {
     @Column(name = "capacity")
     private int capacity;
 
+    @Embedded
+    private UploadFile uploadFile;
+
     @Builder
-    public Event(String name, Category category, String author, String content, int capacity) {
+    public Event(String name, Category category, String author, String content,
+                 int capacity, UploadFile uploadFile) {
         this.name = name;
         this.category = category;
         this.author = author;
         this.content = content;
         this.capacity = capacity;
+        this.uploadFile = uploadFile;
     }
 
     public void edit(EventUpdateRequestDto requestDto) {
@@ -58,5 +62,5 @@ public class Event extends BaseEntity {
     public boolean isNotSameAuthor(String author) {
         return !this.author.equals(author);
     }
-}
 
+}

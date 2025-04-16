@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
@@ -132,7 +133,7 @@ class EventServiceTest {
 
     @DisplayName("모임을 등록 한다.")
     @Test
-    void saveEvent() {
+    void saveEvent() throws IOException {
         //given
         EventSaveRequestDto request = createRequestDto("자전거 모임", "서울", 10);
 
@@ -143,6 +144,20 @@ class EventServiceTest {
         Event findEvent = eventRepository.findByName("자전거 모임");
         assertThat(findEvent).extracting("name", "capacity")
                 .containsExactly("자전거 모임", 10);
+    }
+
+    @DisplayName("모임을 등록할때 업로드 파일이 없다면 업로드 파일은 null이다.")
+    @Test
+    void saveEvent_whenNotRegisterFile_UploadFileIsNull() throws IOException {
+        //given
+        EventSaveRequestDto request = createRequestDto("자전거 모임", "서울", 10);
+
+        //when
+        eventService.saveEvent(request, "테스터");
+
+        //then
+        Event findEvent = eventRepository.findByName("자전거 모임");
+        assertThat(findEvent.getUploadFile()).isNull();
     }
 
     @DisplayName("모임을 조회 한다.")
@@ -563,7 +578,6 @@ class EventServiceTest {
     private EventSaveRequestDto createRequestDto(String name, String location, int capacity) {
         return EventSaveRequestDto.builder()
                 .name(name)
-                .location(location)
                 .capacity(capacity)
                 .build();
     }
