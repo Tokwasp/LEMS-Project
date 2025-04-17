@@ -77,7 +77,6 @@ class EventRepositoryTest {
     private static Event createEvent(String author) {
         return Event.builder()
                 .name("자전거 모임")
-                .email("test@naver.com")
                 .author(author)
                 .build();
     }

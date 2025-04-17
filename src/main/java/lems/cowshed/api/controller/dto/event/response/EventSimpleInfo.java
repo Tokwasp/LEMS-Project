@@ -29,9 +29,6 @@ public class EventSimpleInfo implements EventIdProvider {
     @Schema(description = "모임 이름", example = "자전거 모임")
     private String name;
 
-    @Schema(description = "모임 날짜", example = "2024-09-12")
-    private LocalDate eventDate;
-
     @Schema(description = "모임 등록자", example = "김철수")
     private String author;
 
@@ -51,28 +48,24 @@ public class EventSimpleInfo implements EventIdProvider {
     private BookmarkStatus bookmarkStatus;
 
     @QueryProjection
-    public EventSimpleInfo(Long id, String name, String author,
-                           String content, LocalDate eventDate,
+    public EventSimpleInfo(Long id, String name, String author, String content,
                            int capacity, LocalDateTime createdDateTime, BookmarkStatus bookmarkStatus){
         this.id = id;
         this.name = name;
         this.author = author;
         this.content = content;
-        this.eventDate = eventDate;
         this.capacity = capacity;
         this.createdDateTime = createdDateTime;
         this.bookmarkStatus = bookmarkStatus;
     }
 
     @Builder
-    public EventSimpleInfo(Long id, String name, String author,
-                           String content, LocalDate eventDate, int capacity,
+    public EventSimpleInfo(Long id, String name, String author, String content, int capacity,
                            LocalDateTime createdDateTime, long applicants, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.content = content;
-        this.eventDate = eventDate;
         this.capacity = capacity;
         this.createdDateTime = createdDateTime;
         this.applicants = applicants;
@@ -85,7 +78,6 @@ public class EventSimpleInfo implements EventIdProvider {
                 .name(event.getName())
                 .author(event.getAuthor())
                 .content(event.getContent())
-                .eventDate(event.getEventDate())
                 .capacity(event.getCapacity())
                 .createdDateTime(event.getCreatedDateTime())
                 .applicants(participantsCount)

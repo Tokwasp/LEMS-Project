@@ -47,14 +47,14 @@ class EventControllerTest {
     @DisplayName("모임을 등록 합니다.")
     @Test
     void saveEvent() throws Exception {
-        //given
-        EventSaveRequestDto request = createEventSaveRequest("산책 모임", SPORTS, 20);
-
         //when //then
         mockMvc.perform(
                 post("/events")
-                        .content(objectMapper.writeValueAsString(request))
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("name", "산책 모임")
+                        .param("category", String.valueOf(SPORTS))
+                        .param("capacity", String.valueOf(20))
+                        .param("content", "테스트")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(csrf())
                         .with(user(new CustomUserDetails(createForUserDetails())))
         )
@@ -63,22 +63,43 @@ class EventControllerTest {
                 .andExpect(jsonPath("$.message").value("성공"));
     }
 
-    @DisplayName("모임을 등록 할때 최대 참가자는 200명을 초과 할수 없습니다.")
+    @DisplayName("모임을 등록 할때 최대 참가자는 100명 이다.")
     @Test
-    void saveEventWhenOverCapacity() throws Exception {
-        //given
-        EventSaveRequestDto request = createEventSaveRequest("산책 모임", SPORTS, 201);
-
+    void saveEvent_WhenOverCapacity() throws Exception {
         //when //then
         mockMvc.perform(
                         post("/events")
-                                .content(objectMapper.writeValueAsString(request))
-                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("name", "산책 모임")
+                                .param("category", String.valueOf(SPORTS))
+                                .param("capacity", String.valueOf(100))
+                                .param("content", "테스트")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
                                 .with(csrf())
+                                .with(user(new CustomUserDetails(createForUserDetails())))
+
                 )
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0].field").value("capacity"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("성공"));
+    }
+
+    @DisplayName("모임을 등록 할때 카테고리에 없는 값을 입력 한다면 예외가 발생 한다.")
+    @Test
+    void saveEvent_NotEnterCategory() throws Exception {
+        //when //then
+        mockMvc.perform(
+                        post("/events")
+                                .param("name", "산책 모임")
+                                .param("category", "sleeping")
+                                .param("capacity", String.valueOf(20))
+                                .param("content", "테스트")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .with(csrf())
+                                .with(user(new CustomUserDetails(createForUserDetails())))
+
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("모임을 조회 한다.")
@@ -126,18 +147,15 @@ class EventControllerTest {
     private EventSaveRequestDto createEventSaveRequest(String name, Category category, int capacity) {
         return EventSaveRequestDto.builder()
                 .name(name)
-                .eventDate(LocalDate.of(2025,1,1))
                 .content("산책 하실분 모집 합니다.")
                 .category(category)
                 .capacity(capacity)
-                .location("한라산")
                 .build();
     }
 
     private static Event createEvent(String author, String name, String content){
         return Event.builder()
                 .name(name)
-                .email("test@naver.com")
                 .author(author)
                 .content(content)
                 .build();

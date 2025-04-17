@@ -1,11 +1,11 @@
 package lems.cowshed.domain.event;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.BaseEntity;
+import lems.cowshed.domain.UploadFile;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,40 +20,32 @@ public class Event extends BaseEntity {
     @Column(name = "name", length = 20)
     private String name;
 
-    @Column(name = "event_date")
-    private LocalDate eventDate;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
     private Category category;
 
-    @Column(name = "location", length = 20)
-    private String location;
-
     @Column(name = "author", length = 20)
     private String author;
-
-    @Column(name = "email",  length = 40)
-    private String email;
 
     @Column(name = "content", length = 200)
     private String content;
 
+    @Max(100)
     @Column(name = "capacity")
     private int capacity;
 
+    @Embedded
+    private UploadFile uploadFile;
+
     @Builder
-    public Event(String name, LocalDate eventDate, Category category,
-                 String location, String author,
-                 String email, String content, int capacity) {
+    public Event(String name, Category category, String author, String content,
+                 int capacity, UploadFile uploadFile) {
         this.name = name;
-        this.eventDate = eventDate;
         this.category = category;
-        this.location = location;
         this.author = author;
-        this.email = email;
         this.content = content;
         this.capacity = capacity;
+        this.uploadFile = uploadFile;
     }
 
     public void edit(EventUpdateRequestDto requestDto) {
@@ -61,8 +53,6 @@ public class Event extends BaseEntity {
         this.capacity = requestDto.getCapacity();
         if(requestDto.getContent() != null) this.content = requestDto.getContent();
         if(requestDto.getCategory() != null) this.category = requestDto.getCategory();
-        if(requestDto.getEventDate() != null) this.eventDate = requestDto.getEventDate();
-        if(requestDto.getLocation() != null) this.location = requestDto.getLocation();
     }
 
     public boolean isOverCapacity(long capacity){
@@ -72,5 +62,5 @@ public class Event extends BaseEntity {
     public boolean isNotSameAuthor(String author) {
         return !this.author.equals(author);
     }
-}
 
+}

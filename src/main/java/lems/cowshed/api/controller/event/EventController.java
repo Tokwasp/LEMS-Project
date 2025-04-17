@@ -9,10 +9,12 @@ import lems.cowshed.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +37,13 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(events);
     }
 
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonResponse<Void> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
+        eventService.saveEvent(requestDto, customUserDetails.getUsername());
+        return CommonResponse.success();
+    }
+
     @GetMapping("/bookmarks")
     public CommonResponse<BookmarkedEventsPagingInfo> getEventsBookmarkedByUser(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                                 @AuthenticationPrincipal CustomUserDetails userDetails){
@@ -54,13 +63,6 @@ public class EventController implements EventSpecification {
                                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         EventsSearchInfo searchEvent = eventService.searchEventsByNameOrContent(keyword, customUserDetails.getUserId());
         return CommonResponse.success(searchEvent);
-    }
-
-    @PostMapping
-    public CommonResponse<Void> saveEvent(@RequestBody @Validated EventSaveRequestDto requestDto,
-                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        eventService.saveEvent(requestDto, customUserDetails.getUsername());
-        return CommonResponse.success();
     }
 
     @PostMapping("/{event-id}/join")

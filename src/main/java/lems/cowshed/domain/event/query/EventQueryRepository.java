@@ -38,9 +38,7 @@ public class EventQueryRepository {
                         event.author,
                         event.category,
                         event.createdDateTime,
-                        event.location,
                         event.content,
-                        event.eventDate,
                         event.capacity,
                         userEvent.event.id.count(),
                         Expressions.stringTemplate("GROUP_CONCAT({0})", userEvent.user.id)
@@ -58,7 +56,6 @@ public class EventQueryRepository {
                 .select(new QParticipatingEventSimpleInfoQuery(
                         event.id,
                         event.name,
-                        event.eventDate,
                         event.author,
                         event.content,
                         userEvent.user.id.countDistinct().as("applicants"),
@@ -78,7 +75,6 @@ public class EventQueryRepository {
                 .select(new QBookmarkedEventSimpleInfoQuery(
                                 event.id,
                                 event.name,
-                                event.eventDate,
                                 event.author,
                                 event.content,
                                 event.capacity,
@@ -136,7 +132,6 @@ public class EventQueryRepository {
                         event.name,
                         event.author,
                         event.content,
-                        event.eventDate,
                         event.capacity,
                         event.createdDateTime,
                         bookmark.status
