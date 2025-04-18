@@ -34,14 +34,15 @@ public class UserVerificationController implements UserVerificationSpecification
         return CommonResponse.success(VerificationResultInfo.of(true));
     }
 
-    @GetMapping("/email/code")
+    @PostMapping("/email/code")
     public CommonResponse<VerificationResultInfo> verifyEmail(@RequestBody MailVerificationRequest request){
         return CommonResponse.success(mailService.verifyMail(request.toMail(), LocalDateTime.now()));
     }
 
     @GetMapping("/username/{username}")
     public CommonResponse<VerificationResultInfo> verifyUsername(@PathVariable String username){
-        return CommonResponse.success(VerificationResultInfo.of(userService.isDuplicatedUsername(username)));
+        boolean isNotDuplicated = !userService.isDuplicatedUsername(username);
+        return CommonResponse.success(VerificationResultInfo.of(isNotDuplicated));
     }
 
 }
