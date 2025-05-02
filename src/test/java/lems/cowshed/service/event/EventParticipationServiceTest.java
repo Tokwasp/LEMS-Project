@@ -4,8 +4,8 @@ import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEvent;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipant;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import org.junit.jupiter.api.Disabled;
@@ -39,7 +39,7 @@ class EventParticipationServiceTest {
     private UserRepository userRepository;
 
     @Autowired
-    private UserEventRepository userEventRepository;
+    private EventParticipantRepository eventParticipantRepository;
 
     @Autowired
     private EventRepository eventRepository;
@@ -58,9 +58,9 @@ class EventParticipationServiceTest {
         long userEventId = eventParticipationService.saveEventParticipation(event.getId(), user.getId());
 
         //then
-        UserEvent userEvent = userEventRepository.findById(userEventId).orElseThrow();
-        assertThat(userEvent.getUser()).extracting("username").isEqualTo("테스터");
-        assertThat(userEvent.getEvent()).extracting("name").isEqualTo("자전거 모임");
+        EventParticipant eventParticipant = eventParticipantRepository.findById(userEventId).orElseThrow();
+        assertThat(eventParticipant.getUser()).extracting("username").isEqualTo("테스터");
+        assertThat(eventParticipant.getEvent()).extracting("name").isEqualTo("자전거 모임");
     }
 
     @Disabled
@@ -99,7 +99,7 @@ class EventParticipationServiceTest {
         executorService.shutdown();
 
         //then
-        long participants = userEventRepository.countParticipantByEventId(findEvent.getId());
+        long participants = eventParticipantRepository.countParticipantByEventId(findEvent.getId());
         assertThat(participants).isEqualTo(3);
         assertThat(exceptionCount.get()).isEqualTo(2);
     }
@@ -141,7 +141,7 @@ class EventParticipationServiceTest {
         countDownLatch.await();
 
         Long participateCount = executorService.submit(
-                () -> userEventRepository.countParticipantByEventId(findEvent.getId())).get();
+                () -> eventParticipantRepository.countParticipantByEventId(findEvent.getId())).get();
 
         executorService.shutdown();
 
@@ -160,14 +160,14 @@ class EventParticipationServiceTest {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        eventParticipantRepository.save(eventParticipant);
 
         //when
         eventParticipationService.deleteEventParticipation(event.getId(), user.getId());
 
         //then
-        assertThatThrownBy(() -> userEventRepository.findById(userEvent.getId()).orElseThrow())
+        assertThatThrownBy(() -> eventParticipantRepository.findById(eventParticipant.getId()).orElseThrow())
                 .isInstanceOf(NoSuchElementException.class);
     }
 
@@ -181,8 +181,8 @@ class EventParticipationServiceTest {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        eventParticipantRepository.save(eventParticipant);
 
         //when //then
         assertThatThrownBy(() -> eventParticipationService.deleteEventParticipation(null, user.getId()))

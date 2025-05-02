@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name="user-controller", description="회원 API")
+@Tag(name="user", description="회원 API")
 public interface UserSpecification {
 
     @Operation(summary = "회원 가입", description = "회원정보를 받아 회원 가입을 합니다. [회원 가입]")

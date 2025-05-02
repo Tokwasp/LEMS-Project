@@ -1,4 +1,4 @@
-package lems.cowshed.domain.userevent;
+package lems.cowshed.domain.event.participation;
 
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
@@ -10,7 +10,7 @@ import static jakarta.persistence.FetchType.*;
 
 @Getter
 @Entity
-public class UserEvent extends BaseEntity {
+public class EventParticipant extends BaseEntity {
 
     @Id
     @Column(name = "user_event_id")
@@ -25,22 +25,22 @@ public class UserEvent extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    private UserEvent() {
+    private EventParticipant() {
     }
 
     @Builder
-    private UserEvent(User user, Event event) {
+    private EventParticipant(User user, Event event) {
         this.user = user;
         this.event = event;
     }
 
-    public static UserEvent of(User user, Event event){
-        UserEvent userEvent = UserEvent.builder()
+    public static EventParticipant of(User user, Event event){
+        EventParticipant eventParticipant = EventParticipant.builder()
                 .user(user)
                 .event(event)
                 .build();
 
-        event.getParticipants().add(userEvent);
-        return userEvent;
+        event.getParticipants().add(eventParticipant);
+        return eventParticipant;
     }
 }

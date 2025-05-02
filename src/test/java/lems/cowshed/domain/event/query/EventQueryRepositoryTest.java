@@ -8,8 +8,8 @@ import lems.cowshed.domain.event.EventJpaRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEvent;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipant;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,14 +42,14 @@ class EventQueryRepositoryTest {
     EventQueryRepository eventQueryRepository;
 
     @Autowired
-    UserEventRepository userEventRepository;
+    EventParticipantRepository eventParticipantRepository;
 
     @Autowired
     BookmarkRepository bookmarkRepository;
 
     @BeforeEach
     public void cleanUp(){
-        userEventRepository.deleteAllInBatch();
+        eventParticipantRepository.deleteAllInBatch();
         bookmarkRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
         eventJpaRepository.deleteAllInBatch();
@@ -65,8 +65,8 @@ class EventQueryRepositoryTest {
         Event event = createEvent("산책 모임", "테스터");
         eventJpaRepository.save(event);
 
-        UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        eventParticipantRepository.save(eventParticipant);
 
         //when
         List<ParticipatingEventSimpleInfoQuery> result = eventQueryRepository.findEventsParticipatedByUserWithApplicants(List.of(event.getId()));
@@ -83,13 +83,13 @@ class EventQueryRepositoryTest {
         //given
         User user = createUser("테스터", INTP);
         Event event = createEvent("산책 모임", "테스터");
-        UserEvent userEvent = UserEvent.of(user, event);
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
 
         User user2 = createUser("테스터2", ESFJ);
-        UserEvent userEvent2 = UserEvent.of(user2, event);
+        EventParticipant eventParticipant2 = EventParticipant.of(user2, event);
         userRepository.saveAll(List.of(user, user2));
         eventJpaRepository.save(event);
-        userEventRepository.saveAll(List.of(userEvent,userEvent2));
+        eventParticipantRepository.saveAll(List.of(eventParticipant, eventParticipant2));
 
         //when
         List<ParticipatingEventSimpleInfoQuery> response = eventQueryRepository.findEventsParticipatedByUserWithApplicants(List.of(event.getId()));

@@ -1,4 +1,4 @@
-package lems.cowshed.domain.userevent;
+package lems.cowshed.domain.event.participation;
 
 import java.util.List;
 import java.util.Map;
@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 
 public class Participants {
 
-    private List<UserEvent> participants;
+    private List<EventParticipant> participants;
 
-    private Participants(List<UserEvent> participants) {
+    private Participants(List<EventParticipant> participants) {
         this.participants = participants;
     }
 
-    public static Participants of(List<UserEvent> participants) {
+    public static Participants of(List<EventParticipant> participants) {
         return new Participants(participants);
     }
 

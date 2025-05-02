@@ -4,13 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
-import lems.cowshed.api.controller.dto.verification.request.MailVerificationRequest;
-import lems.cowshed.api.controller.dto.verification.response.VerificationResultInfo;
+import lems.cowshed.api.controller.dto.user.verification.request.MailVerificationRequest;
+import lems.cowshed.api.controller.dto.user.verification.response.VerificationResultInfo;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name="user-Verification-controller", description="회원 검증 API")
+@Tag(name="user-verification", description="회원 검증 API")
 public interface UserVerificationSpecification {
 
     @Operation(summary = "인증 코드 전송", description = "이메일 주소를 확인 후 인증 코드를 전송 합니다.")

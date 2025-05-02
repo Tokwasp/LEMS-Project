@@ -4,8 +4,8 @@ import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEvent;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipant;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +22,13 @@ public class EventParticipationService {
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-    private final UserEventRepository userEventRepository;
+    private final EventParticipantRepository eventParticipantRepository;
 
     public long saveEventParticipation(Long eventId, Long userId) {
         Event event = eventRepository.findPessimisticLockById(eventId)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        long participantsCount = userEventRepository.countParticipantByEventId(event.getId());
+        long participantsCount = eventParticipantRepository.countParticipantByEventId(event.getId());
         if (isNotPossibleParticipateToEvent(event, participantsCount)) {
             throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
         }
@@ -36,16 +36,16 @@ public class EventParticipationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
-        return userEvent.getId();
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        eventParticipantRepository.save(eventParticipant);
+        return eventParticipant.getId();
     }
 
     public void deleteEventParticipation(Long eventId, Long userId) {
-        UserEvent userEvent = userEventRepository.findByEventIdAndUserId(eventId, userId)
+        EventParticipant eventParticipant = eventParticipantRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException(USER_EVENT, USER_EVENT_NOT_FOUND));
 
-        userEventRepository.delete(userEvent);
+        eventParticipantRepository.delete(eventParticipant);
     }
 
     private boolean isNotPossibleParticipateToEvent(Event event, long capacity) {

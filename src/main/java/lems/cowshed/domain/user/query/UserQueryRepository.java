@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+import static lems.cowshed.domain.event.participation.QEventParticipant.*;
 import static lems.cowshed.domain.user.QUser.*;
-import static lems.cowshed.domain.userevent.QUserEvent.*;
 
 @Repository
 public class UserQueryRepository {
@@ -27,9 +27,9 @@ public class UserQueryRepository {
                         user.username.as("name"),
                         user.gender
                 ))
-                .from(userEvent)
-                .join(userEvent.user, user)
-                .on(userEvent.event.id.eq(eventId))
+                .from(eventParticipant)
+                .join(eventParticipant.user, user)
+                .on(eventParticipant.event.id.eq(eventId))
                 .fetch();
     }
 

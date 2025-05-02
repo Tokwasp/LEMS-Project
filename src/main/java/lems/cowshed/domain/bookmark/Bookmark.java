@@ -30,7 +30,7 @@ public class Bookmark extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    BookmarkStatus status;
+    private BookmarkStatus status;
 
     @Builder
     private Bookmark(Event event, User user, BookmarkStatus status) {

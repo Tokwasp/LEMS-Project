@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.dto.verification.response;
+package lems.cowshed.api.controller.dto.user.verification.response;
 
 import lombok.Builder;
 import lombok.Getter;
