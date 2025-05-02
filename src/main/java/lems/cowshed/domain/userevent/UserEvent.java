@@ -39,6 +39,8 @@ public class UserEvent extends BaseEntity {
                 .user(user)
                 .event(event)
                 .build();
+
+        event.getParticipants().add(userEvent);
         return userEvent;
     }
 }

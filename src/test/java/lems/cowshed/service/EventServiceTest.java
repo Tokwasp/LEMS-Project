@@ -64,73 +64,6 @@ class EventServiceTest {
         userRepository.deleteAllInBatch();
     }
 
-    @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
-    @Test
-    void getEvents() {
-        //given
-        User user = createUser("테스터", "testEmail");
-        userRepository.save(user);
-
-        for (int i = 0; i < 10; i++) {
-            Event event = createEvent("테스터" + i, "자전거 모임");
-            eventRepository.save(event);
-        }
-
-        Pageable pageable = PageRequest.of(1, 3);
-
-        //when
-        EventsPagingInfo result = eventService.getEvents(pageable, user.getId());
-
-        //then
-        assertThat(result.getContent())
-                .extracting("author")
-                .containsExactlyInAnyOrder("테스터3", "테스터4", "테스터5");
-    }
-
-    @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
-    @Test
-    void getEventsWithApplicants() {
-        //given
-        Event event = createEvent("테스터", "테스트 모임", 2);
-        eventRepository.save(event);
-
-        int userCount = 2;
-
-        for(int i = 0; i < userCount; i++){
-            User user = createUser("테스터", "testEmail");
-            userRepository.save(user);
-            eventService.saveEventParticipation(event.getId(), user.getId());
-        }
-
-        Pageable pageable = PageRequest.of(0, 1);
-
-        //when
-        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
-
-        //then
-        assertThat(result.getContent()).hasSize(1)
-                .extracting("applicants")
-                .containsExactly(2L);
-    }
-
-    @DisplayName("모임에 참여한 회원이 없을 경우 참여자 수는 0명이다.")
-    @Test
-    void getEventsWhenNothingApplicants() {
-        //given
-        Event event = createEvent("테스터", "테스트 모임", 2);
-        eventRepository.save(event);
-
-        Pageable pageable = PageRequest.of(0, 1);
-
-        //when
-        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
-
-        //then
-        assertThat(result.getContent()).hasSize(1)
-                .extracting("applicants")
-                .containsExactly(0L);
-    }
-
     @DisplayName("모임을 등록 한다.")
     @Test
     void saveEvent() throws IOException {
@@ -219,6 +152,73 @@ class EventServiceTest {
         assertThat(result).isNotNull()
                 .extracting("bookmarkStatus", "isParticipated")
                 .containsExactly(BOOKMARK, false);
+    }
+
+    @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
+    @Test
+    void getEventsWithApplicants() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임", 2);
+        eventRepository.save(event);
+
+        int userCount = 2;
+
+        for(int i = 0; i < userCount; i++){
+            User user = createUser("테스터", "testEmail");
+            userRepository.save(user);
+            eventService.saveEventParticipation(event.getId(), user.getId());
+        }
+
+        Pageable pageable = PageRequest.of(0, 1);
+
+        //when
+        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
+
+        //then
+        assertThat(result.getContent()).hasSize(1)
+                .extracting("applicants")
+                .containsExactly(2L);
+    }
+
+    @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
+    @Test
+    void getEvents() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        for (int i = 0; i < 10; i++) {
+            Event event = createEvent("테스터" + i, "자전거 모임");
+            eventRepository.save(event);
+        }
+
+        Pageable pageable = PageRequest.of(1, 3);
+
+        //when
+        EventsPagingInfo result = eventService.getEvents(pageable, user.getId());
+
+        //then
+        assertThat(result.getContent())
+                .extracting("author")
+                .containsExactlyInAnyOrder("테스터3", "테스터4", "테스터5");
+    }
+
+    @DisplayName("모임에 참여한 회원이 없을 경우 참여자 수는 0명이다.")
+    @Test
+    void getEventsWhenNothingApplicants() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임", 2);
+        eventRepository.save(event);
+
+        Pageable pageable = PageRequest.of(0, 1);
+
+        //when
+        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
+
+        //then
+        assertThat(result.getContent()).hasSize(1)
+                .extracting("applicants")
+                .containsExactly(0L);
     }
 
     @DisplayName("모임을 수정 한다.")

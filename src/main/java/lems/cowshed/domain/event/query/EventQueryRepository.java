@@ -1,10 +1,10 @@
 package lems.cowshed.domain.event.query;
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.event.response.*;
+import lems.cowshed.domain.event.Event;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -30,24 +30,22 @@ public class EventQueryRepository {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    public EventInfo findEventWithApplicantUserIds(Long eventId) {
+    public Event findEventWithParticipants(Long eventId){
         return queryFactory
-                .select(new QEventInfo(
-                        event.id,
-                        event.name,
-                        event.author,
-                        event.category,
-                        event.createdDateTime,
-                        event.content,
-                        event.capacity,
-                        userEvent.event.id.count(),
-                        Expressions.stringTemplate("GROUP_CONCAT({0})", userEvent.user.id)
-                )).from(userEvent)
-                .rightJoin(userEvent.event, event)
-                .on(userEvent.event.id.eq(event.id))
+                .select(event)
+                .from(event)
+                .leftJoin(event.participants, userEvent).fetchJoin()
                 .where(event.id.eq(eventId))
-                .groupBy(event.id)
                 .fetchOne();
+    }
+
+    public List<Long> findParticipantUserIds(Long eventId){
+        return queryFactory
+                .select(userEvent.user.id)
+                .from(userEvent)
+                .join(userEvent.event, event)
+                .where(event.id.eq(eventId))
+                .fetch();
     }
 
     public List<ParticipatingEventSimpleInfoQuery> findEventsParticipatedByUserWithApplicants(List<Long> eventIds) {

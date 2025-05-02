@@ -5,10 +5,10 @@ import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Category;
+import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -32,6 +32,8 @@ public class EventInfo {
     long applicants;
     @Schema(description = "북마크 여부", example = "BOOKMARK")
     BookmarkStatus bookmarkStatus;
+    @Schema(description = "모임 대표 이미지 주소", example = "URL 주소")
+    private String accessUrl;
     @Schema(description = "내가 등록한 모임 인지 여부", example = "true")
     boolean isEventRegistrant;
     @Schema(description = "내가 참여한 모임 인지 여부", example = "true")
@@ -42,7 +44,7 @@ public class EventInfo {
 
     @QueryProjection
     public EventInfo(Long eventId, String name, String author, Category category,
-                     LocalDateTime createdDate, String content,
+                     LocalDateTime createdDate, String content, String accessUrl,
                      int capacity, long applicants, String userList) {
         this.eventId = eventId;
         this.name = name;
@@ -53,11 +55,12 @@ public class EventInfo {
         this.capacity = capacity;
         this.applicants = applicants;
         this.userList = userList;
+        this.accessUrl = accessUrl;
     }
 
     @Builder
     private EventInfo(Long eventId, String author, String name, Category category,
-                      LocalDateTime createdDate,String content, int capacity, long applicants,
+                      LocalDateTime createdDate,String content, int capacity, long applicants, String accessUrl,
                       BookmarkStatus bookmarkStatus, boolean isEventRegistrant, boolean isParticipated) {
         this.eventId = eventId;
         this.name = name;
@@ -72,19 +75,21 @@ public class EventInfo {
         this.isParticipated = isParticipated;
     }
 
-    public boolean isEventRegistrant(String username) {
-        return username.equals(author);
+    public static EventInfo of(Event event, int participantsCount, BookmarkStatus bookmarkStatus,
+                                boolean isRegistrant, boolean isParticipant) {
+        return EventInfo.builder()
+                .eventId(event.getId())
+                .name(event.getName())
+                .author(event.getAuthor())
+                .category(event.getCategory())
+                .createdDate(event.getCreatedDateTime())
+                .content(event.getContent())
+                .capacity(event.getCapacity())
+                .applicants(participantsCount)
+                .bookmarkStatus(bookmarkStatus)
+                .isEventRegistrant(isRegistrant)
+                .isParticipated(isParticipant)
+                .build();
     }
 
-    public void updateRegistrant(boolean isRegistrant) {
-        if(isRegistrant) this.isEventRegistrant = true;
-    }
-
-    public void updateBookmarkStatus(BookmarkStatus bookmarkStatus) {
-        this.bookmarkStatus = bookmarkStatus;
-    }
-
-    public void updateParticipated(boolean isParticipated) {
-        this.isParticipated = isParticipated;
-    }
 }
