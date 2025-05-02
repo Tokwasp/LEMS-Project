@@ -1,24 +1,19 @@
 package lems.cowshed.domain.event;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Transactional
-@SpringBootTest
-@ActiveProfiles("test")
-class EventRepositoryTest {
+class EventRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     EventRepository eventRepository;

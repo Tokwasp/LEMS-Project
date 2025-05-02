@@ -1,5 +1,6 @@
 package lems.cowshed.service.user;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
@@ -19,10 +20,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,10 +30,7 @@ import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
 import static lems.cowshed.domain.user.Mbti.INTP;
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
-@ActiveProfiles("test")
-class UserServiceTest {
+class UserServiceTest extends IntegrationTestSupport {
 
     @Autowired
     UserService userService;

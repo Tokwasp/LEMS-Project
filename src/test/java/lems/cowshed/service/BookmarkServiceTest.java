@@ -1,5 +1,6 @@
 package lems.cowshed.service;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
@@ -9,17 +10,11 @@ import lems.cowshed.domain.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static org.assertj.core.api.Assertions.*;
 
-@Transactional
-@SpringBootTest
-@ActiveProfiles("test")
-class BookmarkServiceTest {
+class BookmarkServiceTest extends IntegrationTestSupport {
 
     @Autowired
     BookmarkService bookmarkService;

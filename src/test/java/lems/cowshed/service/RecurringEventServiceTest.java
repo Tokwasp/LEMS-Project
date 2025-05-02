@@ -1,5 +1,6 @@
 package lems.cowshed.service;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.recurring.event.RecurringEventSaveRequest;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
@@ -8,19 +9,13 @@ import lems.cowshed.domain.recurring.event.RecurringEventRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Transactional
-@ActiveProfiles("test")
-@SpringBootTest
-class RecurringEventServiceTest {
+class RecurringEventServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private RecurringEventService recurringEventService;

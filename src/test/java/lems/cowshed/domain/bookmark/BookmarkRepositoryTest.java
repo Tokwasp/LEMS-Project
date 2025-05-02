@@ -1,26 +1,19 @@
 package lems.cowshed.domain.bookmark;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Transactional
-@SpringBootTest
-@ActiveProfiles("test")
-class BookmarkRepositoryTest {
+class BookmarkRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     UserRepository userRepository;

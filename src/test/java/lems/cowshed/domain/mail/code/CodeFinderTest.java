@@ -1,23 +1,14 @@
 package lems.cowshed.domain.mail.code;
 
-import org.aspectj.apache.bcel.classfile.Code;
-import org.junit.jupiter.api.Assertions;
+import lems.cowshed.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
-@ActiveProfiles("test")
-class CodeFinderTest {
+class CodeFinderTest extends IntegrationTestSupport {
 
     @Autowired
     CodeFinder codeFinder;
