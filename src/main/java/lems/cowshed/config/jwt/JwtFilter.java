@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.service.CustomUserDetails;
+import lems.cowshed.domain.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

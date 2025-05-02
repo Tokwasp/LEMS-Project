@@ -8,8 +8,8 @@ import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.service.CustomUserDetails;
-import lems.cowshed.service.EventService;
+import lems.cowshed.domain.user.CustomUserDetails;
+import lems.cowshed.service.event.EventService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;

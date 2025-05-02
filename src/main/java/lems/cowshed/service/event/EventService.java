@@ -1,4 +1,4 @@
-package lems.cowshed.service;
+package lems.cowshed.service.event;
 
 import lems.cowshed.api.controller.dto.event.EventIdProvider;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
@@ -15,8 +15,6 @@ import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
-import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.userevent.Participants;
 import lems.cowshed.domain.userevent.UserEvent;
 import lems.cowshed.domain.userevent.UserEventRepository;
@@ -43,7 +41,6 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
-    private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final UserEventRepository userEventRepository;
     private final AwsS3Util awsS3Util;
@@ -86,23 +83,6 @@ public class EventService {
         return EventsPagingInfo.of(result, eventsToLookFor.isLast());
     }
 
-    public long saveEventParticipation(Long eventId, Long userId) {
-        Event event = eventRepository.findPessimisticLockById(eventId)
-                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
-
-        long participantsCount = userEventRepository.countParticipantByEventId(event.getId());
-        if (isNotPossibleParticipateToEvent(event, participantsCount)) {
-            throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
-        }
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
-
-        UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
-        return userEvent.getId();
-    }
-
     public void editEvent(Long eventId, EventUpdateRequestDto requestDto, String userName) {
         Event event = eventRepository.findByIdAndAuthor(eventId, userName)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
@@ -142,13 +122,6 @@ public class EventService {
         return ParticipatingEventsPagingInfo.from(bookmarkedResponse);
     }
 
-    public void deleteEventParticipation(Long eventId, Long userId) {
-        UserEvent userEvent = userEventRepository.findByEventIdAndUserId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException(USER_EVENT, USER_EVENT_NOT_FOUND));
-
-        userEventRepository.delete(userEvent);
-    }
-
     public EventsSearchInfo searchEventsByNameOrContent(String content, Long userId) {
         List<EventSimpleInfo> EventWithbookmarkStatus = eventQueryRepository.searchEventsWithBookmarkStatus(content, userId);
 
@@ -164,10 +137,6 @@ public class EventService {
 
     private boolean isNotRegisteredEventByUser(Event event, String userName) {
         return event.isNotSameAuthor(userName);
-    }
-
-    private boolean isNotPossibleParticipateToEvent(Event event, long capacity) {
-        return event.isOverCapacity(capacity);
     }
 
     private boolean isParticipatedEvent(Long userId, List<Long> participantUserIds) {

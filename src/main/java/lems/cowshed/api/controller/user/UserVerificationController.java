@@ -6,7 +6,7 @@ import lems.cowshed.api.controller.dto.verification.response.VerificationResultI
 import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.service.MailService;
-import lems.cowshed.service.UserService;
+import lems.cowshed.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

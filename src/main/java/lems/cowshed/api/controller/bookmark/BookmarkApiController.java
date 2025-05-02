@@ -2,7 +2,7 @@ package lems.cowshed.api.controller.bookmark;
 
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.service.BookmarkService;
-import lems.cowshed.service.CustomUserDetails;
+import lems.cowshed.domain.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
