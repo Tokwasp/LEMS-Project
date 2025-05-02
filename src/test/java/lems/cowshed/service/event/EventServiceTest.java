@@ -9,8 +9,8 @@ import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEvent;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipant;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.NotFoundException;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.*;
@@ -48,14 +48,14 @@ class EventServiceTest {
     UserRepository userRepository;
 
     @Autowired
-    UserEventRepository userEventRepository;
+    EventParticipantRepository eventParticipantRepository;
 
     @Autowired
     BookmarkRepository bookmarkRepository;
 
     @BeforeEach
     void cleanUp() {
-        userEventRepository.deleteAllInBatch();
+        eventParticipantRepository.deleteAllInBatch();
         bookmarkRepository.deleteAllInBatch();
         eventRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
@@ -118,8 +118,8 @@ class EventServiceTest {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        eventParticipantRepository.save(eventParticipant);
 
         //when
         EventInfo response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
@@ -387,10 +387,10 @@ class EventServiceTest {
         Event eventWithOneParticipant = createEvent("테스터2", searchKeyword);
         eventRepository.saveAll(List.of(eventWithTwoParticipants, eventWithOneParticipant));
 
-        UserEvent participation1 = UserEvent.of(user1, eventWithTwoParticipants);
-        UserEvent participation2 = UserEvent.of(user2, eventWithTwoParticipants);
-        UserEvent participation3 = UserEvent.of(user1, eventWithOneParticipant);
-        userEventRepository.saveAll(List.of(participation1, participation2, participation3));
+        EventParticipant participation1 = EventParticipant.of(user1, eventWithTwoParticipants);
+        EventParticipant participation2 = EventParticipant.of(user2, eventWithTwoParticipants);
+        EventParticipant participation3 = EventParticipant.of(user1, eventWithOneParticipant);
+        eventParticipantRepository.saveAll(List.of(participation1, participation2, participation3));
 
         //when
         List<EventSimpleInfo> result = eventService.searchEventsByNameOrContent(searchKeyword, user1.getId()).getSearchResults();

@@ -5,8 +5,8 @@ import lems.cowshed.domain.event.EventJpaRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEvent;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipant;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ class UserQueryRepositoryTest {
     UserQueryRepository userQueryRepository;
 
     @Autowired
-    UserEventRepository userEventRepository;
+    EventParticipantRepository eventParticipantRepository;
 
     @DisplayName("모임에 참여한 회원들을 조회 한다.")
     @Test
@@ -44,8 +44,8 @@ class UserQueryRepositoryTest {
         userRepository.save(user);
         Event event = createEvent("산책 모임", "테스터");
         eventJpaRepository.save(event);
-        UserEvent userEvent = UserEvent.of(user, event);
-        userEventRepository.save(userEvent);
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        eventParticipantRepository.save(eventParticipant);
 
         //when
         List<EventParticipantQueryDto> result = userQueryRepository.findParticipants(event.getId());
@@ -80,12 +80,12 @@ class UserQueryRepositoryTest {
         User user2 = createUser("테스터2", ESFJ);
         Event event = createEvent("산책 모임", "테스터");
 
-        UserEvent userEvent = UserEvent.of(user, event);
-        UserEvent userEvent2 = UserEvent.of(user2, event);
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        EventParticipant eventParticipant2 = EventParticipant.of(user2, event);
 
         userRepository.saveAll(List.of(user, user2));
         eventJpaRepository.save(event);
-        userEventRepository.saveAll(List.of(userEvent, userEvent2));
+        eventParticipantRepository.saveAll(List.of(eventParticipant, eventParticipant2));
 
         //when
         List<EventParticipantQueryDto> result = userQueryRepository.findParticipants(event.getId());

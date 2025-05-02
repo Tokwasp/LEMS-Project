@@ -5,12 +5,9 @@ import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.recurring.event.RecurringEventSaveRequest;
 import lems.cowshed.service.RecurringEventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/recurring-event")
+@RequestMapping("/events/{event-id}/regular")
 @RequiredArgsConstructor
 @RestController
 public class RecurringEventController implements RecurringEventSpecification {
@@ -18,8 +15,9 @@ public class RecurringEventController implements RecurringEventSpecification {
     private final RecurringEventService recurringEventService;
 
     @PostMapping
-    public CommonResponse<Void> saveRecurringEvent(@Valid @RequestBody RecurringEventSaveRequest request) {
-        recurringEventService.save(request);
+    public CommonResponse<Void> saveRecurringEvent(@Valid @RequestBody RecurringEventSaveRequest request,
+                                                   @PathVariable("event-id") Long eventId) {
+        recurringEventService.save(request, eventId);
         return CommonResponse.success();
     }
 }

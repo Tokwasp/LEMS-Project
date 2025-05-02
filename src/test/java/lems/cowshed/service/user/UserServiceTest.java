@@ -11,8 +11,8 @@ import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEvent;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipant;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import org.junit.jupiter.api.*;
@@ -47,13 +47,13 @@ class UserServiceTest {
     @Autowired
     EventRepository eventRepository;
     @Autowired
-    UserEventRepository userEventRepository;
+    EventParticipantRepository eventParticipantRepository;
     @Autowired
     BookmarkRepository bookmarkRepository;
 
     @BeforeEach
     void cleanUp(){
-        userEventRepository.deleteAllInBatch();
+        eventParticipantRepository.deleteAllInBatch();
         bookmarkRepository.deleteAllInBatch();
         eventRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
@@ -220,9 +220,9 @@ class UserServiceTest {
         User user = createUser("테스터", INTP);
         userRepository.save(user);
 
-        UserEvent userEvent = UserEvent.of(user, event);
-        UserEvent userEvent2 = UserEvent.of(user, event2);
-        userEventRepository.saveAll(List.of(userEvent, userEvent2));
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        EventParticipant eventParticipant2 = EventParticipant.of(user, event2);
+        eventParticipantRepository.saveAll(List.of(eventParticipant, eventParticipant2));
 
         Bookmark bookmark = createBookmark(event, user);
         bookmarkRepository.save(bookmark);

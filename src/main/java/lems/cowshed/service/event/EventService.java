@@ -15,9 +15,9 @@ import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
-import lems.cowshed.domain.userevent.Participants;
-import lems.cowshed.domain.userevent.UserEvent;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.Participants;
+import lems.cowshed.domain.event.participation.EventParticipant;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final UserEventRepository userEventRepository;
+    private final EventParticipantRepository eventParticipantRepository;
     private final AwsS3Util awsS3Util;
 
     public void saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
@@ -73,7 +73,7 @@ public class EventService {
         Events events = Events.of(content);
         List<Long> eventIds = events.extractIds();
 
-        List<UserEvent> participatedEvent = userEventRepository.findEventParticipationByEventIdIn(eventIds);
+        List<EventParticipant> participatedEvent = eventParticipantRepository.findEventParticipationByEventIdIn(eventIds);
         Participants participants = Participants.of(participatedEvent);
         Map<Long, Long> participantsCountByGroupId = participants.findNumberOfParticipants();
 
@@ -126,7 +126,7 @@ public class EventService {
         List<EventSimpleInfo> EventWithbookmarkStatus = eventQueryRepository.searchEventsWithBookmarkStatus(content, userId);
 
         List<Long> eventIdList = getEventIds(EventWithbookmarkStatus);
-        List<UserEvent> participants = userEventRepository.findEventParticipationByEventIdIn(eventIdList);
+        List<EventParticipant> participants = eventParticipantRepository.findEventParticipationByEventIdIn(eventIdList);
         Map<Long, Long> participantsCountByGroupId = getNumberOfParticipants(participants);
 
         updateApplicants(EventWithbookmarkStatus, participantsCountByGroupId);
@@ -166,7 +166,7 @@ public class EventService {
                 .toList();
     }
 
-    private Map<Long, Long> getNumberOfParticipants(List<UserEvent> participants) {
+    private Map<Long, Long> getNumberOfParticipants(List<EventParticipant> participants) {
         return participants.stream()
                 .collect(Collectors.groupingBy(
                         userEvent -> userEvent.getEvent().getId()

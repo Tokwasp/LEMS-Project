@@ -3,6 +3,7 @@ package lems.cowshed.api.controller.dto.recurring.event;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.recurring.event.RecurringEvent;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,12 +33,13 @@ public class RecurringEventSaveRequest {
         this.capacity = capacity;
     }
 
-    public RecurringEvent toEntity() {
+    public RecurringEvent toEntity(Event event) {
         return RecurringEvent.builder()
                 .name(name)
                 .date(date)
                 .location(location)
                 .capacity(capacity)
+                .event(event)
                 .build();
     }
 }

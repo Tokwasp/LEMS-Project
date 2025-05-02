@@ -1,7 +1,7 @@
 package lems.cowshed.domain.event;
 
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,14 +24,14 @@ class EventRepositoryTest {
     EventRepository eventRepository;
 
     @Autowired
-    UserEventRepository userEventRepository;
+    EventParticipantRepository eventParticipantRepository;
 
     @Autowired
     UserRepository userRepository;
 
     @BeforeEach
     void cleanUp(){
-        userEventRepository.deleteAllInBatch();
+        eventParticipantRepository.deleteAllInBatch();
         eventRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }

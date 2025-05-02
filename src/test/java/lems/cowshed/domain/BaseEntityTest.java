@@ -6,7 +6,7 @@ import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.userevent.UserEventRepository;
+import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -34,7 +34,7 @@ class BaseEntityTest {
     private UserRepository userRepository;
 
     @Autowired
-    private UserEventRepository userEventRepository;
+    private EventParticipantRepository eventParticipantRepository;
 
     @Autowired
     private BookmarkRepository bookmarkRepository;
@@ -42,7 +42,7 @@ class BaseEntityTest {
     @BeforeEach
     public void cleanUp(){
         bookmarkRepository.deleteAllInBatch();
-        userEventRepository.deleteAllInBatch();
+        eventParticipantRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
 

@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.userevent.UserEvent;
 import lombok.*;
 
 import java.time.LocalDate;

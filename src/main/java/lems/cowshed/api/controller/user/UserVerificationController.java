@@ -1,8 +1,8 @@
 package lems.cowshed.api.controller.user;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.verification.request.MailVerificationRequest;
-import lems.cowshed.api.controller.dto.verification.response.VerificationResultInfo;
+import lems.cowshed.api.controller.dto.user.verification.request.MailVerificationRequest;
+import lems.cowshed.api.controller.dto.user.verification.response.VerificationResultInfo;
 import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.service.MailService;

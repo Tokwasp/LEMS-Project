@@ -2,7 +2,8 @@ package lems.cowshed.domain.recurring.event;
 
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
-import lems.cowshed.domain.userevent.UserEvent;
+import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.participation.EventParticipant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,26 +25,26 @@ public class RecurringEvent extends BaseEntity {
     private int capacity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userEvent_id")
-    private UserEvent userEvent;
+    @JoinColumn(name = "event_id")
+    private Event event;
 
     @Builder
-    private RecurringEvent(String name, LocalDate date, String location, int capacity, UserEvent userEvent) {
+    private RecurringEvent(String name, LocalDate date, String location, int capacity, Event event) {
         this.name = name;
         this.date = date;
         this.location = location;
         this.capacity = capacity;
-        this.userEvent = userEvent;
+        this.event = event;
     }
 
     public static RecurringEvent of(String name, LocalDate date, String location,
-                                    int capacity, UserEvent userEvent){
+                                    int capacity, Event event){
         return RecurringEvent.builder()
                 .name(name)
                 .date(date)
                 .location(location)
                 .capacity(capacity)
-                .userEvent(userEvent)
+                .event(event)
                 .build();
     }
 }

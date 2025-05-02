@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Max;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.UploadFile;
-import lems.cowshed.domain.userevent.UserEvent;
+import lems.cowshed.domain.event.participation.EventParticipant;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class Event extends BaseEntity {
     private UploadFile uploadFile;
 
     @OneToMany(mappedBy = "event")
-    private List<UserEvent> participants = new ArrayList<>();
+    private List<EventParticipant> participants = new ArrayList<>();
 
     @Builder
     public Event(String name, Category category, String author, String content,

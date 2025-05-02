@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.event.userevent;
+package lems.cowshed.api.controller.event.participation;
 
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.domain.user.CustomUserDetails;
@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/event/{event-id}/participation")
+@RequestMapping("/events/{event-id}/participation")
 @RequiredArgsConstructor
 @RestController
-public class UserEventController implements UserEventSpecification{
+public class EventParticipationController implements EventParticipationSpecification {
 
     private final EventParticipationService eventParticipationService;
 
