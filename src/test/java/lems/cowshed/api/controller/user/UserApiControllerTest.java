@@ -1,21 +1,12 @@
 package lems.cowshed.api.controller.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lems.cowshed.ControllerTestSupport;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.domain.user.Mbti;
-import lems.cowshed.service.BookmarkService;
-import lems.cowshed.service.MailService;
-import lems.cowshed.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import static lems.cowshed.domain.user.Gender.*;
@@ -23,27 +14,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WithMockUser
-@WebMvcTest(controllers = UserApiController.class)
-class UserApiControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private UserService userService;
-
-    @MockBean
-    private CodeFinder codeFinder;
-
-    @MockBean
-    private BookmarkService bookmarkService;
-
-    @MockBean
-    private MailService mailService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+class UserApiControllerTest extends ControllerTestSupport {
 
     @DisplayName("신규 회원이 회원 가입을 합니다.")
     @Test

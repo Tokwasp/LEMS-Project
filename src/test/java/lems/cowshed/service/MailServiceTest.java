@@ -1,23 +1,18 @@
 package lems.cowshed.service;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.user.verification.response.VerificationResultInfo;
 import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.mail.MailVerificationStorage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Transactional
-@ActiveProfiles("test")
-@SpringBootTest
-class MailServiceTest {
+class MailServiceTest extends IntegrationTestSupport {
 
     @Autowired
     MailService mailService;

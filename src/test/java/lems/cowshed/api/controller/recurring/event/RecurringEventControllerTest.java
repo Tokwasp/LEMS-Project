@@ -1,16 +1,10 @@
 package lems.cowshed.api.controller.recurring.event;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lems.cowshed.ControllerTestSupport;
 import lems.cowshed.api.controller.dto.recurring.event.RecurringEventSaveRequest;
-import lems.cowshed.service.RecurringEventService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 
@@ -18,18 +12,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WithMockUser
-@WebMvcTest(controllers = RecurringEventController.class)
-class RecurringEventControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private RecurringEventService recurringEventService;
+class RecurringEventControllerTest extends ControllerTestSupport {
 
     @DisplayName("정기 모임을 등록 합니다.")
     @Test

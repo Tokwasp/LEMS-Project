@@ -1,5 +1,6 @@
 package lems.cowshed.domain;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
@@ -13,19 +14,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Transactional
-@SpringBootTest
-@ActiveProfiles("test")
-class BaseEntityTest {
+class BaseEntityTest extends IntegrationTestSupport {
 
     @Autowired
     private UserService userService;

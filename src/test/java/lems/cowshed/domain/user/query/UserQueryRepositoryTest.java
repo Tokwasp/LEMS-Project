@@ -1,5 +1,6 @@
 package lems.cowshed.domain.user.query;
 
+import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventJpaRepository;
 import lems.cowshed.domain.user.Mbti;
@@ -10,19 +11,13 @@ import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static lems.cowshed.domain.user.Mbti.*;
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
-@Transactional
-@ActiveProfiles("test")
-class UserQueryRepositoryTest {
+class UserQueryRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     EventJpaRepository eventJpaRepository;

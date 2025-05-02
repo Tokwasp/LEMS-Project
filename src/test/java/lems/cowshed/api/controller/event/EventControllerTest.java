@@ -1,6 +1,6 @@
 package lems.cowshed.api.controller.event;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lems.cowshed.ControllerTestSupport;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
 import lems.cowshed.api.controller.dto.event.response.EventsSearchInfo;
@@ -9,15 +9,9 @@ import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.CustomUserDetails;
-import lems.cowshed.service.event.EventService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -30,18 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WithMockUser
-@WebMvcTest(EventController.class)
-class EventControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private EventService eventService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+class EventControllerTest extends ControllerTestSupport {
 
     @DisplayName("모임을 등록 합니다.")
     @Test
