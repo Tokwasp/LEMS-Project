@@ -48,6 +48,27 @@ public class EventService {
     private final UserEventRepository userEventRepository;
     private final AwsS3Util awsS3Util;
 
+    public void saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
+        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
+        Event event = requestDto.toEntity(username, uploadFile);
+
+        eventRepository.save(event);
+    }
+
+    public EventInfo getEvent(Long eventId, Long userId, String username) {
+        Event event = eventQueryRepository.findEventWithParticipants(eventId);
+        List<Long> participantUserIds = eventQueryRepository.findParticipantUserIds(eventId);
+
+        boolean isRegistrant = event.getAuthor().equals(username);
+        boolean isParticipant = isParticipatedEvent(userId, participantUserIds);
+        int participantsCount = event.getParticipants().size();
+        BookmarkStatus bookmarkStatus = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK)
+                .map(Bookmark::getStatus)
+                .orElse(NOT_BOOKMARK);
+
+        return EventInfo.of(event, participantsCount, bookmarkStatus, isRegistrant, isParticipant);
+    }
+
     public EventsPagingInfo getEvents(Pageable Pageable, Long userId) {
         Slice<Event> eventsToLookFor = eventRepository.findEventsBy(Pageable);
 
@@ -65,13 +86,6 @@ public class EventService {
         return EventsPagingInfo.of(result, eventsToLookFor.isLast());
     }
 
-    public void saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
-        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
-        Event event = requestDto.toEntity(username, uploadFile);
-
-        eventRepository.save(event);
-    }
-
     public long saveEventParticipation(Long eventId, Long userId) {
         Event event = eventRepository.findPessimisticLockById(eventId)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
@@ -87,22 +101,6 @@ public class EventService {
         UserEvent userEvent = UserEvent.of(user, event);
         userEventRepository.save(userEvent);
         return userEvent.getId();
-    }
-
-    public EventInfo getEvent(Long eventId, Long userId, String username) {
-        EventInfo response = eventQueryRepository.findEventWithApplicantUserIds(eventId);
-
-        Optional<Bookmark> bookmark = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK);
-        BookmarkStatus bookmarkStatus = bookmark.isPresent() ? BOOKMARK : NOT_BOOKMARK;
-        response.updateBookmarkStatus(bookmarkStatus);
-
-        boolean isEventRegistrant = response.isEventRegistrant(username);
-        response.updateRegistrant(isEventRegistrant);
-
-        boolean isParticipated = findIsParticipated(userId, response.getUserList());
-        response.updateParticipated(isParticipated);
-
-        return response;
     }
 
     public void editEvent(Long eventId, EventUpdateRequestDto requestDto, String userName) {
@@ -172,12 +170,9 @@ public class EventService {
         return event.isOverCapacity(capacity);
     }
 
-    private Boolean findIsParticipated(Long userId, String userIds) {
-        return Optional.ofNullable(userIds)
-                .map(s -> Arrays.stream(userIds.split(","))
-                        .map(Long::parseLong)
-                        .anyMatch(id -> id.equals(userId)))
-                .orElse(false);
+    private boolean isParticipatedEvent(Long userId, List<Long> participantUserIds) {
+        return participantUserIds.stream()
+                .anyMatch(id -> Objects.equals(userId, id));
     }
 
     private <T extends EventIdProvider> List<Long> getEventIds(List<T> events){
