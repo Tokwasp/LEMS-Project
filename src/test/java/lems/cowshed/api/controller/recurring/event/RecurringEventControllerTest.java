@@ -39,7 +39,7 @@ class RecurringEventControllerTest {
 
         //when then
         mockMvc.perform(
-                post("/recurring-event")
+                post("/events/1/regular")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .with(csrf())
@@ -61,7 +61,7 @@ class RecurringEventControllerTest {
 
         //when then
         mockMvc.perform(
-                        post("/recurring-event")
+                        post("/events/1/regular")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                                 .with(csrf())
@@ -84,7 +84,7 @@ class RecurringEventControllerTest {
 
         //when then
         mockMvc.perform(
-                        post("/recurring-event")
+                        post("/events/1/regular")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                                 .with(csrf())
@@ -107,7 +107,7 @@ class RecurringEventControllerTest {
 
         //when then
         mockMvc.perform(
-                        post("/recurring-event")
+                        post("/events/1/regular")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                                 .with(csrf())
@@ -129,7 +129,7 @@ class RecurringEventControllerTest {
 
         //when then
         mockMvc.perform(
-                        post("/recurring-event")
+                        post("/events/1/regular")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                                 .with(csrf())
