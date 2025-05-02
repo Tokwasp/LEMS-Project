@@ -1,7 +1,8 @@
-package lems.cowshed.service;
+package lems.cowshed.service.user;
 
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.domain.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

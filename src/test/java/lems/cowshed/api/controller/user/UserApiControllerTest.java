@@ -7,7 +7,7 @@ import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.service.BookmarkService;
 import lems.cowshed.service.MailService;
-import lems.cowshed.service.UserService;
+import lems.cowshed.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

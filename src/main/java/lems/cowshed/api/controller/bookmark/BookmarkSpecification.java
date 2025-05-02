@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
-import lems.cowshed.service.CustomUserDetails;
+import lems.cowshed.domain.user.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 

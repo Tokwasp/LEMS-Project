@@ -1,4 +1,4 @@
-package lems.cowshed.service;
+package lems.cowshed.service.user;
 
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
