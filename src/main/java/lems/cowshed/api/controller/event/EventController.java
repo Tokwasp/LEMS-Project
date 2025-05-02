@@ -4,8 +4,8 @@ import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.event.response.*;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.service.CustomUserDetails;
-import lems.cowshed.service.EventService;
+import lems.cowshed.domain.user.CustomUserDetails;
+import lems.cowshed.service.event.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -65,13 +65,6 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(searchEvent);
     }
 
-    @PostMapping("/{event-id}/join")
-    public CommonResponse<Void> saveEventParticipation(@PathVariable("event-id") Long eventId,
-                                                       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        eventService.saveEventParticipation(eventId, customUserDetails.getUserId());
-        return CommonResponse.success();
-    }
-
     @PatchMapping("/{event-id}")
     public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId,
                                           @RequestBody @Validated EventUpdateRequestDto requestDto,
@@ -84,13 +77,6 @@ public class EventController implements EventSpecification {
     public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId,
                                             @AuthenticationPrincipal CustomUserDetails customUserDetails){
         eventService.deleteEvent(eventId, customUserDetails.getUsername());
-        return CommonResponse.success();
-    }
-
-    @DeleteMapping("{event-id}/join")
-    public CommonResponse<Void> deleteEventParticipation(@PathVariable("event-id") Long eventId,
-                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        eventService.deleteEventParticipation(eventId, customUserDetails.getUserId());
         return CommonResponse.success();
     }
 
