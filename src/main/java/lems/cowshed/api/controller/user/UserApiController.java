@@ -30,18 +30,6 @@ public class UserApiController implements UserSpecification{
     private final MailService mailService;
     private final CodeFinder codeFinder;
 
-    @GetMapping("/my-page")
-    public CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        UserMyPageInfo myPage = userService.findMyPage(customUserDetails.getUserId());
-        return CommonResponse.success(myPage);
-    }
-
-    @GetMapping("/events/{event-id}")
-    public CommonResponse<ParticipatingUserListInfo> findParticipants(@PathVariable("event-id") Long eventId){
-        ParticipatingUserListInfo participatingUser = userService.findParticipants(eventId);
-        return CommonResponse.success(participatingUser);
-    }
-
     @PostMapping("/signUp")
     public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequestDto request) {
         Mail mail = Mail.of(request.getEmail(), request.getCode());
@@ -65,6 +53,18 @@ public class UserApiController implements UserSpecification{
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
         userService.editUser(userEditRequestDto, customUserDetails.getUserId(), customUserDetails.getUsername());
         return CommonResponse.success();
+    }
+
+    @GetMapping("/events/{event-id}")
+    public CommonResponse<EventParticipantsInfo> getEventParticipants(@PathVariable("event-id") Long eventId){
+        EventParticipantsInfo participantsInfo = userService.getEventParticipants(eventId);
+        return CommonResponse.success(participantsInfo);
+    }
+
+    @GetMapping("/my-page")
+    public CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        UserMyPageInfo myPage = userService.findMyPage(customUserDetails.getUserId());
+        return CommonResponse.success(myPage);
     }
 
     @PostMapping("/password-reset")

@@ -3,7 +3,7 @@ package lems.cowshed.service.user;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.ParticipatingUserListInfo;
+import lems.cowshed.api.controller.dto.user.response.EventParticipantsInfo;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
 import lems.cowshed.api.controller.dto.user.response.UserInfo;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
@@ -12,7 +12,7 @@ import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.user.query.EventParticipantQueryDto;
+import lems.cowshed.api.controller.dto.user.response.query.EventParticipantQueryDto;
 import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.exception.*;
@@ -37,39 +37,18 @@ public class UserService {
     private final EventQueryRepository eventQueryRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserMyPageInfo findMyPage(Long userId) {
-        MyPageUserQueryDto userDto = userQueryRepository.findUser(userId);
-
-        List<ParticipatingEventSimpleInfoQuery> participatedEvents = eventQueryRepository
-                .findEventsParticipatedByUserWithApplicants(eventQueryRepository.getEventIdsParticipatedByUser(userId, PageRequest.of(0, 5)));
-        setBookmarkStatus(participatedEvents, eventQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
-
-        List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList = eventQueryRepository
-                .findBookmarkedEventsFromUser(userId, PageRequest.of(0, 5));
-
-        Map<Long, Long> participantsCountByGroupId = eventQueryRepository.findEventParticipantCountByEventIds(mapToEventIdList(bookmarkedEventList));
-        setApplicants(participantsCountByGroupId, bookmarkedEventList);
-
-        return UserMyPageInfo.of(userDto, participatedEvents, bookmarkedEventList);
-    }
-
-    public ParticipatingUserListInfo findParticipants(Long eventId){
-        List<EventParticipantQueryDto> userEventDtoList = userQueryRepository.findParticipants(eventId);
-        return new ParticipatingUserListInfo(userEventDtoList);
-    }
-
     public void signUp(UserSaveRequestDto request) {
         if(userRepository.existsByEmailOrUsername(request.getEmail(), request.getUsername())){
             throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
         }
-        
+
         User user = request.toEntityForRegister(bCryptPasswordEncoder, Role.ROLE_USER);
         userRepository.save(user);
     }
 
     public void login(UserLoginRequestDto loginDto){
-         String email = loginDto.getEmail();
-         User user = userRepository.findByEmail(email)
+        String email = loginDto.getEmail();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_NOT_FOUND));
 
         if(isPasswordValidationFail(loginDto, user)){
@@ -88,6 +67,27 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
         user.modifyContents(editDto);
+    }
+
+    public EventParticipantsInfo getEventParticipants(Long eventId){
+        List<EventParticipantQueryDto> eventParticipants = userQueryRepository.getEventParticipants(eventId);
+        return EventParticipantsInfo.of(eventParticipants, eventParticipants.size());
+    }
+
+    public UserMyPageInfo findMyPage(Long userId) {
+        MyPageUserQueryDto userDto = userQueryRepository.findUser(userId);
+
+        List<ParticipatingEventSimpleInfoQuery> participatedEvents = eventQueryRepository
+                .findEventsParticipatedByUserWithApplicants(eventQueryRepository.getEventIdsParticipatedByUser(userId, PageRequest.of(0, 5)));
+        setBookmarkStatus(participatedEvents, eventQueryRepository.getBookmarkedEventIdSet(userId, getParticipatedEventIds(participatedEvents)));
+
+        List<BookmarkedEventSimpleInfoQuery> bookmarkedEventList = eventQueryRepository
+                .findBookmarkedEventsFromUser(userId, PageRequest.of(0, 5));
+
+        Map<Long, Long> participantsCountByGroupId = eventQueryRepository.findEventParticipantCountByEventIds(mapToEventIdList(bookmarkedEventList));
+        setApplicants(participantsCountByGroupId, bookmarkedEventList);
+
+        return UserMyPageInfo.of(userDto, participatedEvents, bookmarkedEventList);
     }
 
     public User findUserFrom(String email) {

@@ -2,6 +2,8 @@ package lems.cowshed.domain.user.query;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lems.cowshed.api.controller.dto.user.response.query.EventParticipantQueryDto;
+import lems.cowshed.api.controller.dto.user.response.query.QEventParticipantQueryDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -20,12 +22,11 @@ public class UserQueryRepository {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    // 특정 모임에 참여한 회원들 정보
-    public List<EventParticipantQueryDto> findParticipants (Long eventId) {
+    public List<EventParticipantQueryDto> getEventParticipants(Long eventId) {
         return queryFactory
                 .select(new QEventParticipantQueryDto(
                         user.username.as("name"),
-                        user.gender
+                        user.mbti
                 ))
                 .from(eventParticipant)
                 .join(eventParticipant.user, user)
