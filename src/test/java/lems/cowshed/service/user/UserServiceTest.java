@@ -4,6 +4,7 @@ import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.api.controller.dto.user.response.EventParticipantsInfo;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
@@ -16,6 +17,7 @@ import lems.cowshed.domain.event.participation.EventParticipant;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -27,6 +29,7 @@ import java.util.List;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
+import static lems.cowshed.domain.user.Mbti.ESFJ;
 import static lems.cowshed.domain.user.Mbti.INTP;
 import static org.assertj.core.api.Assertions.*;
 
@@ -185,6 +188,32 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> userService.editUser(request, 2L, user.getUsername()))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("회원을 찾지 못했습니다.");
+    }
+
+    @DisplayName("모임에 참여한 회원들을 조회 할때 두명의 회원이 참여한 경우 모임의 참여 인원수는 2명 이다.")
+    @Test
+    void getEventParticipants_WhenTwoUsersParticipate_ThenCountIsTwo() {
+        //given
+        User user = createUser("테스터", INTP);
+        User user2 = createUser("테스터2", ESFJ);
+        Event event = createEvent("산책 모임", "테스터");
+
+        EventParticipant eventParticipant = EventParticipant.of(user, event);
+        EventParticipant eventParticipant2 = EventParticipant.of(user2, event);
+
+        userRepository.saveAll(List.of(user, user2));
+        eventRepository.save(event);
+        eventParticipantRepository.saveAll(List.of(eventParticipant, eventParticipant2));
+
+        //when
+        EventParticipantsInfo participantsInfo = userService.getEventParticipants(event.getId());
+
+        //then
+        assertThat(participantsInfo.getParticipantCount()).isEqualTo(2);
+        assertThat(participantsInfo.getEventParticipants())
+                .extracting("name", "mbti")
+                .containsExactlyInAnyOrder(Tuple.tuple("테스터", INTP),
+                        Tuple.tuple("테스터2", ESFJ));
     }
 
     @DisplayName("회원의 비밀번호를 변경 한다.")

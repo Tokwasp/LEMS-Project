@@ -36,8 +36,8 @@ public interface UserSpecification {
     @ApiErrorCodeExamples({ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email);
 
-    @Operation(summary = "모임에 참여한 회원 조회", description = "특정 모임에 참여한 회원들을 조회 합니다. [이벤트 상세 > 참여자 목록]")
-    CommonResponse<ParticipatingUserListInfo> findParticipants(@PathVariable("event-id") Long eventId);
+    @Operation(summary = "모임에 참여한 회원 조회", description = "특정 모임에 참여한 회원들을 조회 합니다.")
+    CommonResponse<EventParticipantsInfo> getEventParticipants(@PathVariable("event-id") Long eventId);
 
     @Operation(summary = "회원 조회", description = "회원의 세부 사항을 조회 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)

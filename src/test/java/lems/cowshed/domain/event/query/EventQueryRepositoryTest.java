@@ -5,7 +5,7 @@ import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventJpaRepository;
+import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EventQueryRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
-    EventJpaRepository eventJpaRepository;
+    EventRepository eventRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -47,7 +47,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         eventParticipantRepository.deleteAllInBatch();
         bookmarkRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
-        eventJpaRepository.deleteAllInBatch();
+        eventRepository.deleteAllInBatch();
     }
 
     @DisplayName("모임에 대한 정보와 참여 인원수를 조회 한다.")
@@ -58,7 +58,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         Event event = createEvent("산책 모임", "테스터");
-        eventJpaRepository.save(event);
+        eventRepository.save(event);
 
         EventParticipant eventParticipant = EventParticipant.of(user, event);
         eventParticipantRepository.save(eventParticipant);
@@ -83,7 +83,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         User user2 = createUser("테스터2", ESFJ);
         EventParticipant eventParticipant2 = EventParticipant.of(user2, event);
         userRepository.saveAll(List.of(user, user2));
-        eventJpaRepository.save(event);
+        eventRepository.save(event);
         eventParticipantRepository.saveAll(List.of(eventParticipant, eventParticipant2));
 
         //when
@@ -102,7 +102,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         User user = createUser("테스터", INTP);
         userRepository.save(user);
         Event event = createEvent("산책 모임", "테스터");
-        eventJpaRepository.save(event);
+        eventRepository.save(event);
 
         Bookmark bookmark = createBookmark(event, user);
         bookmarkRepository.save(bookmark);
@@ -123,7 +123,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         User user = createUser("테스터", INTP);
         userRepository.save(user);
         Event event = createEvent("산책 모임", "테스터", "테스트 내용");
-        eventJpaRepository.save(event);
+        eventRepository.save(event);
 
         Bookmark bookmark = createBookmark(event, user);
         bookmarkRepository.save(bookmark);
