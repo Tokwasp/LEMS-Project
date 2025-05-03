@@ -45,11 +45,12 @@ public class EventService {
     private final EventParticipantRepository eventParticipantRepository;
     private final AwsS3Util awsS3Util;
 
-    public void saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
+    public Long saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
         UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
         Event event = requestDto.toEntity(username, uploadFile);
 
-        eventRepository.save(event);
+        Event savedEvent = eventRepository.save(event);
+        return savedEvent.getId();
     }
 
     public EventInfo getEvent(Long eventId, Long userId, String username) {

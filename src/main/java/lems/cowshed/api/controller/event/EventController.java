@@ -38,10 +38,10 @@ public class EventController implements EventSpecification {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonResponse<Void> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
+    public CommonResponse<Long> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
-        eventService.saveEvent(requestDto, customUserDetails.getUsername());
-        return CommonResponse.success();
+        Long eventId = eventService.saveEvent(requestDto, customUserDetails.getUsername());
+        return CommonResponse.success(eventId);
     }
 
     @GetMapping("/bookmarks")

@@ -42,7 +42,7 @@ class EventControllerTest extends ControllerTestSupport {
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("성공"));
+                .andExpect(jsonPath("$.message").value("OK"));
     }
 
     @DisplayName("모임을 등록 할때 최대 참가자는 100명 이다.")
@@ -62,7 +62,7 @@ class EventControllerTest extends ControllerTestSupport {
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("성공"));
+                .andExpect(jsonPath("$.message").value("OK"));
     }
 
     @DisplayName("모임을 등록 할때 카테고리에 없는 값을 입력 한다면 예외가 발생 한다.")
