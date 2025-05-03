@@ -9,8 +9,6 @@ import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Schema(description = "모임 상세")
 public class EventInfo {
@@ -18,12 +16,8 @@ public class EventInfo {
     Long eventId;
     @Schema(description = "모임 이름", example = "농구 모임")
     String name;
-    @Schema(description = "만든이", example = "김길동")
-    String author;
     @Schema(description = "카테고리", example = "스포츠")
     Category category;
-    @Schema(description = "등록일", example = "yyyy-mm-dd hh:mm:ss")
-    LocalDateTime createdDate;
     @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
     String content;
     @Schema(description = "수용 인원", example = "100")
@@ -43,14 +37,11 @@ public class EventInfo {
     String userList;
 
     @QueryProjection
-    public EventInfo(Long eventId, String name, String author, Category category,
-                     LocalDateTime createdDate, String content, String accessUrl,
-                     int capacity, long applicants, String userList) {
+    public EventInfo(Long eventId, String name, Category category,
+                     String content, String accessUrl, int capacity, long applicants, String userList) {
         this.eventId = eventId;
         this.name = name;
-        this.author = author;
         this.category = category;
-        this.createdDate = createdDate;
         this.content = content;
         this.capacity = capacity;
         this.applicants = applicants;
@@ -59,18 +50,17 @@ public class EventInfo {
     }
 
     @Builder
-    private EventInfo(Long eventId, String author, String name, Category category,
-                      LocalDateTime createdDate,String content, int capacity, long applicants, String accessUrl,
+    private EventInfo(Long eventId, String name, Category category,
+                      String content, int capacity, long applicants, String accessUrl,
                       BookmarkStatus bookmarkStatus, boolean isEventRegistrant, boolean isParticipated) {
         this.eventId = eventId;
         this.name = name;
-        this.author = author;
         this.category = category;
-        this.createdDate = createdDate;
         this.content = content;
         this.capacity = capacity;
         this.applicants = applicants;
         this.bookmarkStatus = bookmarkStatus;
+        this.accessUrl = accessUrl;
         this.isEventRegistrant = isEventRegistrant;
         this.isParticipated = isParticipated;
     }
@@ -80,9 +70,8 @@ public class EventInfo {
         return EventInfo.builder()
                 .eventId(event.getId())
                 .name(event.getName())
-                .author(event.getAuthor())
                 .category(event.getCategory())
-                .createdDate(event.getCreatedDateTime())
+                .accessUrl(event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null)
                 .content(event.getContent())
                 .capacity(event.getCapacity())
                 .applicants(participantsCount)

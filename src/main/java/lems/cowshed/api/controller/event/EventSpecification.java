@@ -31,7 +31,7 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<Void> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
+    CommonResponse<Long> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
                                    @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException;
 
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 반환 합니다.")

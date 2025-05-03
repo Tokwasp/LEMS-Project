@@ -99,8 +99,8 @@ class EventServiceTest extends IntegrationTestSupport {
         EventInfo response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
 
         //then
-        assertThat(response).extracting("name", "author", "bookmarkStatus", "isParticipated")
-                .containsExactly("자전거 모임", "테스터", NOT_BOOKMARK, false);
+        assertThat(response).extracting("name", "bookmarkStatus", "isParticipated")
+                .containsExactly("자전거 모임", NOT_BOOKMARK, false);
     }
 
     @DisplayName("모임을 조회할때 회원이 참여한 모임은 참여 상태로 되어있다.")

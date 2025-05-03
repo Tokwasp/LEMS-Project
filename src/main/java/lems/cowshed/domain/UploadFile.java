@@ -1,7 +1,9 @@
 package lems.cowshed.domain;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
 
+@Getter
 @Embeddable
 public class UploadFile {
     private String uploadFileName;
