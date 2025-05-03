@@ -25,30 +25,46 @@ public class EventParticipationService {
     private final EventParticipantRepository eventParticipantRepository;
 
     public long saveEventParticipation(Long eventId, Long userId) {
-        Event event = eventRepository.findPessimisticLockById(eventId)
-                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+        checkAlreadyParticipation(eventId, userId);
 
-        long participantsCount = eventParticipantRepository.countParticipantByEventId(event.getId());
-        if (isNotPossibleParticipateToEvent(event, participantsCount)) {
-            throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
-        }
+        Event event = findEvent(eventId);
+        eventParticipation(event);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
-
+        User user = findUser(userId);
         EventParticipant eventParticipant = EventParticipant.of(user, event);
-        eventParticipantRepository.save(eventParticipant);
-        return eventParticipant.getId();
+        return eventParticipantRepository.save(eventParticipant).getId();
     }
 
     public void deleteEventParticipation(Long eventId, Long userId) {
         EventParticipant eventParticipant = eventParticipantRepository.findByEventIdAndUserId(eventId, userId)
-                .orElseThrow(() -> new NotFoundException(USER_EVENT, USER_EVENT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(EVENT_PARTICIPATION, EVENT_PARTICIPATION_FOUND));
 
         eventParticipantRepository.delete(eventParticipant);
     }
 
     private boolean isNotPossibleParticipateToEvent(Event event, long capacity) {
         return event.isOverCapacity(capacity);
+    }
+
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
+    }
+
+    private Event findEvent(Long eventId) {
+        return eventRepository.findEventWithLockById(eventId)
+                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+    }
+
+    private void eventParticipation(Event event) {
+        long participantCount = eventParticipantRepository.getParticipantCountById(event.getId());
+        if (isNotPossibleParticipateToEvent(event, participantCount)) {
+            throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
+        }
+    }
+
+    private void checkAlreadyParticipation(Long eventId, Long userId) {
+        eventParticipantRepository.findByEventIdAndUserId(eventId, userId)
+                .ifPresent(participant -> {throw new BusinessException(EVENT_PARTICIPATION, EVENT_ALREADY_PARTICIPATION);});
     }
 }

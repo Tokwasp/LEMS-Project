@@ -25,6 +25,6 @@ public enum Reason {
     EVENT_CAPACITY("event_capacity"),
     BusinessReason("Business"),
 
-    USER_EVENT("USER_EVENT");
+    EVENT_PARTICIPATION("USER_EVENT");
     private final String text;
 }
