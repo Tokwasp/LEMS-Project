@@ -24,6 +24,7 @@ public enum Message {
     EVENT_NOT_REGISTERED_BY_USER("회원이 등록한 모임이 아닙니다."),
     EVENT_CAPACITY_OVER("참여 가능한 회원 수를 초과 하였습니다."),
 
-    USER_EVENT_NOT_FOUND("모임 참여 기록을 찾지 못했습니다.");
+    EVENT_PARTICIPATION_FOUND("모임 참여 기록을 찾지 못했습니다."),
+    EVENT_ALREADY_PARTICIPATION("모임에 이미 참여 중 입니다.");
     private final String message;
 }
