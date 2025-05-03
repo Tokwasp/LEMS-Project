@@ -1,11 +1,11 @@
 package lems.cowshed.service;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.recurring.event.RecurringEventSaveRequest;
+import lems.cowshed.api.controller.dto.recurring.event.RegularEventSaveRequest;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
-import lems.cowshed.domain.recurring.event.RecurringEvent;
-import lems.cowshed.domain.recurring.event.RecurringEventRepository;
+import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.regular.event.RegularEventRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +15,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-class RecurringEventServiceTest extends IntegrationTestSupport {
+class RegularEventServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    private RecurringEventService recurringEventService;
+    private RegularEventService regularEventService;
 
     @Autowired
     private EventRepository eventRepository;
 
     @Autowired
-    private RecurringEventRepository repository;
+    private RegularEventRepository repository;
 
     @DisplayName("정기 모임을 등록 한다.")
     @Test
@@ -33,7 +33,7 @@ class RecurringEventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        RecurringEventSaveRequest request = RecurringEventSaveRequest.builder()
+        RegularEventSaveRequest request = RegularEventSaveRequest.builder()
                 .name("정기 모임")
                 .date(LocalDate.of(2025, 5, 2))
                 .location("테스트 장소")
@@ -41,10 +41,10 @@ class RecurringEventServiceTest extends IntegrationTestSupport {
                 .build();
 
         //when
-        recurringEventService.save(request, event.getId());
+        regularEventService.save(request, event.getId());
 
         //then
-        List<RecurringEvent> savedEvents = repository.findAll();
+        List<RegularEvent> savedEvents = repository.findAll();
         assertThat(savedEvents).hasSize(1);
         assertThat(savedEvents.get(0).getName()).isEqualTo("정기 모임");
     }

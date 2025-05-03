@@ -1,7 +1,7 @@
 package lems.cowshed.api.controller.recurring.event;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.api.controller.dto.recurring.event.RecurringEventSaveRequest;
+import lems.cowshed.api.controller.dto.recurring.event.RegularEventSaveRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -12,13 +12,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class RecurringEventControllerTest extends ControllerTestSupport {
+class RegularEventControllerTest extends ControllerTestSupport {
 
     @DisplayName("정기 모임을 등록 합니다.")
     @Test
-    void saveRecurringEvent_ThenReturnsOk() throws Exception {
+    void save_ThenReturnsOk() throws Exception {
         //given
-        RecurringEventSaveRequest request = createRecurringEventSaveRequest();
+        RegularEventSaveRequest request = createRecurringEventSaveRequest();
 
         //when then
         mockMvc.perform(
@@ -33,9 +33,9 @@ class RecurringEventControllerTest extends ControllerTestSupport {
 
     @DisplayName("정기 모임을 등록 할때 모임 이름은 필수 값 입니다.")
     @Test
-    void saveRecurringEvent_WhenNameIsBlank_ThenValidationFails() throws Exception {
+    void save_WhenNameIsBlank_ThenValidationFails() throws Exception {
         //given
-        RecurringEventSaveRequest request =  RecurringEventSaveRequest.builder()
+        RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name(" ")
                 .date(LocalDate.of(2025, 5, 2))
                 .location("테스트 장소")
@@ -56,9 +56,9 @@ class RecurringEventControllerTest extends ControllerTestSupport {
 
     @DisplayName("정기 모임을 등록 할때 모임 날짜는 null 값을 허용 하지 않습니다.")
     @Test
-    void saveRecurringEvent_WhenDateIsNull_ThenValidationFails() throws Exception {
+    void save_WhenDateIsNull_ThenValidationFails() throws Exception {
         //given
-        RecurringEventSaveRequest request =  RecurringEventSaveRequest.builder()
+        RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name("정기 모임")
                 .date(null)
                 .location("테스트 장소")
@@ -79,9 +79,9 @@ class RecurringEventControllerTest extends ControllerTestSupport {
 
     @DisplayName("정기 모임을 등록 할때 최대 인원은 100명 입니다.")
     @Test
-    void saveRecurringEvent_WhenCapacityIsOneHundred_ThenReturnsOk() throws Exception {
+    void save_WhenCapacityIsOneHundred_ThenReturnsOk() throws Exception {
         //given
-        RecurringEventSaveRequest request =  RecurringEventSaveRequest.builder()
+        RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name("정기 모임")
                 .date(LocalDate.of(2025, 5, 2))
                 .location("테스트 장소")
@@ -101,9 +101,9 @@ class RecurringEventControllerTest extends ControllerTestSupport {
 
     @DisplayName("정기 모임을 등록 할때 최대 인원은 100명을 초과할 수 없습니다.")
     @Test
-    void saveRecurringEvent_WhenCapacityIsOverOneHundred_ThenValidationFails() throws Exception {
+    void save_WhenCapacityIsOverOneHundred_ThenValidationFails() throws Exception {
         //given
-        RecurringEventSaveRequest request =  RecurringEventSaveRequest.builder()
+        RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name("정기 모임")
                 .date(LocalDate.of(2025, 5, 2))
                 .location("테스트 장소")
@@ -122,8 +122,8 @@ class RecurringEventControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.errors[0].message").value("정기 모임 최대 인원은 100명 입니다."));
     }
 
-    private RecurringEventSaveRequest createRecurringEventSaveRequest() {
-        return RecurringEventSaveRequest.builder()
+    private RegularEventSaveRequest createRecurringEventSaveRequest() {
+        return RegularEventSaveRequest.builder()
                 .name("정기 모임")
                 .date(LocalDate.of(2025, 5, 2))
                 .location("테스트 장소")

@@ -4,14 +4,14 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.recurring.event.RecurringEvent;
+import lems.cowshed.domain.regular.event.RegularEvent;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Getter
-public class RecurringEventSaveRequest {
+public class RegularEventSaveRequest {
 
     @NotBlank(message = "정기 모임 이름은 필수 값 입니다.")
     private String name;
@@ -26,15 +26,15 @@ public class RecurringEventSaveRequest {
     private int capacity;
 
     @Builder
-    private RecurringEventSaveRequest(String name, LocalDate date, String location, int capacity) {
+    private RegularEventSaveRequest(String name, LocalDate date, String location, int capacity) {
         this.name = name;
         this.date = date;
         this.location = location;
         this.capacity = capacity;
     }
 
-    public RecurringEvent toEntity(Event event) {
-        return RecurringEvent.builder()
+    public RegularEvent toEntity(Event event) {
+        return RegularEvent.builder()
                 .name(name)
                 .date(date)
                 .location(location)
