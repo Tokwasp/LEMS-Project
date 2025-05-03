@@ -22,4 +22,5 @@ public interface EventParticipationSpecification {
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})
     CommonResponse<Void> deleteEventParticipation(@Parameter(name="event-id", description = "모임 id", example = "1") @PathVariable Long eventId
             , @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
 }

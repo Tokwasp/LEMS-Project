@@ -3,7 +3,7 @@ package lems.cowshed.service;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventJpaRepository;
+import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.exception.NotFoundException;
@@ -21,7 +21,7 @@ import static lems.cowshed.exception.Reason.*;
 public class BookmarkService {
 
     private final BookmarkRepository bookmarkRepository;
-    private final EventJpaRepository eventRepository;
+    private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
     public Long saveBookmark(long eventId, Long userId) {
