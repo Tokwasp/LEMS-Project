@@ -46,4 +46,8 @@ public class RegularEvent extends BaseEntity {
                 .event(event)
                 .build();
     }
+
+    public boolean isNotPossibleParticipation(long participantCount) {
+        return capacity <= participantCount;
+    }
 }

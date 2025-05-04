@@ -25,6 +25,9 @@ public enum Message {
     EVENT_CAPACITY_OVER("참여 가능한 회원 수를 초과 하였습니다."),
 
     EVENT_PARTICIPATION_FOUND("모임 참여 기록을 찾지 못했습니다."),
-    EVENT_ALREADY_PARTICIPATION("모임에 이미 참여 중 입니다.");
+    EVENT_ALREADY_PARTICIPATION("모임에 이미 참여 중 입니다."),
+
+    REGULAR_EVENT_NOT_FOUND("정기 모임을 찾지 못했습니다."),
+    REGULAR_EVENT_NOT_POSSIBLE_PARTICIPATION("정기 모임 인원을 초과 하여 참석 실패 하였습니다.");
     private final String message;
 }
