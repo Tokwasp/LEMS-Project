@@ -3,12 +3,12 @@ package lems.cowshed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lems.cowshed.api.controller.bookmark.BookmarkApiController;
 import lems.cowshed.api.controller.event.EventController;
-import lems.cowshed.api.controller.recurring.event.RecurringEventController;
+import lems.cowshed.api.controller.regular.event.RegularEventController;
 import lems.cowshed.api.controller.user.UserApiController;
 import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.service.BookmarkService;
 import lems.cowshed.service.MailService;
-import lems.cowshed.service.RecurringEventService;
+import lems.cowshed.service.RegularEventService;
 import lems.cowshed.service.event.EventService;
 import lems.cowshed.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(controllers = {
         BookmarkApiController.class,
         EventController.class,
-        RecurringEventController.class,
+        RegularEventController.class,
         UserApiController.class
 })
 public abstract class ControllerTestSupport {
@@ -36,7 +36,7 @@ public abstract class ControllerTestSupport {
     protected EventService eventService;
 
     @MockBean
-    protected RecurringEventService recurringEventService;
+    protected RegularEventService regularEventService;
 
     @MockBean
     protected UserService userService;

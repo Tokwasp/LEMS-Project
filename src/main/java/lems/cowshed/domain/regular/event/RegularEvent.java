@@ -1,9 +1,8 @@
-package lems.cowshed.domain.recurring.event;
+package lems.cowshed.domain.regular.event;
 
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.participation.EventParticipant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class RecurringEvent extends BaseEntity {
+public class RegularEvent extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +28,7 @@ public class RecurringEvent extends BaseEntity {
     private Event event;
 
     @Builder
-    private RecurringEvent(String name, LocalDate date, String location, int capacity, Event event) {
+    private RegularEvent(String name, LocalDate date, String location, int capacity, Event event) {
         this.name = name;
         this.date = date;
         this.location = location;
@@ -37,14 +36,18 @@ public class RecurringEvent extends BaseEntity {
         this.event = event;
     }
 
-    public static RecurringEvent of(String name, LocalDate date, String location,
-                                    int capacity, Event event){
-        return RecurringEvent.builder()
+    public static RegularEvent of(String name, LocalDate date, String location,
+                                  int capacity, Event event){
+        return RegularEvent.builder()
                 .name(name)
                 .date(date)
                 .location(location)
                 .capacity(capacity)
                 .event(event)
                 .build();
+    }
+
+    public boolean isNotPossibleParticipation(long participantCount) {
+        return capacity <= participantCount;
     }
 }
