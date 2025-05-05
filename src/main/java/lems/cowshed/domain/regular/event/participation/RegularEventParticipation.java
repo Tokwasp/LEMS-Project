@@ -1,12 +1,18 @@
 package lems.cowshed.domain.regular.event.participation;
 
 import jakarta.persistence.*;
+import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.user.User;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class RegularEventParticipation {
+public class RegularEventParticipation extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,7 +20,7 @@ public class RegularEventParticipation {
     private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recurring_event_id")
+    @JoinColumn(name = "regular_event_id")
     private RegularEvent regularEvent;
 
     @Builder
@@ -24,9 +30,11 @@ public class RegularEventParticipation {
     }
 
     public static RegularEventParticipation of(User user, RegularEvent regularEvent){
-        return RegularEventParticipation.builder()
+        RegularEventParticipation regularEventParticipation = RegularEventParticipation.builder()
                 .userId(user.getId())
                 .regularEvent(regularEvent)
                 .build();
+        regularEvent.getParticipations().add(regularEventParticipation);
+        return regularEventParticipation;
     }
 }

@@ -10,10 +10,10 @@ import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.event.participation.EventParticipant;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
@@ -198,12 +198,12 @@ class UserServiceTest extends IntegrationTestSupport {
         User user2 = createUser("테스터2", ESFJ);
         Event event = createEvent("산책 모임", "테스터");
 
-        EventParticipant eventParticipant = EventParticipant.of(user, event);
-        EventParticipant eventParticipant2 = EventParticipant.of(user2, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
 
         userRepository.saveAll(List.of(user, user2));
         eventRepository.save(event);
-        eventParticipantRepository.saveAll(List.of(eventParticipant, eventParticipant2));
+        eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         //when
         EventParticipantsInfo participantsInfo = userService.getEventParticipants(event.getId());
@@ -244,9 +244,9 @@ class UserServiceTest extends IntegrationTestSupport {
         User user = createUser("테스터", INTP);
         userRepository.save(user);
 
-        EventParticipant eventParticipant = EventParticipant.of(user, event);
-        EventParticipant eventParticipant2 = EventParticipant.of(user, event2);
-        eventParticipantRepository.saveAll(List.of(eventParticipant, eventParticipant2));
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation2 = EventParticipation.of(user, event2);
+        eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         Bookmark bookmark = createBookmark(event, user);
         bookmarkRepository.save(bookmark);

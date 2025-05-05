@@ -13,6 +13,6 @@ public interface RegularEventRepository extends JpaRepository<RegularEvent, Long
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<RegularEvent> findRegularEventWithLockById(Long regularId);
 
-    @Query("select count(rep) from RegularEventParticipation rep join RegularEvent re where re.id = :regularId")
+    @Query("select count(rep) from RegularEventParticipation rep join rep.regularEvent re where re.id = :regularId")
     long getParticipantCount(@Param("regularId") long regularId);
 }

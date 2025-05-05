@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 
 public class Participants {
 
-    private List<EventParticipant> participants;
+    private List<EventParticipation> participants;
 
-    private Participants(List<EventParticipant> participants) {
+    private Participants(List<EventParticipation> participants) {
         this.participants = participants;
     }
 
-    public static Participants of(List<EventParticipant> participants) {
+    public static Participants of(List<EventParticipation> participants) {
         return new Participants(participants);
     }
 

@@ -26,8 +26,23 @@ public class EventController implements EventSpecification {
     @GetMapping("/{event-id}")
     public CommonResponse<EventInfo> getEvent(@PathVariable("event-id") Long eventId,
                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
-        EventInfo response = eventService.getEvent(eventId, userDetails.getUserId(), userDetails.getUsername());
+        EventInfo response = eventService.getEvent(eventId, userDetails.getUsername());
         return CommonResponse.success(response);
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonResponse<Long> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
+        Long eventId = eventService.saveEvent(requestDto, customUserDetails.getUsername());
+        return CommonResponse.success(eventId);
+    }
+
+    @PatchMapping("/{event-id}")
+    public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId,
+                                          @RequestBody @Validated EventUpdateRequestDto requestDto,
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        eventService.editEvent(eventId, requestDto, customUserDetails.getUsername());
+        return CommonResponse.success();
     }
 
     @GetMapping
@@ -37,11 +52,11 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(events);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonResponse<Long> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
-                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
-        Long eventId = eventService.saveEvent(requestDto, customUserDetails.getUsername());
-        return CommonResponse.success(eventId);
+    @GetMapping("/{event-id}/regular")
+    public CommonResponse<EventWithRegularInfo> getEventWithRegularInfo(@PathVariable("event-id") Long eventId,
+                                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        EventWithRegularInfo response = eventService.getEventWithRegularInfo(eventId, userDetails.getUserId(), userDetails.getUsername());
+        return CommonResponse.success(response);
     }
 
     @GetMapping("/bookmarks")
@@ -63,14 +78,6 @@ public class EventController implements EventSpecification {
                                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         EventsSearchInfo searchEvent = eventService.searchEventsByNameOrContent(keyword, customUserDetails.getUserId());
         return CommonResponse.success(searchEvent);
-    }
-
-    @PatchMapping("/{event-id}")
-    public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId,
-                                          @RequestBody @Validated EventUpdateRequestDto requestDto,
-                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        eventService.editEvent(eventId, requestDto, customUserDetails.getUsername());
-        return CommonResponse.success();
     }
 
     @DeleteMapping("/{event-id}")

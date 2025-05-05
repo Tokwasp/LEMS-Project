@@ -14,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -34,10 +31,14 @@ public interface EventSpecification {
     CommonResponse<Long> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
                                    @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException;
 
-    @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 반환 합니다.")
-    @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
+    @Operation(summary = "모임 조회", description = "모임을 조회 합니다.")
     CommonResponse<EventInfo> getEvent(@PathVariable("event-id") Long eventId,
-                                       @AuthenticationPrincipal CustomUserDetails customUserDetails);
+                                       @AuthenticationPrincipal CustomUserDetails userDetails);
+
+    @Operation(summary = "모임 / 정기모임 상세 조회", description = "모임과 정기 모임 상세 정보를 반환 합니다.")
+    @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)
+    CommonResponse<EventWithRegularInfo> getEventWithRegularInfo(@PathVariable("event-id") Long eventId,
+                                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 수정", description = "모임의 세부 사항을 수정 합니다.")
     @ApiErrorCodeExamples({ErrorCode.NOT_FOUND_ERROR})

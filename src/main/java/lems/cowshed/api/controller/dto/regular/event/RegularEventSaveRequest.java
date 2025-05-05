@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.dto.recurring.event;
+package lems.cowshed.api.controller.dto.regular.event;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import lems.cowshed.domain.regular.event.RegularEvent;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 public class RegularEventSaveRequest {
@@ -17,7 +17,7 @@ public class RegularEventSaveRequest {
     private String name;
 
     @NotNull(message = "정기 모임 일자는 필수 값 입니다.")
-    private LocalDate date;
+    private LocalDateTime dateTime;
 
     @NotBlank(message = "정기 모임 장소는 필수 값 입니다.")
     private String location;
@@ -26,9 +26,9 @@ public class RegularEventSaveRequest {
     private int capacity;
 
     @Builder
-    private RegularEventSaveRequest(String name, LocalDate date, String location, int capacity) {
+    private RegularEventSaveRequest(String name, LocalDateTime dateTime, String location, int capacity) {
         this.name = name;
-        this.date = date;
+        this.dateTime = dateTime;
         this.location = location;
         this.capacity = capacity;
     }
@@ -36,7 +36,7 @@ public class RegularEventSaveRequest {
     public RegularEvent toEntity(Event event) {
         return RegularEvent.builder()
                 .name(name)
-                .date(date)
+                .dateTime(dateTime)
                 .location(location)
                 .capacity(capacity)
                 .event(event)

@@ -2,9 +2,9 @@ package lems.cowshed.service.event;
 
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.event.participation.EventParticipant;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
@@ -31,15 +31,15 @@ public class EventParticipationService {
         eventParticipation(event);
 
         User user = findUser(userId);
-        EventParticipant eventParticipant = EventParticipant.of(user, event);
-        return eventParticipantRepository.save(eventParticipant).getId();
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        return eventParticipantRepository.save(eventParticipation).getId();
     }
 
     public void deleteEventParticipation(Long eventId, Long userId) {
-        EventParticipant eventParticipant = eventParticipantRepository.findByEventIdAndUserId(eventId, userId)
+        EventParticipation eventParticipation = eventParticipantRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException(EVENT_PARTICIPATION, EVENT_PARTICIPATION_FOUND));
 
-        eventParticipantRepository.delete(eventParticipant);
+        eventParticipantRepository.delete(eventParticipation);
     }
 
     private boolean isNotPossibleParticipateToEvent(Event event, long capacity) {
@@ -57,7 +57,7 @@ public class EventParticipationService {
     }
 
     private void eventParticipation(Event event) {
-        long participantCount = eventParticipantRepository.getParticipantCountById(event.getId());
+        long participantCount = eventParticipantRepository.getParticipationCountById(event.getId());
         if (isNotPossibleParticipateToEvent(event, participantCount)) {
             throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
         }

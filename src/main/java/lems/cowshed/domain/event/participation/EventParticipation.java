@@ -6,14 +6,15 @@ import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
+
 import static jakarta.persistence.FetchType.*;
 
 @Getter
 @Entity
-public class EventParticipant extends BaseEntity {
+public class EventParticipation extends BaseEntity {
 
     @Id
-    @Column(name = "user_event_id")
+    @Column(name = "event_participation_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -25,22 +26,22 @@ public class EventParticipant extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    private EventParticipant() {
+    private EventParticipation() {
     }
 
     @Builder
-    private EventParticipant(User user, Event event) {
+    private EventParticipation(User user, Event event) {
         this.user = user;
         this.event = event;
     }
 
-    public static EventParticipant of(User user, Event event){
-        EventParticipant eventParticipant = EventParticipant.builder()
+    public static EventParticipation of(User user, Event event){
+        EventParticipation eventParticipation = EventParticipation.builder()
                 .user(user)
                 .event(event)
                 .build();
 
-        event.getParticipants().add(eventParticipant);
-        return eventParticipant;
+        event.getParticipants().add(eventParticipation);
+        return eventParticipation;
     }
 }

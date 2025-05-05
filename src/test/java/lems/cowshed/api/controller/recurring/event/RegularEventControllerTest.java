@@ -1,12 +1,12 @@
 package lems.cowshed.api.controller.recurring.event;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.api.controller.dto.recurring.event.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.RegularEventSaveRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,7 +37,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
         //given
         RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name(" ")
-                .date(LocalDate.of(2025, 5, 2))
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0 ,0))
                 .location("테스트 장소")
                 .capacity(50)
                 .build();
@@ -60,7 +60,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
         //given
         RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name("정기 모임")
-                .date(null)
+                .dateTime(null)
                 .location("테스트 장소")
                 .capacity(50)
                 .build();
@@ -73,7 +73,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
                                 .with(csrf())
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0].field").value("date"))
+                .andExpect(jsonPath("$.errors[0].field").value("dateTime"))
                 .andExpect(jsonPath("$.errors[0].message").value("정기 모임 일자는 필수 값 입니다."));
     }
 
@@ -83,7 +83,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
         //given
         RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name("정기 모임")
-                .date(LocalDate.of(2025, 5, 2))
+                .dateTime(LocalDateTime.of(2025, 5, 2,12,0,0))
                 .location("테스트 장소")
                 .capacity(100)
                 .build();
@@ -105,7 +105,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
         //given
         RegularEventSaveRequest request =  RegularEventSaveRequest.builder()
                 .name("정기 모임")
-                .date(LocalDate.of(2025, 5, 2))
+                .dateTime(LocalDateTime.of(2025, 5, 2,12,0,0))
                 .location("테스트 장소")
                 .capacity(101)
                 .build();
@@ -125,7 +125,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
     private RegularEventSaveRequest createRecurringEventSaveRequest() {
         return RegularEventSaveRequest.builder()
                 .name("정기 모임")
-                .date(LocalDate.of(2025, 5, 2))
+                .dateTime(LocalDateTime.of(2025, 5, 2,12,0,0))
                 .location("테스트 장소")
                 .capacity(50)
                 .build();

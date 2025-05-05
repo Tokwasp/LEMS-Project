@@ -1,7 +1,7 @@
 package lems.cowshed.service;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.recurring.event.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.RegularEventSaveRequest;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -35,7 +35,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         RegularEventSaveRequest request = RegularEventSaveRequest.builder()
                 .name("정기 모임")
-                .date(LocalDate.of(2025, 5, 2))
+                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
                 .location("테스트 장소")
                 .capacity(50)
                 .build();
