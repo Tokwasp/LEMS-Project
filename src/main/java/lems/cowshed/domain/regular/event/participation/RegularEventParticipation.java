@@ -1,6 +1,7 @@
 package lems.cowshed.domain.regular.event.participation;
 
 import jakarta.persistence.*;
+import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.user.User;
 import lombok.AccessLevel;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class RegularEventParticipation {
+public class RegularEventParticipation extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

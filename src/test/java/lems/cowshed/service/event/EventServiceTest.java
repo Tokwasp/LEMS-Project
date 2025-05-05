@@ -4,14 +4,20 @@ import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.*;
+import lems.cowshed.api.controller.dto.regular.event.RegularEventInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.event.participation.EventParticipation;
+import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.regular.event.RegularEventRepository;
+import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
+import lems.cowshed.domain.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.event.participation.EventParticipant;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
+import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.*;
@@ -38,6 +44,12 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @Autowired
     EventParticipationService eventParticipationService;
+
+    @Autowired
+    RegularEventRepository regularEventRepository;
+
+    @Autowired
+    RegularEventParticipationRepository regularEventParticipationRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -89,23 +101,33 @@ class EventServiceTest extends IntegrationTestSupport {
     @Test
     void getEvent() {
         //given
-        User user = createUser("테스터", "testEmail");
-        userRepository.save(user);
-
-        Event event = createEvent("테스터", "자전거 모임");
+        String author = "테스터";
+        Event event = createEvent(author, "자전거 모임");
         eventRepository.save(event);
 
         //when
-        EventInfo response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
+        EventInfo eventInfo = eventService.getEvent(event.getId(), author);
 
         //then
-        assertThat(response).extracting("name", "bookmarkStatus", "isParticipated")
-                .containsExactly("자전거 모임", NOT_BOOKMARK, false);
+        assertThat(eventInfo.getName()).isEqualTo("자전거 모임");
     }
 
-    @DisplayName("모임을 조회할때 회원이 참여한 모임은 참여 상태로 되어있다.")
+    @DisplayName("모임을 조회할 때 자신이 만든 모임이 아니라면 예외가 발생 한다.")
     @Test
-    void getEventWhenParticipatedEvent() {
+    void getEvent_WhenNotAuthor_ThenThrowsException() {
+        //given
+        String author = "테스터";
+        Event event = createEvent(author, "자전거 모임");
+        eventRepository.save(event);
+
+        //when //then
+        assertThatThrownBy(() -> eventService.getEvent(event.getId(), "비등록자"))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @DisplayName("모임과 정기모임을 함께 조회할 때 모임에 참여/북마크 하지 않았다면 결과 모임의 상태는 북마크x / 참여x 이다.")
+    @Test
+    void getEventWithRegularInfo_WhenNoParticipationNoBookmark_ThenStatusCheck() {
         //given
         User user = createUser("테스터", "testEmail");
         userRepository.save(user);
@@ -113,20 +135,38 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        EventParticipant eventParticipant = EventParticipant.of(user, event);
-        eventParticipantRepository.save(eventParticipant);
+        //when
+        EventWithRegularInfo response = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        assertThat(response).extracting("name", "bookmarkStatus", "isParticipated")
+                .containsExactly("자전거 모임", NOT_BOOKMARK, false);
+    }
+
+    @DisplayName("모임과 정기모임을 함께 조회할 때 모임에 참여 했다면 결과 모임의 상태는 참여 이다.")
+    @Test
+    void getEventWithRegularInfo_WhenParticipatedEvent_ThenIsParticipatedIsTrue() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        eventParticipantRepository.save(eventParticipation);
 
         //when
-        EventInfo response = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
+        EventWithRegularInfo response = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
 
         //then
         assertThat(response).extracting("bookmarkStatus", "isParticipated")
                 .containsExactly(NOT_BOOKMARK, true);
     }
 
-    @DisplayName("북마크한 모임을 조회 할때 북마크의 상태는 BOOKMARK 이다.")
+    @DisplayName("모임과 정기모임을 함께 조회할 때 모임에 북마크를 했다면 북마크의 상태는 BOOKMARK 이다.")
     @Test
-    void getEventWhenBookmarked() {
+    void getEventWithRegularInfo_WhenBookmarkedEvent_ThenBookmarkStatusIsBookmark() {
         //given
         User user = createUser("테스터", "testEmail");
         userRepository.save(user);
@@ -138,7 +178,7 @@ class EventServiceTest extends IntegrationTestSupport {
         bookmarkRepository.save(bookmark);
 
         //when
-        EventInfo result = eventService.getEvent(event.getId(), user.getId(), user.getUsername());
+        EventWithRegularInfo result = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
 
         //then
         assertThat(result).isNotNull()
@@ -146,9 +186,126 @@ class EventServiceTest extends IntegrationTestSupport {
                 .containsExactly(BOOKMARK, false);
     }
 
+    @DisplayName("모임과 정기모임을 함께 조회할 때 내가 만든 모임이라면 모임 등록자가 맞다.")
+    @Test
+    void getEventWithRegularInfo_WhenIsEventRegistrant_ThenIsEventRegistrantIsTrue() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        //when
+        EventWithRegularInfo result = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        assertThat(result.isEventRegistrant()).isTrue();
+    }
+
+    @DisplayName("모임과 정기모임을 함께 조회할 때 모임에 두명이 참여 한다면 참여 인원수는 두명이다.")
+    @Test
+    void getEventWithRegularInfo_WhenTwoParticipants_ThenCountIsTwo() {
+        //given
+        User user = createUser("테스터", "testOne");
+        User user2 = createUser("테스터2", "testTwo");
+        userRepository.saveAll(List.of(user, user2));
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+        eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
+
+        //when
+        EventWithRegularInfo result = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        assertThat(result.getApplicants()).isEqualTo(2);
+    }
+
+    @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참여 하지 않았다면 결과 정기 모임의 상태는 참여x 이다.")
+    @Test
+    void getEventWithRegularInfo_WhenNotParticipatedRegularEvent_ThenReturnNotParticipated() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(event, "정기 모임", "테스트 장소");
+        regularEventRepository.save(regularEvent);
+
+        //when
+        EventWithRegularInfo response = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        assertThat(response.getRegularEvents())
+                .extracting("name", "isParticipated")
+                .containsExactly(Tuple.tuple("정기 모임", false));
+    }
+
+    @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참여 했다면 결과 정기 모임의 상태는 참여o 이다.")
+    @Test
+    void getEventWithRegularInfo_WhenParticipatedRegularEvent_ThenReturnParticipated() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(event, "정기 모임", "테스트 장소");
+        regularEventRepository.save(regularEvent);
+
+        RegularEventParticipation regularParticipation = createRegularParticipation(user.getId(), regularEvent);
+        regularEventParticipationRepository.save(regularParticipation);
+
+        //when
+        EventWithRegularInfo response = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        assertThat(response.getRegularEvents())
+                .extracting("name", "isParticipated")
+                .containsExactly(Tuple.tuple("정기 모임", true));
+    }
+
+    @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참석 했다면 정기 모임 참여 인원수는 1명 이다.")
+    @Test
+    void getEventWithRegularInfo_WhenTwoParticipatedRegularEvent_ThenCountIsTwo() {
+        //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "자전거 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(event, "참석 정기 모임", "참석 장소");
+        RegularEvent regularEvent2 = createRegularEvent(event, "비참석 정기 모임", "비참석 장소");
+        regularEventRepository.saveAll(List.of(regularEvent, regularEvent2));
+
+        RegularEventParticipation regularParticipation = createRegularParticipation(user.getId(), regularEvent);
+        regularEventParticipationRepository.save(regularParticipation);
+
+        //when
+        EventWithRegularInfo response = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        List<RegularEventInfo> regularEvents = response.getRegularEvents();
+        assertThat(regularEvents).hasSize(2)
+                .extracting("name", "applicants")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("참석 정기 모임", 1),
+                        Tuple.tuple("비참석 정기 모임", 0)
+                );
+    }
+
+
     @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
     @Test
-    void getEventsWithApplicants() {
+    void getEventsWithApplicantsWithRegular() {
         //given
         Event event = createEvent("테스터", "테스트 모임", 2);
         eventRepository.save(event);
@@ -174,7 +331,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
-    void getEvents() {
+    void getEventsWithRegular() {
         //given
         User user = createUser("테스터", "testEmail");
         userRepository.save(user);
@@ -197,7 +354,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("모임에 참여한 회원이 없을 경우 참여자 수는 0명이다.")
     @Test
-    void getEventsWhenNothingApplicants() {
+    void getEventsWhenNothingApplicantsWithRegular() {
         //given
         Event event = createEvent("테스터", "테스트 모임", 2);
         eventRepository.save(event);
@@ -291,7 +448,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("북마크한 모임을 페이징 조회 할 때 북마크 여부를 확인 한다.")
     @Test
-    void getEventsForBookmark() {
+    void getEventsForBookmarkWithRegular() {
         //given
         User user = createUser("북마크 테스터", "test@naver.com");
         userRepository.save(user);
@@ -382,9 +539,9 @@ class EventServiceTest extends IntegrationTestSupport {
         Event eventWithOneParticipant = createEvent("테스터2", searchKeyword);
         eventRepository.saveAll(List.of(eventWithTwoParticipants, eventWithOneParticipant));
 
-        EventParticipant participation1 = EventParticipant.of(user1, eventWithTwoParticipants);
-        EventParticipant participation2 = EventParticipant.of(user2, eventWithTwoParticipants);
-        EventParticipant participation3 = EventParticipant.of(user1, eventWithOneParticipant);
+        EventParticipation participation1 = EventParticipation.of(user1, eventWithTwoParticipants);
+        EventParticipation participation2 = EventParticipation.of(user2, eventWithTwoParticipants);
+        EventParticipation participation3 = EventParticipation.of(user1, eventWithOneParticipant);
         eventParticipantRepository.saveAll(List.of(participation1, participation2, participation3));
 
         //when
@@ -451,4 +608,21 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
+    private RegularEvent createRegularEvent(Event event, String name, String location){
+        return RegularEvent.builder()
+                .event(event)
+                .name(name)
+                .capacity(50)
+                .location(location)
+                .build();
+    }
+
+    private RegularEventParticipation createRegularParticipation(Long userId, RegularEvent regularEvent){
+        RegularEventParticipation regularEventParticipation = RegularEventParticipation.builder()
+                .userId(userId)
+                .regularEvent(regularEvent)
+                .build();
+        regularEvent.getParticipations().add(regularEventParticipation);
+        return regularEventParticipation;
+    }
 }

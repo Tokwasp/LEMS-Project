@@ -23,6 +23,7 @@ public enum Reason {
 
     EVENT_ID("event_id"),
     EVENT_CAPACITY("event_capacity"),
+    EVENT_AUTHOR("event_author"),
     BusinessReason("Business"),
 
     EVENT_PARTICIPATION("event_participation"),

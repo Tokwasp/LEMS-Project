@@ -1,9 +1,6 @@
 package lems.cowshed.api.controller.dto.event.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
@@ -24,49 +21,22 @@ public class EventInfo {
     int capacity;
     @Schema(description = "참여 신청 인원", example = "50")
     long applicants;
-    @Schema(description = "북마크 여부", example = "BOOKMARK")
-    BookmarkStatus bookmarkStatus;
     @Schema(description = "모임 대표 이미지 주소", example = "URL 주소")
     private String accessUrl;
-    @Schema(description = "내가 등록한 모임 인지 여부", example = "true")
-    boolean isEventRegistrant;
-    @Schema(description = "내가 참여한 모임 인지 여부", example = "true")
-    boolean isParticipated;
-
-    @JsonIgnore
-    String userList;
-
-    @QueryProjection
-    public EventInfo(Long eventId, String name, Category category,
-                     String content, String accessUrl, int capacity, long applicants, String userList) {
-        this.eventId = eventId;
-        this.name = name;
-        this.category = category;
-        this.content = content;
-        this.capacity = capacity;
-        this.applicants = applicants;
-        this.userList = userList;
-        this.accessUrl = accessUrl;
-    }
 
     @Builder
     private EventInfo(Long eventId, String name, Category category,
-                      String content, int capacity, long applicants, String accessUrl,
-                      BookmarkStatus bookmarkStatus, boolean isEventRegistrant, boolean isParticipated) {
+                      String content, int capacity, long applicants, String accessUrl) {
         this.eventId = eventId;
         this.name = name;
         this.category = category;
         this.content = content;
         this.capacity = capacity;
         this.applicants = applicants;
-        this.bookmarkStatus = bookmarkStatus;
         this.accessUrl = accessUrl;
-        this.isEventRegistrant = isEventRegistrant;
-        this.isParticipated = isParticipated;
     }
 
-    public static EventInfo of(Event event, int participantsCount, BookmarkStatus bookmarkStatus,
-                                boolean isRegistrant, boolean isParticipant) {
+    public static EventInfo of(Event event, int participantsCount) {
         return EventInfo.builder()
                 .eventId(event.getId())
                 .name(event.getName())
@@ -75,10 +45,6 @@ public class EventInfo {
                 .content(event.getContent())
                 .capacity(event.getCapacity())
                 .applicants(participantsCount)
-                .bookmarkStatus(bookmarkStatus)
-                .isEventRegistrant(isRegistrant)
-                .isParticipated(isParticipant)
                 .build();
     }
-
 }
