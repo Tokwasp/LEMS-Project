@@ -1,10 +1,8 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
 import lems.cowshed.api.controller.dto.event.response.EventsSearchInfo;
-import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
@@ -124,15 +122,6 @@ class EventControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data.searchResults[0].name").value("모임"))
                 .andExpect(jsonPath("$.data.searchResults[0].applicants").value(2L))
                 .andExpect(jsonPath("$.data.searchResults[0].bookmarkStatus").value("BOOKMARK"));
-    }
-
-    private EventSaveRequestDto createEventSaveRequest(String name, Category category, int capacity) {
-        return EventSaveRequestDto.builder()
-                .name(name)
-                .content("산책 하실분 모집 합니다.")
-                .category(category)
-                .capacity(capacity)
-                .build();
     }
 
     private static Event createEvent(String author, String name, String content){

@@ -7,11 +7,11 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface EventParticipantRepository extends JpaRepository<EventParticipant, Long> {
+public interface EventParticipantRepository extends JpaRepository<EventParticipation, Long> {
 
-    @Query("SELECT COUNT(ep) From EventParticipant ep Where ep.event.id = :eventId")
-    long getParticipantCountById(@Param("eventId") Long eventId);
+    @Query("SELECT COUNT(ep) From EventParticipation ep Where ep.event.id = :eventId")
+    long getParticipationCountById(@Param("eventId") Long eventId);
 
-    List<EventParticipant> findEventParticipationByEventIdIn(List<Long> eventIds);
-    Optional<EventParticipant> findByEventIdAndUserId (Long eventId, Long userId);
+    List<EventParticipation> findEventParticipationByEventIdIn(List<Long> eventIds);
+    Optional<EventParticipation> findByEventIdAndUserId (Long eventId, Long userId);
 }

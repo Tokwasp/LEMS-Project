@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,7 +28,7 @@ public class RegularEvent extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "regularEvent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RegularEventParticipation> participations = new ArrayList<>();
 
     @Builder

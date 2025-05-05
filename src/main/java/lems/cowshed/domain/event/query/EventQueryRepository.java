@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.event.response.*;
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.regular.event.RegularEvent;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +17,9 @@ import java.util.stream.Collectors;
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.bookmark.QBookmark.bookmark;
 import static lems.cowshed.domain.event.QEvent.*;
-import static lems.cowshed.domain.event.participation.QEventParticipant.*;
+import static lems.cowshed.domain.event.participation.QEventParticipation.*;
+import static lems.cowshed.domain.regular.event.QRegularEvent.*;
+import static lems.cowshed.domain.regular.event.participation.QRegularEventParticipation.*;
 import static lems.cowshed.domain.user.QUser.user;
 
 @Repository
@@ -25,26 +28,27 @@ public class EventQueryRepository {
     private final EntityManager em;
     private final JPAQueryFactory queryFactory;
 
-    public EventQueryRepository(EntityManager em, JPAQueryFactory queryFactory) {
+    public EventQueryRepository(EntityManager em) {
         this.em = em;
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    public Event findEventWithParticipants(Long eventId){
+    public Event findEventFetchParticipants(Long eventId){
         return queryFactory
                 .select(event)
                 .from(event)
-                .leftJoin(event.participants, eventParticipant).fetchJoin()
+                .leftJoin(event.participants, eventParticipation).fetchJoin()
                 .where(event.id.eq(eventId))
                 .fetchOne();
     }
 
-    public List<Long> findParticipantUserIds(Long eventId){
+    public List<RegularEvent> findRegularEventsFetchParticipants(Long eventId) {
         return queryFactory
-                .select(eventParticipant.user.id)
-                .from(eventParticipant)
-                .join(eventParticipant.event, event)
-                .where(event.id.eq(eventId))
+                .select(regularEvent)
+                .from(regularEvent)
+                .join(regularEvent.event, event)
+                .leftJoin(regularEvent.participations, regularEventParticipation).fetchJoin()
+                .where(regularEvent.event.id.eq(eventId))
                 .fetch();
     }
 
@@ -56,13 +60,13 @@ public class EventQueryRepository {
                         event.name,
                         event.author,
                         event.content,
-                        eventParticipant.user.id.countDistinct().as("applicants"),
+                        eventParticipation.user.id.countDistinct().as("applicants"),
                         event.capacity,
                         event.createdDateTime
                 ))
-                .from(eventParticipant)
-                .rightJoin(eventParticipant.event, event)
-                .where(eventParticipant.event.id.in(eventIds))
+                .from(eventParticipation)
+                .rightJoin(eventParticipation.event, event)
+                .where(eventParticipation.event.id.in(eventIds))
                 .groupBy(event.id)
                 .fetch();
     }
@@ -94,8 +98,8 @@ public class EventQueryRepository {
     public List<Long> getEventIdsParticipatedByUser(Long userId, Pageable pageable) {
         return queryFactory
                 .select(event.id)
-                .from(eventParticipant)
-                .where(eventParticipant.user.id.eq(userId))
+                .from(eventParticipation)
+                .where(eventParticipation.user.id.eq(userId))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -110,16 +114,16 @@ public class EventQueryRepository {
     }
 
     public Map<Long,Long> findEventParticipantCountByEventIds(List<Long> eventIds) {
-        List<Tuple> tuples = queryFactory.select(eventParticipant.event.id, eventParticipant.event.id.count())
-                .from(eventParticipant)
-                .where(eventParticipant.event.id.in(eventIds))
-                .groupBy(eventParticipant.event.id)
+        List<Tuple> tuples = queryFactory.select(eventParticipation.event.id, eventParticipation.event.id.count())
+                .from(eventParticipation)
+                .where(eventParticipation.event.id.in(eventIds))
+                .groupBy(eventParticipation.event.id)
                 .fetch();
 
         return tuples.stream()
                 .collect(Collectors.toMap(
-                        tuple -> tuple.get(eventParticipant.event.id),
-                        tuple -> Optional.ofNullable(tuple.get(eventParticipant.event.id.count())).orElse(0L)
+                        tuple -> tuple.get(eventParticipation.event.id),
+                        tuple -> Optional.ofNullable(tuple.get(eventParticipation.event.id.count())).orElse(0L)
                 ));
     }
 

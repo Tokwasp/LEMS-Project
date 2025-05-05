@@ -3,9 +3,9 @@ package lems.cowshed.service.event;
 import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.event.participation.EventParticipant;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
@@ -55,9 +55,9 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         long userEventId = eventParticipationService.saveEventParticipation(event.getId(), user.getId());
 
         //then
-        EventParticipant eventParticipant = eventParticipantRepository.findById(userEventId).orElseThrow();
-        assertThat(eventParticipant.getUser()).extracting("username").isEqualTo("테스터");
-        assertThat(eventParticipant.getEvent()).extracting("name").isEqualTo("자전거 모임");
+        EventParticipation eventParticipation = eventParticipantRepository.findById(userEventId).orElseThrow();
+        assertThat(eventParticipation.getUser()).extracting("username").isEqualTo("테스터");
+        assertThat(eventParticipation.getEvent()).extracting("name").isEqualTo("자전거 모임");
     }
 
     @Disabled
@@ -99,7 +99,7 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         executorService.shutdown();
 
         // then
-        long participants = eventParticipantRepository.getParticipantCountById(findEvent.getId());
+        long participants = eventParticipantRepository.getParticipationCountById(findEvent.getId());
         assertThat(participants).isEqualTo(3);
         assertThat(exceptionCount.get()).isEqualTo(2);
     }
@@ -114,14 +114,14 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        EventParticipant eventParticipant = EventParticipant.of(user, event);
-        eventParticipantRepository.save(eventParticipant);
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        eventParticipantRepository.save(eventParticipation);
 
         //when
         eventParticipationService.deleteEventParticipation(event.getId(), user.getId());
 
         //then
-        assertThatThrownBy(() -> eventParticipantRepository.findById(eventParticipant.getId()).orElseThrow())
+        assertThatThrownBy(() -> eventParticipantRepository.findById(eventParticipation.getId()).orElseThrow())
                 .isInstanceOf(NoSuchElementException.class);
     }
 
@@ -135,8 +135,8 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        EventParticipant eventParticipant = EventParticipant.of(user, event);
-        eventParticipantRepository.save(eventParticipant);
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        eventParticipantRepository.save(eventParticipation);
 
         //when //then
         assertThatThrownBy(() -> eventParticipationService.deleteEventParticipation(null, user.getId()))
