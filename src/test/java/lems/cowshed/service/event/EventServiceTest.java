@@ -4,7 +4,8 @@ import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.*;
-import lems.cowshed.api.controller.dto.regular.event.RegularEventInfo;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularEventInfo;
+import lems.cowshed.api.controller.dto.event.response.EventParticipantsInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
@@ -14,6 +15,7 @@ import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipationRepository;
+import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
+import static lems.cowshed.domain.user.Mbti.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -354,6 +357,33 @@ class EventServiceTest extends IntegrationTestSupport {
                 .containsExactly(2L);
     }
 
+    @DisplayName("모임에 참여한 회원들을 조회 할때 두명의 회원이 참여한 경우 모임의 참여 인원수는 2명 이다.")
+    @Test
+    void getEventParticipants_WhenTwoUsersParticipate_ThenCountIsTwo() {
+        //given
+        User user = createUser("테스터", INTP);
+        User user2 = createUser("테스터2", ISTP);
+        Event event = createEvent("산책 모임", "테스터");
+
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+
+        userRepository.saveAll(List.of(user, user2));
+        eventRepository.save(event);
+        eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
+
+        //when
+        EventParticipantsInfo participantsInfo = eventService.getEventParticipants(event.getId());
+
+        //then
+        assertThat(participantsInfo.getParticipantCount()).isEqualTo(2);
+        assertThat(participantsInfo.getEventParticipants())
+                .extracting("name", "mbti")
+                .containsExactlyInAnyOrder(Tuple.tuple("테스터", INTP),
+                        Tuple.tuple("테스터2", ISTP));
+    }
+
+
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
     void getEventsWithRegular() {
@@ -622,6 +652,13 @@ class EventServiceTest extends IntegrationTestSupport {
         return User.builder()
                 .username(username)
                 .email(email)
+                .build();
+    }
+
+    private User createUser(String username, Mbti mbti) {
+        return User.builder()
+                .username(username)
+                .mbti(mbti)
                 .build();
     }
 

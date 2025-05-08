@@ -1,6 +1,7 @@
 package lems.cowshed.api.controller.regular.event.participation;
 
 import lems.cowshed.api.controller.CommonResponse;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.RegularEventService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,12 @@ public class RegularEventParticipationController implements RegularEventParticip
                                      @AuthenticationPrincipal CustomUserDetails userDetails){
         regularEventService.saveParticipation(regularId,userDetails.getUserId());
         return CommonResponse.success();
+    }
+
+    @GetMapping("/{regular-id}/participants")
+    public CommonResponse<RegularParticipantsInfo> getRegularParticipants(@PathVariable("regular-id") Long regularId){
+        RegularParticipantsInfo participantsInfo = regularEventService.getRegularParticipants(regularId);
+        return CommonResponse.success(participantsInfo);
     }
 
     @DeleteMapping("/participation/{participation-id}")

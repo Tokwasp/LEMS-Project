@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.dto.user.response.query;
+package lems.cowshed.api.controller.dto.event.response.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;

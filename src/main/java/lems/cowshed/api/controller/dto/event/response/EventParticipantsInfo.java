@@ -1,7 +1,7 @@
-package lems.cowshed.api.controller.dto.user.response;
+package lems.cowshed.api.controller.dto.event.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.api.controller.dto.user.response.query.EventParticipantQueryDto;
+import lems.cowshed.api.controller.dto.event.response.query.EventParticipantQueryDto;
 import lombok.Builder;
 import lombok.Getter;
 

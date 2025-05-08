@@ -2,13 +2,8 @@ package lems.cowshed.domain.user.query;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lems.cowshed.api.controller.dto.user.response.query.EventParticipantQueryDto;
-import lems.cowshed.api.controller.dto.user.response.query.QEventParticipantQueryDto;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-
-import static lems.cowshed.domain.event.participation.QEventParticipation.*;
 import static lems.cowshed.domain.user.QUser.*;
 
 @Repository
@@ -20,18 +15,6 @@ public class UserQueryRepository {
     public UserQueryRepository(EntityManager em) {
         this.em = em;
         this.queryFactory = new JPAQueryFactory(em);
-    }
-
-    public List<EventParticipantQueryDto> getEventParticipants(Long eventId) {
-        return queryFactory
-                .select(new QEventParticipantQueryDto(
-                        user.username.as("name"),
-                        user.mbti
-                ))
-                .from(eventParticipation)
-                .join(eventParticipation.user, user)
-                .on(eventParticipation.event.id.eq(eventId))
-                .fetch();
     }
 
     public MyPageUserQueryDto findUser(Long userId){

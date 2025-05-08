@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.dto.regular.event;
+package lems.cowshed.api.controller.dto.regular.event.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;

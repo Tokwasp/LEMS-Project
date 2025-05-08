@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.dto.regular.event;
+package lems.cowshed.api.controller.dto.regular.event.response;
 
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lombok.Builder;

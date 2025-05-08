@@ -7,6 +7,7 @@ import lems.cowshed.api.controller.ErrorCode;
 import lems.cowshed.api.controller.dto.event.response.*;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.api.controller.dto.event.response.EventParticipantsInfo;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.domain.user.CustomUserDetails;
@@ -34,6 +35,9 @@ public interface EventSpecification {
     @Operation(summary = "모임 조회", description = "모임을 조회 합니다.")
     CommonResponse<EventInfo> getEvent(@PathVariable("event-id") Long eventId,
                                        @AuthenticationPrincipal CustomUserDetails userDetails);
+
+    @Operation(summary = "모임에 참여한 회원 조회", description = "특정 모임에 참여한 회원들을 조회 합니다.")
+    CommonResponse<EventParticipantsInfo> getEventParticipants(@PathVariable("event-id") Long eventId);
 
     @Operation(summary = "모임 / 정기모임 상세 조회", description = "모임과 정기 모임 상세 정보를 반환 합니다.")
     @ApiErrorCodeExample(ErrorCode.NOT_FOUND_ERROR)

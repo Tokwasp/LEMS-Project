@@ -3,7 +3,6 @@ package lems.cowshed.service.user;
 import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
 import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.EventParticipantsInfo;
 import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
 import lems.cowshed.api.controller.dto.user.response.UserInfo;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
@@ -12,7 +11,6 @@ import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.api.controller.dto.user.response.query.EventParticipantQueryDto;
 import lems.cowshed.domain.user.query.MyPageUserQueryDto;
 import lems.cowshed.domain.user.query.UserQueryRepository;
 import lems.cowshed.exception.*;
@@ -67,11 +65,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
         user.modifyContents(editDto);
-    }
-
-    public EventParticipantsInfo getEventParticipants(Long eventId){
-        List<EventParticipantQueryDto> eventParticipants = userQueryRepository.getEventParticipants(eventId);
-        return EventParticipantsInfo.of(eventParticipants, eventParticipants.size());
     }
 
     public UserMyPageInfo findMyPage(Long userId) {
