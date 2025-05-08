@@ -1,7 +1,10 @@
-package lems.cowshed.api.controller.recurring.event;
+package lems.cowshed.api.controller.regular.event;
 
 import lems.cowshed.ControllerTestSupport;
 import lems.cowshed.api.controller.dto.regular.event.RegularEventSaveRequest;
+import lems.cowshed.domain.user.CustomUserDetails;
+import lems.cowshed.domain.user.Role;
+import lems.cowshed.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -9,6 +12,7 @@ import org.springframework.http.MediaType;
 import java.time.LocalDateTime;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -26,6 +30,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .with(csrf())
+                        .with(user(new CustomUserDetails(createForUserDetails())))
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("성공"));
@@ -94,6 +99,7 @@ class RegularEventControllerTest extends ControllerTestSupport {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                                 .with(csrf())
+                                .with(user(new CustomUserDetails(createForUserDetails())))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("성공"));
@@ -129,5 +135,10 @@ class RegularEventControllerTest extends ControllerTestSupport {
                 .location("테스트 장소")
                 .capacity(50)
                 .build();
+    }
+
+    private User createForUserDetails(){
+        return User.createUserForDetails(1L, "test",
+                "password", Role.ROLE_USER,"testEmail");
     }
 }

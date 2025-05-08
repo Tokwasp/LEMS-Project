@@ -15,10 +15,11 @@ public class RegularEventInfo {
     private int capacity;
     private int applicants;
     private boolean isParticipated;
+    private boolean isRegularRegistrant;
 
     @Builder
     private RegularEventInfo(long id, String name, String location, LocalDateTime dateTime,
-                             int capacity, int applicants, boolean isParticipated) {
+                             int capacity, int applicants, boolean isParticipated, boolean isRegularRegistrant) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -26,9 +27,11 @@ public class RegularEventInfo {
         this.capacity = capacity;
         this.applicants = applicants;
         this.isParticipated = isParticipated;
+        this.isRegularRegistrant = isRegularRegistrant;
     }
 
-    public static RegularEventInfo of(RegularEvent regularEvent, int applicants, boolean isParticipated){
+    public static RegularEventInfo of(RegularEvent regularEvent, int applicants, boolean isParticipated,
+                                        boolean isRegularRegistrant){
         return RegularEventInfo.builder()
                 .id(regularEvent.getId())
                 .name(regularEvent.getName())
@@ -37,6 +40,7 @@ public class RegularEventInfo {
                 .capacity(regularEvent.getCapacity())
                 .applicants(applicants)
                 .isParticipated(isParticipated)
+                .isRegularRegistrant((isRegularRegistrant))
                 .build();
     }
 

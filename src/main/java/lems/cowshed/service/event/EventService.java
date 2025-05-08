@@ -220,11 +220,15 @@ public class EventService {
                 .toList();
     }
 
-    private List<RegularEventInfo> convertRegularEventInfo(List<RegularEvent> uniqueRegularEvents, Map<Long, Integer> participantCountMap, Long userId) {
+    private List<RegularEventInfo> convertRegularEventInfo(List<RegularEvent> uniqueRegularEvents,
+                                                           Map<Long, Integer> participantCountMap, Long userId) {
         return uniqueRegularEvents.stream()
                 .map(re ->
-                        RegularEventInfo.of(re, participantCountMap.get(re.getId()),
-                                re.getParticipations().stream().anyMatch(p -> p.getUserId().equals(userId)))
+                        RegularEventInfo.of(re,
+                                participantCountMap.get(re.getId()),
+                                re.getParticipations().stream()
+                                        .anyMatch(p -> p.getUserId().equals(userId)),
+                                re.getUserId().equals(userId))
                 )
                 .toList();
     }
