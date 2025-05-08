@@ -1,6 +1,8 @@
 package lems.cowshed.service;
 
-import lems.cowshed.api.controller.dto.regular.event.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantsInfo;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantDetails;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
@@ -15,6 +17,8 @@ import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
@@ -45,6 +49,13 @@ public class RegularEventService {
         regularEventParticipationRepository.save(RegularEventParticipation.of(user, regularEvent));
     }
 
+    public RegularParticipantsInfo getRegularParticipants(Long regularId) {
+        List<Long> participantsUserIds = regularEventRepository.findParticipantsUserIdsByRegularId(regularId);
+        List<User> participants = userRepository.findByIdIn(participantsUserIds);
+        List<RegularParticipantDetails> details = convertDetails(participants);
+        return RegularParticipantsInfo.of(details, participantsUserIds.size());
+    }
+
     public void deleteParticipation(Long participationId, Long userId) {
         findUser(userId);
         regularEventParticipationRepository.deleteByIdAndUserId(participationId, userId);
@@ -66,5 +77,11 @@ public class RegularEventService {
     private RegularEvent findRegularEvent(Long regularId) {
         return regularEventRepository.findRegularEventWithLockById(regularId)
                 .orElseThrow(() -> new NotFoundException(REGULAR_EVENT_ID, REGULAR_EVENT_NOT_FOUND));
+    }
+
+    private List<RegularParticipantDetails> convertDetails(List<User> participants) {
+        return participants.stream()
+                .map(user -> RegularParticipantDetails.of(user.getUsername(), user.getMbti()))
+                .toList();
     }
 }

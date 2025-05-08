@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RegularEventRepository extends JpaRepository<RegularEvent, Long> {
@@ -15,4 +16,7 @@ public interface RegularEventRepository extends JpaRepository<RegularEvent, Long
 
     @Query("select count(rep) from RegularEventParticipation rep join rep.regularEvent re where re.id = :regularId")
     long getParticipantCount(@Param("regularId") long regularId);
+
+    @Query("select rep.userId from RegularEventParticipation rep join rep.regularEvent re where re.id = :regularId")
+    List<Long> findParticipantsUserIdsByRegularId(@Param("regularId") Long regularId);
 }

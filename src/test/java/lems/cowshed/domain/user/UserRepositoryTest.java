@@ -1,12 +1,14 @@
 package lems.cowshed.domain.user;
 
 import lems.cowshed.IntegrationTestSupport;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.*;
@@ -107,6 +109,25 @@ class UserRepositoryTest extends IntegrationTestSupport {
         assertThat(result).isFalse();
     }
 
+    @DisplayName("회원 ID 리스트를 통해 회원을 조회 한다.")
+    @Test
+    void findByIdIn() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        User user2 = createUser("테스터2", "test2@naver.com");
+        userRepository.saveAll(List.of(user,user2));
+
+        //when
+        List<User> users = userRepository.findByIdIn(List.of(user.getId(), user2.getId()));
+
+        //then
+        assertThat(users).hasSize(2)
+                .extracting("username","email")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("테스터", "test@naver.com"),
+                        Tuple.tuple("테스터2", "test2@naver.com")
+                );
+    }
     private User createUser(String username, String mail) {
         return User.builder()
                 .username(username)
