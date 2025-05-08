@@ -33,13 +33,14 @@ public class RegularEventSaveRequest {
         this.capacity = capacity;
     }
 
-    public RegularEvent toEntity(Event event) {
+    public RegularEvent toEntity(Event event, Long userId) {
         return RegularEvent.builder()
                 .name(name)
                 .dateTime(dateTime)
                 .location(location)
                 .capacity(capacity)
                 .event(event)
+                .userId(userId)
                 .build();
     }
 }

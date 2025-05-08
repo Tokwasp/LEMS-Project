@@ -29,11 +29,11 @@ public class RegularEventService {
     private final RegularEventRepository regularEventRepository;
     private final RegularEventParticipationRepository regularEventParticipationRepository;
 
-    public void save(RegularEventSaveRequest request, Long eventId) {
+    public void save(RegularEventSaveRequest request, Long eventId, Long userId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        RegularEvent regularEvent = request.toEntity(event);
+        RegularEvent regularEvent = request.toEntity(event, userId);
         regularEventRepository.save(regularEvent);
     }
 
@@ -43,6 +43,11 @@ public class RegularEventService {
         regularEventParticipation(regularEvent);
 
         regularEventParticipationRepository.save(RegularEventParticipation.of(user, regularEvent));
+    }
+
+    public void deleteParticipation(Long participationId, Long userId) {
+        findUser(userId);
+        regularEventParticipationRepository.deleteByIdAndUserId(participationId, userId);
     }
 
     private User findUser(Long userId) {

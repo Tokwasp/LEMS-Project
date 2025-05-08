@@ -235,7 +235,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        RegularEvent regularEvent = createRegularEvent(event, "정기 모임", "테스트 장소");
+        RegularEvent regularEvent = createRegularEvent(event, "정기 모임", "테스트 장소", user.getId());
         regularEventRepository.save(regularEvent);
 
         //when
@@ -257,7 +257,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        RegularEvent regularEvent = createRegularEvent(event, "정기 모임", "테스트 장소");
+        RegularEvent regularEvent = createRegularEvent(event, "정기 모임", "테스트 장소", user.getId());
         regularEventRepository.save(regularEvent);
 
         RegularEventParticipation regularParticipation = createRegularParticipation(user.getId(), regularEvent);
@@ -282,8 +282,8 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        RegularEvent regularEvent = createRegularEvent(event, "참석 정기 모임", "참석 장소");
-        RegularEvent regularEvent2 = createRegularEvent(event, "비참석 정기 모임", "비참석 장소");
+        RegularEvent regularEvent = createRegularEvent(event, "참석 정기 모임", "참석 장소", user.getId());
+        RegularEvent regularEvent2 = createRegularEvent(event, "비참석 정기 모임", "비참석 장소", user.getId());
         regularEventRepository.saveAll(List.of(regularEvent, regularEvent2));
 
         RegularEventParticipation regularParticipation = createRegularParticipation(user.getId(), regularEvent);
@@ -302,6 +302,31 @@ class EventServiceTest extends IntegrationTestSupport {
                 );
     }
 
+    @DisplayName("모임과 정기모임을 함께 조회할 때 내가 만든 정기 모임인지 확인 한다.")
+    @Test
+    void getEventWithRegularInfo_WhenIsRegularEventRegistrant_ThenTure() {
+        //given
+        User user = createUser("정기 모임 생성자", "RegularEventCreator");
+        userRepository.save(user);
+
+        Event event = createEvent(user.getUsername(), "자전거 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(event, "참석 정기 모임", "참석 장소", user.getId());
+        RegularEvent regularEvent2 = createRegularEvent(event, "비참석 정기 모임", "비참석 장소", 2L);
+        regularEventRepository.saveAll(List.of(regularEvent, regularEvent2));
+
+        //when
+        EventWithRegularInfo result = eventService.getEventWithRegularInfo(event.getId(), user.getId(), user.getUsername());
+
+        //then
+        List<RegularEventInfo> regularEvents = result.getRegularEvents();
+        assertThat(regularEvents)
+                .extracting("isRegularRegistrant")
+                .containsExactlyInAnyOrder(
+                        true,false
+                );
+    }
 
     @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
     @Test
@@ -608,12 +633,13 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private RegularEvent createRegularEvent(Event event, String name, String location){
+    private RegularEvent createRegularEvent(Event event, String name, String location, Long userId){
         return RegularEvent.builder()
                 .event(event)
                 .name(name)
                 .capacity(50)
                 .location(location)
+                .userId(userId)
                 .build();
     }
 

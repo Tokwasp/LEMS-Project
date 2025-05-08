@@ -23,6 +23,7 @@ public class RegularEvent extends BaseEntity {
     private LocalDateTime dateTime;
     private String location;
     private int capacity;
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
@@ -32,22 +33,25 @@ public class RegularEvent extends BaseEntity {
     private List<RegularEventParticipation> participations = new ArrayList<>();
 
     @Builder
-    private RegularEvent(String name, LocalDateTime dateTime, String location, int capacity, Event event) {
+    private RegularEvent(String name, LocalDateTime dateTime, String location,
+                         int capacity, Event event, Long userId) {
         this.name = name;
         this.dateTime = dateTime;
         this.location = location;
         this.capacity = capacity;
         this.event = event;
+        this.userId = userId;
     }
 
     public static RegularEvent of(String name, LocalDateTime dateTime, String location,
-                                  int capacity, Event event){
+                                  int capacity, Long userId, Event event){
         return RegularEvent.builder()
                 .name(name)
                 .dateTime(dateTime)
                 .location(location)
                 .capacity(capacity)
                 .event(event)
+                .userId(userId)
                 .build();
     }
 
