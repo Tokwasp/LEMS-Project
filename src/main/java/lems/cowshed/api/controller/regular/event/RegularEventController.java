@@ -3,8 +3,10 @@ package lems.cowshed.api.controller.regular.event;
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.regular.event.RegularEventSaveRequest;
+import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.RegularEventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/events/{event-id}/regular")
@@ -16,8 +18,9 @@ public class RegularEventController implements RegularEventSpecification {
 
     @PostMapping
     public CommonResponse<Void> save(@Valid @RequestBody RegularEventSaveRequest request,
-                                     @PathVariable("event-id") Long eventId) {
-        regularEventService.save(request, eventId);
+                                     @PathVariable("event-id") Long eventId,
+                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
+        regularEventService.save(request, eventId, userDetails.getUserId());
         return CommonResponse.success();
     }
 }
