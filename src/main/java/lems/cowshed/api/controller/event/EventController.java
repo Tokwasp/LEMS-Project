@@ -4,6 +4,7 @@ import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.event.response.*;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.api.controller.dto.event.response.EventParticipantsInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.event.EventService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,12 @@ public class EventController implements EventSpecification {
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails){
         eventService.editEvent(eventId, requestDto, customUserDetails.getUsername());
         return CommonResponse.success();
+    }
+
+    @GetMapping("/{event-id}/participants")
+    public CommonResponse<EventParticipantsInfo> getEventParticipants(@PathVariable("event-id") Long eventId){
+        EventParticipantsInfo participantsInfo = eventService.getEventParticipants(eventId);
+        return CommonResponse.success(participantsInfo);
     }
 
     @GetMapping

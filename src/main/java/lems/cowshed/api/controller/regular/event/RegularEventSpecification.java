@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.regular.event.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
 import lems.cowshed.domain.user.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;

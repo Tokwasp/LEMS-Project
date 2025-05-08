@@ -4,6 +4,8 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lems.cowshed.api.controller.dto.event.response.*;
+import lems.cowshed.api.controller.dto.event.response.query.EventParticipantQueryDto;
+import lems.cowshed.api.controller.dto.event.response.query.QEventParticipantQueryDto;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,18 @@ public class EventQueryRepository {
     public EventQueryRepository(EntityManager em) {
         this.em = em;
         this.queryFactory = new JPAQueryFactory(em);
+    }
+
+    public List<EventParticipantQueryDto> getEventParticipants(Long eventId) {
+        return queryFactory
+                .select(new QEventParticipantQueryDto(
+                        user.username.as("name"),
+                        user.mbti
+                ))
+                .from(eventParticipation)
+                .join(eventParticipation.user, user)
+                .on(eventParticipation.event.id.eq(eventId))
+                .fetch();
     }
 
     public Event findEventFetchParticipants(Long eventId){

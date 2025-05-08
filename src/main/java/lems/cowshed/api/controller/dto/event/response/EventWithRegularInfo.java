@@ -1,7 +1,7 @@
 package lems.cowshed.api.controller.dto.event.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.api.controller.dto.regular.event.RegularEventInfo;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularEventInfo;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;

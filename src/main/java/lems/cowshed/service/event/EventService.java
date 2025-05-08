@@ -4,7 +4,9 @@ import lems.cowshed.api.controller.dto.event.EventIdProvider;
 import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.api.controller.dto.event.response.*;
-import lems.cowshed.api.controller.dto.regular.event.RegularEventInfo;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularEventInfo;
+import lems.cowshed.api.controller.dto.event.response.EventParticipantsInfo;
+import lems.cowshed.api.controller.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.config.aws.AwsS3Util;
 import lems.cowshed.domain.UploadFile;
 import lems.cowshed.domain.bookmark.Bookmark;
@@ -75,6 +77,11 @@ public class EventService {
         }
 
         event.edit(requestDto);
+    }
+
+    public EventParticipantsInfo getEventParticipants(Long eventId){
+        List<EventParticipantQueryDto> eventParticipants = eventQueryRepository.getEventParticipants(eventId);
+        return EventParticipantsInfo.of(eventParticipants, eventParticipants.size());
     }
 
     public EventWithRegularInfo getEventWithRegularInfo(Long eventId, Long userId, String username) {

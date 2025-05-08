@@ -2,7 +2,7 @@ package lems.cowshed.service;
 
 import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.regular.event.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;

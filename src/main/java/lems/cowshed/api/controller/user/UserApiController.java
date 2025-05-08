@@ -55,12 +55,6 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success();
     }
 
-    @GetMapping("/events/{event-id}")
-    public CommonResponse<EventParticipantsInfo> getEventParticipants(@PathVariable("event-id") Long eventId){
-        EventParticipantsInfo participantsInfo = userService.getEventParticipants(eventId);
-        return CommonResponse.success(participantsInfo);
-    }
-
     @GetMapping("/my-page")
     public CommonResponse<UserMyPageInfo> findMyPage(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         UserMyPageInfo myPage = userService.findMyPage(customUserDetails.getUserId());
