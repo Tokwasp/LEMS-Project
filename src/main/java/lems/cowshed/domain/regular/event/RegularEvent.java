@@ -4,12 +4,16 @@ import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
+import lems.cowshed.exception.BusinessException;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static lems.cowshed.exception.Message.*;
+import static lems.cowshed.exception.Reason.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -69,5 +73,19 @@ public class RegularEvent extends BaseEntity {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public void updateCapacity(long participantCount, int updateCapacity) {
+        if(participantCount > updateCapacity){
+            throw new BusinessException(REGULAR_EVENT_PARTICIPATION, REGULAR_EVENT_INVALID_UPDATE_CAPACITY);
+        }
+        this.capacity = updateCapacity;
+    }
+
+    public void edit(RegularEventEditCommand command) {
+        this.name = command.getName();
+        this.dateTime = command.getDateTime();
+        this.location = command.getLocation();
+        this.capacity = command.getCapacity();
     }
 }

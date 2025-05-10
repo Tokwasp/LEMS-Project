@@ -34,6 +34,7 @@ public class RegularEventParticipation extends BaseEntity {
                 .userId(user.getId())
                 .regularEvent(regularEvent)
                 .build();
+
         regularEvent.getParticipations().add(regularEventParticipation);
         return regularEventParticipation;
     }

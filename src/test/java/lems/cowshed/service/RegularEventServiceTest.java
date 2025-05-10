@@ -2,7 +2,9 @@ package lems.cowshed.service;
 
 import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
+import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
@@ -47,7 +49,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("정기 모임을 등록 한다.")
     @Test
-    void save() {
+    void saveRegularEvent() {
         //given
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
@@ -60,12 +62,60 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .build();
 
         //when
-        regularEventService.save(request, event.getId(), null);
+        Long regularEventId = regularEventService.saveRegularEvent(request, event.getId(), null);
 
         //then
-        List<RegularEvent> savedEvents = regularEventRepository.findAll();
-        assertThat(savedEvents).hasSize(1);
-        assertThat(savedEvents.get(0).getName()).isEqualTo("정기 모임");
+        RegularEvent regularEvent = regularEventRepository.findById(regularEventId).orElseThrow();
+        assertThat(regularEvent)
+                .extracting("name", "location")
+                .containsExactly("정기 모임", "테스트 장소");
+    }
+
+    @DisplayName("정기 모임을 만들때 만든 회원은 정기 모임에 참여 한다.")
+    @Test
+    void saveRegularEvent_ThenParticipateMyself() {
+        //given
+        User user = createUser("정기 모임 생성자", "RegularEventCreator");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        RegularEventSaveRequest request = RegularEventSaveRequest.builder()
+                .name("정기 모임")
+                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .location("테스트 장소")
+                .capacity(50)
+                .build();
+
+        //when
+        regularEventService.saveRegularEvent(request, event.getId(), user.getId());
+
+        //then
+        List<RegularEventParticipation> participants = participationRepository.findAll();
+        assertThat(participants).hasSize(1);
+    }
+
+    @DisplayName("정기 모임을 조회 합니다.")
+    @Test
+    void getRegularEvent() {
+        //given
+        User user = createUser("정기 모임 생성자", "RegularEventCreator");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(user, event, "정기 모임", "정기 모임 장소");
+        regularEventRepository.save(regularEvent);
+
+        //when
+        RegularEventSimpleInfo result = regularEventService.getRegularEvent(regularEvent.getId());
+
+        //then
+        assertThat(result)
+                .extracting("name", "location")
+                .containsExactly("정기 모임", "정기 모임 장소");
     }
 
     @DisplayName("정기 모임 참석을 해제 한다.")
@@ -122,6 +172,41 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 );
     }
 
+    @DisplayName("정기 모임을 수정 한다.")
+    @Test
+    void editRegularEvent() {
+        //given
+        User user = createUser("테스터", INTP);
+        userRepository.save(user);
+
+        Event event = createEvent(user.getUsername(), "테스트 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(user, event);
+        regularEventRepository.save(regularEvent);
+
+        RegularEventEditRequest request = createRegularEditRequest("이름 변경", "장소 변경");
+
+        //when
+        regularEventService.editRegularEvent(request, regularEvent.getId());
+        em.flush(); em.clear();
+
+        //then
+        RegularEvent findRegularEvent = regularEventRepository.findById(regularEvent.getId()).orElseThrow();
+        assertThat(findRegularEvent)
+                .extracting("name", "location")
+                .containsExactly("이름 변경", "장소 변경");
+    }
+
+    private RegularEventEditRequest createRegularEditRequest(String name, String location) {
+        return RegularEventEditRequest.builder()
+                .name(name)
+                .location(location)
+                .dateTime(LocalDateTime.of(2025, 5, 1, 12, 0, 0))
+                .capacity(50)
+                .build();
+    }
+
     private Event createEvent(String author, String name) {
         return Event.builder()
                 .name(name)
@@ -135,6 +220,17 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .event(event)
                 .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
                 .location("테스트 장소")
+                .capacity(50)
+                .userId(user.getId())
+                .build();
+    }
+
+    private RegularEvent createRegularEvent(User user, Event event, String name, String location){
+        return RegularEvent.builder()
+                .name(name)
+                .event(event)
+                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .location(location)
                 .capacity(50)
                 .userId(user.getId())
                 .build();

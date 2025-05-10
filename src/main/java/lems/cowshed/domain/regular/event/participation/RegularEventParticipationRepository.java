@@ -10,4 +10,7 @@ public interface RegularEventParticipationRepository extends JpaRepository<Regul
     @Modifying(clearAutomatically = true)
     @Query("delete from RegularEventParticipation rep where rep.id = :participationId And rep.userId = :userId")
     int deleteByIdAndUserId(@Param("participationId") Long participationId, @Param("userId") Long userId);
+
+    @Query("select COUNT(rep) from RegularEventParticipation rep where rep.regularEvent.id = :regularId")
+    long getParticipantCountByRegularId(@Param("regularId") Long regularId);
 }
