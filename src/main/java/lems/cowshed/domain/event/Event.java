@@ -2,14 +2,18 @@ package lems.cowshed.domain.event;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
-import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.UploadFile;
 import lems.cowshed.domain.event.participation.EventParticipation;
+import lems.cowshed.exception.BusinessException;
+
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static lems.cowshed.exception.Message.*;
+import static lems.cowshed.exception.Reason.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -55,11 +59,22 @@ public class Event extends BaseEntity {
         this.uploadFile = uploadFile;
     }
 
-    public void edit(EventUpdateRequestDto requestDto) {
-        if(requestDto.getName() != null) this.name = requestDto.getName();
-        this.capacity = requestDto.getCapacity();
-        if(requestDto.getContent() != null) this.content = requestDto.getContent();
-        if(requestDto.getCategory() != null) this.category = requestDto.getCategory();
+    public void edit(EventEditCommand command) {
+        this.name = command.getName();
+        this.category = command.getCategory();
+        this.content = command.getContent();
+        this.capacity = command.getCapacity();
+
+        if(uploadFile != null){
+            this.updateUploadFile(command.getUploadFile());
+        }
+    }
+
+    public void updateCapacity(long participantsCount, int updateCapacity) {
+        if(participantsCount > updateCapacity){
+            throw new BusinessException(EVENT_PARTICIPATION, EVENT_INVALID_UPDATE_CAPACITY);
+        }
+        this.capacity = updateCapacity;
     }
 
     public boolean isOverCapacity(long capacity){
@@ -70,4 +85,7 @@ public class Event extends BaseEntity {
         return !this.author.equals(author);
     }
 
+    public void updateUploadFile(UploadFile uploadFile) {
+        this.uploadFile = uploadFile;
+    }
 }

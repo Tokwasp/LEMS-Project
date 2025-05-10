@@ -1,15 +1,13 @@
 package lems.cowshed.api.controller.dto.event.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
+import lems.cowshed.api.controller.dto.Enum;
 import lems.cowshed.domain.event.Category;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Schema(description = "모임 수정")
@@ -19,33 +17,31 @@ public class EventUpdateRequestDto {
     @Schema(description = "모임 이름", example = "새벽 한강 러닝 모임")
     String name;
 
+    @Enum(message = "Category 타입을 확인해 주세요.")
     @Schema(description = "카테고리", example = "스포츠")
     Category category;
-
-    @NotBlank
-    @Schema(description = "모임 장소", example = "여의도 한강공원")
-    String location;
-
-    @Schema(description = "모임 날짜", example = "yyyy-mm-dd")
-    LocalDate eventDate;
-
-    @Max(value = 200)
-    @Schema(description = "수용 인원", example = "50")
-    int capacity;
 
     @NotBlank
     @Schema(description = "내용", example = "출근 전에 한강에서 같이 뛰실 분 구해요!!")
     String content;
 
+    @Max(value = 100)
+    @Schema(description = "수용 인원 ( 최대 100명 )", example = "50")
+    int capacity;
+
+    @Schema(description = "이미지 이름", example = "강아지.jpg")
+    MultipartFile file;
+
     @Builder
-    private EventUpdateRequestDto(String name, Category category, String location, LocalDate eventDate, int capacity, String content) {
+    private EventUpdateRequestDto(String name, Category category, String content,
+                                  int capacity, MultipartFile file) {
         this.name = name;
         this.category = category;
-        this.location = location;
-        this.eventDate = eventDate;
-        this.capacity = capacity;
         this.content = content;
+        this.capacity = capacity;
+        this.file = file;
     }
 
     private EventUpdateRequestDto() {}
+
 }

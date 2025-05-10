@@ -41,7 +41,7 @@ public class EventController implements EventSpecification {
     @PatchMapping("/{event-id}")
     public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId,
                                           @RequestBody @Validated EventUpdateRequestDto requestDto,
-                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                          @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
         eventService.editEvent(eventId, requestDto, customUserDetails.getUsername());
         return CommonResponse.success();
     }

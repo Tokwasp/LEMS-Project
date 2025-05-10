@@ -13,6 +13,7 @@ import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.EventEditCommand;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.participation.EventParticipation;
@@ -22,7 +23,10 @@ import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.domain.event.participation.Participants;
 import lems.cowshed.domain.event.participation.EventParticipantRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.user.User;
+import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.exception.BusinessException;
+import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +47,7 @@ import static lems.cowshed.exception.Reason.*;
 @Service
 public class EventService {
 
+    private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final EventQueryRepository eventQueryRepository;
     private final BookmarkRepository bookmarkRepository;
@@ -63,20 +68,26 @@ public class EventService {
     public Long saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
         UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
         Event event = requestDto.toEntity(username, uploadFile);
-
         Event savedEvent = eventRepository.save(event);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException(USER_NAME, USER_NOT_FOUND));
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        eventParticipantRepository.save(eventParticipation);
+
         return savedEvent.getId();
     }
 
-    public void editEvent(Long eventId, EventUpdateRequestDto requestDto, String userName) {
-        Event event = eventRepository.findByIdAndAuthor(eventId, userName)
+    public void editEvent(Long eventId, EventUpdateRequestDto request, String username) throws IOException {
+        Event event = eventRepository.findByIdAndAuthor(eventId, username)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        if (isNotRegisteredEventByUser(event, userName)) {
-            throw new BusinessException(BusinessReason, EVENT_NOT_REGISTERED_BY_USER);
-        }
+        long participantCount = eventParticipantRepository.getParticipationCountById(event.getId());
+        event.updateCapacity(participantCount, request.getCapacity());
 
-        event.edit(requestDto);
+        UploadFile uploadFile = awsS3Util.uploadFile(request.getFile());
+        EventEditCommand eventEditCommand = createEventEditCommand(request, uploadFile);
+        event.edit(eventEditCommand);
     }
 
     public EventParticipantsInfo getEventParticipants(Long eventId){
@@ -159,8 +170,14 @@ public class EventService {
         return EventsSearchInfo.of(EventWithbookmarkStatus);
     }
 
-    private boolean isNotRegisteredEventByUser(Event event, String userName) {
-        return event.isNotSameAuthor(userName);
+    private EventEditCommand createEventEditCommand(EventUpdateRequestDto request, UploadFile uploadFile) {
+        return EventEditCommand.of(
+                request.getName(),
+                request.getCategory(),
+                request.getContent(),
+                request.getCapacity(),
+                uploadFile
+        );
     }
 
     private boolean isParticipatedEvent(Long userId, List<Long> participantUserIds) {

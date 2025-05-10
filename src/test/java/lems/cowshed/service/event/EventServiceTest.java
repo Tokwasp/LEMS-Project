@@ -75,10 +75,13 @@ class EventServiceTest extends IntegrationTestSupport {
     @Test
     void saveEvent() throws IOException {
         //given
+        String username = "테스터";
+        User user = createUser(username, "testEmail");
+        userRepository.save(user);
         EventSaveRequestDto request = createRequestDto("자전거 모임", "서울", 10);
 
         //when
-        eventService.saveEvent(request, "테스터");
+        eventService.saveEvent(request, username);
 
         //then
         Event findEvent = eventRepository.findByName("자전거 모임");
@@ -86,14 +89,33 @@ class EventServiceTest extends IntegrationTestSupport {
                 .containsExactly("자전거 모임", 10);
     }
 
-    @DisplayName("모임을 등록할때 업로드 파일이 없다면 업로드 파일은 null이다.")
+    @DisplayName("모임을 등록할때 만든 회원은 모임에 참여 한다.")
     @Test
-    void saveEvent_whenNotRegisterFile_UploadFileIsNull() throws IOException {
+    void saveEvent_ThenParticipateMySelf() throws IOException {
         //given
+        User user = createUser("테스터", "testEmail");
+        userRepository.save(user);
         EventSaveRequestDto request = createRequestDto("자전거 모임", "서울", 10);
 
         //when
         eventService.saveEvent(request, "테스터");
+
+        //then
+        List<EventParticipation> eventParticipants = eventParticipantRepository.findAll();
+        assertThat(eventParticipants).hasSize(1);
+    }
+
+    @DisplayName("모임을 등록할때 업로드 파일이 없다면 업로드 파일은 null이다.")
+    @Test
+    void saveEvent_whenNotRegisterFile_UploadFileIsNull() throws IOException {
+        //given
+        String username = "테스터";
+        User user = createUser(username, "testEmail");
+        userRepository.save(user);
+        EventSaveRequestDto request = createRequestDto("자전거 모임", "서울", 10);
+
+        //when
+        eventService.saveEvent(request, username);
 
         //then
         Event findEvent = eventRepository.findByName("자전거 모임");
@@ -427,7 +449,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("모임을 수정 한다.")
     @Test
-    void editEvent() {
+    void editEvent() throws IOException {
         //given
         Event event = createEvent("테스터", "자전거 모임", 10);
         eventRepository.save(event);
@@ -441,6 +463,29 @@ class EventServiceTest extends IntegrationTestSupport {
         Event findEvent = eventRepository.findById(event.getId()).orElseThrow();
         assertThat(findEvent).extracting("author", "name", "capacity")
                 .containsExactly("테스터", "산책 모임", 20);
+    }
+
+    @DisplayName("모임을 수정할때 모임 참여인원이 변경 최대 인원보다 많다면 예외가 발생 한다.")
+    @Test
+    void editEvent_WhenParticipantCountExceedsNewCapacity_ThenException() throws IOException {
+        //given
+        User user = createUser("회원1", "test1@naver.com");
+        User user2 = createUser("회원2", "test2@naver.com");
+        userRepository.saveAll(List.of(user, user2));
+
+        Event event = createEvent("테스터", "자전거 모임", 2);
+        eventRepository.save(event);
+
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+        eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
+
+        EventUpdateRequestDto updateRequest = createUpdateRequestDto("산책 모임", 1);
+
+        //when //then
+        assertThatThrownBy(() -> eventService.editEvent(event.getId(), updateRequest, "테스터"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("모임에 참여한 회원이 최대 인원보다 더 많습니다.");
     }
 
     @DisplayName("모임을 수정할 때 내가 등록한 모임이 아니라면 예외가 발생 한다.")
