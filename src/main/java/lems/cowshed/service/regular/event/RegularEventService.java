@@ -1,4 +1,4 @@
-package lems.cowshed.service;
+package lems.cowshed.service.regular.event;
 
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
@@ -15,10 +15,8 @@ import lems.cowshed.domain.regular.event.participation.RegularEventParticipation
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.exception.BusinessException;
-import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
 
-import lems.cowshed.exception.Reason;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

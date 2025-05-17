@@ -12,7 +12,7 @@ import lems.cowshed.domain.mail.code.CodeType;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.domain.user.CustomUserDetails;
-import lems.cowshed.service.MailService;
+import lems.cowshed.service.mail.MailService;
 import lems.cowshed.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

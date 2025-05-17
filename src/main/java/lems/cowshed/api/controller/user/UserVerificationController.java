@@ -5,7 +5,7 @@ import lems.cowshed.api.controller.dto.user.verification.request.MailVerificatio
 import lems.cowshed.api.controller.dto.user.verification.response.VerificationResultInfo;
 import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.mail.code.CodeFinder;
-import lems.cowshed.service.MailService;
+import lems.cowshed.service.mail.MailService;
 import lems.cowshed.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

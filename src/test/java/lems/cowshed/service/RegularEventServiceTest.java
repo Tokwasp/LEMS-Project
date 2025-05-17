@@ -15,6 +15,7 @@ import lems.cowshed.domain.regular.event.participation.RegularEventParticipation
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.service.regular.event.RegularEventService;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

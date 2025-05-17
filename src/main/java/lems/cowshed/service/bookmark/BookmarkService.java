@@ -1,4 +1,4 @@
-package lems.cowshed.service;
+package lems.cowshed.service.bookmark;
 
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;

@@ -6,7 +6,7 @@ import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditReq
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
 import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
-import lems.cowshed.service.RegularEventService;
+import lems.cowshed.service.regular.event.RegularEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
