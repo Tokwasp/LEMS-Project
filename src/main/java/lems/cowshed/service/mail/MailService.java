@@ -1,4 +1,4 @@
-package lems.cowshed.service;
+package lems.cowshed.service.mail;
 
 import lems.cowshed.api.controller.dto.user.verification.response.VerificationResultInfo;
 import lems.cowshed.domain.mail.Mail;

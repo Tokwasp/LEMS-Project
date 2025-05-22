@@ -24,11 +24,14 @@ public enum Reason {
     EVENT_ID("event_id"),
     EVENT_CAPACITY("event_capacity"),
     EVENT_AUTHOR("event_author"),
-    BusinessReason("Business"),
 
     EVENT_PARTICIPATION("event_participation"),
 
     REGULAR_EVENT_ID("regular_event_id"),
-    REGULAR_EVENT_PARTICIPATION("regular_event_participation");
+    REGULAR_EVENT_PARTICIPATION("regular_event_participation"),
+
+    POST_ID("post_id"),
+
+    COMMENT_ID("comment_id");
     private final String text;
 }
