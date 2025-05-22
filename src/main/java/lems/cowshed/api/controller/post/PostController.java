@@ -25,7 +25,7 @@ public class PostController implements PostSpecification {
         return CommonResponse.success();
     }
 
-    @PatchMapping("/posts/{post-id}")
+    @PutMapping("/posts/{post-id}")
     public CommonResponse<Void> modify(@RequestBody PostModifyRequest request, @PathVariable("post-id") Long postId,
                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.modify(request, userDetails.getUserId(), postId);
