@@ -4,6 +4,7 @@ import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.comment.request.CommentModifyRequest;
 import lems.cowshed.api.controller.dto.comment.request.CommentSaveRequest;
 import lems.cowshed.api.controller.dto.comment.response.CommentInfo;
+import lems.cowshed.api.controller.dto.comment.response.CommentsInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.comment.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,9 @@ public class CommentController implements CommentSpecification {
     private final CommentService commentService;
 
     @GetMapping("/posts/{post-id}/comments")
-    public CommonResponse<CommentInfo> getPostComments(@PathVariable("post-id") Long postId) {
-        commentService.getPostComments(postId, LocalDateTime.now());
-        return null;
+    public CommonResponse<CommentsInfo> getPostComments(@PathVariable("post-id") Long postId) {
+        CommentsInfo commentsInfo = commentService.getPostComments(postId, LocalDateTime.now());
+        return CommonResponse.success(commentsInfo);
     }
 
     @PostMapping("/posts/{post-id}/comments")
@@ -38,7 +39,7 @@ public class CommentController implements CommentSpecification {
         return CommonResponse.success();
     }
 
-    @DeleteMapping("/comment/{comment-id}")
+    @DeleteMapping("/comments/{comment-id}")
     public CommonResponse<Void> delete(@PathVariable("comment-id") Long commentId,
                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         commentService.delete(commentId, userDetails.getUserId());
