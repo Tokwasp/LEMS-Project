@@ -21,5 +21,8 @@ public interface RegularEventRepository extends JpaRepository<RegularEvent, Long
     List<Long> findParticipantsUserIdsByRegularId(@Param("regularId") Long regularId);
 
     @Query("select re from RegularEvent re left join fetch re.participations rep where re.id = :regularId")
-    RegularEvent findByIdFetchParticipation(Long regularId);
+    RegularEvent findByIdFetchParticipation(@Param("regularId") Long regularId);
+
+    @Query("select distinct re from RegularEvent re left join fetch re.participations rep where re.id in :regularIds")
+    List<RegularEvent> findByIdsFetchParticipation(@Param("regularIds") List<Long> regularEventIds);
 }

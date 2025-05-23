@@ -4,10 +4,13 @@ import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularEventPagingInfo;
 import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.regular.event.RegularEventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +32,14 @@ public class RegularEventController implements RegularEventSpecification {
     public CommonResponse<RegularEventSimpleInfo> getRegularEvent(@PathVariable("regular-id") Long regularId) {
         RegularEventSimpleInfo info = regularEventService.getRegularEvent(regularId);
         return CommonResponse.success(info);
+    }
+
+    @GetMapping("/regular/search")
+    public CommonResponse<RegularEventPagingInfo> findPagingInfo(@PageableDefault(page = 0, size = 5) Pageable pageable,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        RegularEventPagingInfo pagingInfo = regularEventService.findPagingInfo(pageable, userDetails.getUserId());
+        return CommonResponse.success(pagingInfo);
     }
 
     @PatchMapping("/regular/{regular-id}")

@@ -2,6 +2,7 @@ package lems.cowshed.service.regular.event;
 
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.api.controller.dto.regular.event.response.RegularEventPagingInfo;
 import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
@@ -13,8 +14,12 @@ import lems.cowshed.domain.regular.event.participation.RegularEventParticipation
 import lems.cowshed.exception.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
@@ -48,6 +53,14 @@ public class RegularEventService {
         return RegularEventSimpleInfo.from(regularEvent);
     }
 
+    public RegularEventPagingInfo findPagingInfo(Pageable pageable, Long userId) {
+        Slice<RegularEvent> pagingInfo = regularEventRepository.findAll(pageable);
+        List<Long> regularEventIds = getRegularEventIds(pagingInfo.getContent());
+
+        List<RegularEvent> regularEvents = regularEventRepository.findByIdsFetchParticipation(regularEventIds);
+        return RegularEventPagingInfo.of(regularEvents, userId, pagingInfo.hasNext());
+    }
+
     @Transactional
     public void editRegularEvent(RegularEventEditRequest request, Long regularId) {
         RegularEvent regularEvent = regularEventRepository.findById(regularId)
@@ -67,6 +80,12 @@ public class RegularEventService {
 
         regularEventRepository.delete(regularEvent);
         return regularEvent.getId();
+    }
+
+    private List<Long> getRegularEventIds(List<RegularEvent> regularEvents) {
+        return regularEvents.stream()
+                .map(RegularEvent::getId)
+                .toList();
     }
 
     private RegularEventParticipation createRegularEventParticipation(Long userId, RegularEvent regularEvent) {
