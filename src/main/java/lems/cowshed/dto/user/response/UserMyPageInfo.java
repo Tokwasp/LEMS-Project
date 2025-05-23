@@ -1,9 +1,9 @@
 package lems.cowshed.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
-import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;
-import lems.cowshed.domain.user.query.MyPageUserQueryDto;
+import lems.cowshed.repository.event.query.BookmarkedEventSimpleInfoQuery;
+import lems.cowshed.repository.event.query.ParticipatingEventSimpleInfoQuery;
+import lems.cowshed.repository.user.query.MyPageUserQueryDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;

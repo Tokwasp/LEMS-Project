@@ -1,5 +1,7 @@
-package lems.cowshed.domain.bookmark;
+package lems.cowshed.repository.bookmark;
 
+import lems.cowshed.domain.bookmark.Bookmark;
+import lems.cowshed.domain.bookmark.BookmarkStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;

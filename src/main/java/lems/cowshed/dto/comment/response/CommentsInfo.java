@@ -1,6 +1,6 @@
 package lems.cowshed.dto.comment.response;
 
-import lems.cowshed.domain.comment.Comment;
+import lems.cowshed.domain.post.comment.Comment;
 import lems.cowshed.domain.user.User;
 import lombok.Getter;
 

@@ -1,6 +1,7 @@
-package lems.cowshed.domain.regular.event;
+package lems.cowshed.repository.regular.event;
 
 import jakarta.persistence.LockModeType;
+import lems.cowshed.domain.regular.event.RegularEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;

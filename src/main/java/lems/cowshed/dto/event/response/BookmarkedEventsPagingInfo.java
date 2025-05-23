@@ -1,7 +1,7 @@
 package lems.cowshed.dto.event.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
+import lems.cowshed.repository.event.query.BookmarkedEventSimpleInfoQuery;
 import lombok.Builder;
 import lombok.Getter;
 

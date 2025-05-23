@@ -1,5 +1,6 @@
-package lems.cowshed.domain.post;
+package lems.cowshed.repository.post;
 
+import lems.cowshed.domain.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

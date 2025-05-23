@@ -1,4 +1,4 @@
-package lems.cowshed.domain.user.query;
+package lems.cowshed.repository.user.query;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

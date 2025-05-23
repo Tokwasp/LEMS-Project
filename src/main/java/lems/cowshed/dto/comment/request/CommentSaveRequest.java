@@ -1,7 +1,7 @@
 package lems.cowshed.dto.comment.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lems.cowshed.domain.comment.Comment;
+import lems.cowshed.domain.post.comment.Comment;
 import lombok.Builder;
 import lombok.Getter;
 

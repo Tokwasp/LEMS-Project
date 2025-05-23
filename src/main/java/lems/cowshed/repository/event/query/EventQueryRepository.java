@@ -1,4 +1,4 @@
-package lems.cowshed.domain.event.query;
+package lems.cowshed.repository.event.query;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;

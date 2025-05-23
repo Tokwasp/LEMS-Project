@@ -2,13 +2,13 @@ package lems.cowshed.domain.regular.event;
 
 import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lems.cowshed.domain.regular.event.participation.RegularEventParticipationRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.UserRepository;
-import org.assertj.core.api.Assertions;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
+import lems.cowshed.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

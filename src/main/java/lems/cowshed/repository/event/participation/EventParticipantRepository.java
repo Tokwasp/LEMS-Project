@@ -1,5 +1,6 @@
-package lems.cowshed.domain.event.participation;
+package lems.cowshed.repository.event.participation;
 
+import lems.cowshed.domain.event.participation.EventParticipation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

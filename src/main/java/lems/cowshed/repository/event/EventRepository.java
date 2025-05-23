@@ -1,7 +1,8 @@
-package lems.cowshed.domain.event;
+package lems.cowshed.repository.event;
 
 import jakarta.persistence.LockModeType;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
+import lems.cowshed.domain.event.Event;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;

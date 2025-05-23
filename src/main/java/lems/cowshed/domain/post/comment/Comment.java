@@ -1,4 +1,4 @@
-package lems.cowshed.domain.comment;
+package lems.cowshed.domain.post.comment;
 
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;

@@ -1,4 +1,4 @@
-package lems.cowshed.domain.event.query;
+package lems.cowshed.repository.event.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;

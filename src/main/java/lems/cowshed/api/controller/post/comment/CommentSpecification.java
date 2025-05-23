@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.comment;
+package lems.cowshed.api.controller.post.comment;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

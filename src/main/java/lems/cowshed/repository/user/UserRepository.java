@@ -1,5 +1,6 @@
-package lems.cowshed.domain.user;
+package lems.cowshed.repository.user;
 
+import lems.cowshed.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

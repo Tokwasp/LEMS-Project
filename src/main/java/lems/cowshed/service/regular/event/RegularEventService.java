@@ -5,12 +5,12 @@ import lems.cowshed.dto.regular.event.request.RegularEventSaveRequest;
 import lems.cowshed.dto.regular.event.response.RegularEventPagingInfo;
 import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.regular.event.RegularEventEditCommand;
-import lems.cowshed.domain.regular.event.RegularEventRepository;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lems.cowshed.domain.regular.event.participation.RegularEventParticipationRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.exception.NotFoundException;
 
 import lombok.RequiredArgsConstructor;

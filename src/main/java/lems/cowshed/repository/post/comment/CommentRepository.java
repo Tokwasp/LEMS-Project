@@ -1,6 +1,6 @@
-package lems.cowshed.service.comment;
+package lems.cowshed.repository.post.comment;
 
-import lems.cowshed.domain.comment.Comment;
+import lems.cowshed.domain.post.comment.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

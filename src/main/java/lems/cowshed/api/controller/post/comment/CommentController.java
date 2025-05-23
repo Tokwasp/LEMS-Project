@@ -1,4 +1,4 @@
-package lems.cowshed.api.controller.comment;
+package lems.cowshed.api.controller.post.comment;
 
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.dto.comment.request.CommentModifyRequest;
