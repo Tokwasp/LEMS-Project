@@ -1,19 +1,19 @@
 package lems.cowshed.service.user;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
+import lems.cowshed.dto.user.request.UserEditRequestDto;
+import lems.cowshed.dto.user.request.UserLoginRequestDto;
+import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.response.UserMyPageInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.repository.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.event.participation.EventParticipantRepository;
+import lems.cowshed.repository.user.UserRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import org.junit.jupiter.api.*;

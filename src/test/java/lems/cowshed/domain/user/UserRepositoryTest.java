@@ -1,6 +1,7 @@
 package lems.cowshed.domain.user;
 
 import lems.cowshed.IntegrationTestSupport;
+import lems.cowshed.repository.user.UserRepository;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

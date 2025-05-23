@@ -1,11 +1,10 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.event.response.*;
-import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
-import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.api.controller.dto.event.response.EventParticipantsInfo;
+import lems.cowshed.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.user.CustomUserDetails;
+import lems.cowshed.dto.event.response.*;
 import lems.cowshed.service.event.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

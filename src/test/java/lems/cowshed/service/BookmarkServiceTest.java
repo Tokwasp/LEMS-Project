@@ -2,11 +2,11 @@ package lems.cowshed.service;
 
 import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.bookmark.BookmarkRepository;
+import lems.cowshed.repository.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.service.bookmark.BookmarkService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

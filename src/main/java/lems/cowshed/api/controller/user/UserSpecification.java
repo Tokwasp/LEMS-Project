@@ -2,17 +2,17 @@ package lems.cowshed.api.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lems.cowshed.api.controller.dto.user.response.*;
+import lems.cowshed.dto.user.response.UserInfo;
+import lems.cowshed.dto.user.response.UserMyPageInfo;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
-import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserEditRequestDto;
+import lems.cowshed.dto.user.request.UserLoginRequestDto;
+import lems.cowshed.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.domain.user.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 

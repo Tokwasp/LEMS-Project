@@ -1,9 +1,9 @@
 package lems.cowshed.api.controller.post;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.post.request.PostModifyRequest;
-import lems.cowshed.api.controller.dto.post.request.PostSaveRequest;
-import lems.cowshed.api.controller.dto.post.response.PostPagingInfo;
+import lems.cowshed.dto.post.request.PostModifyRequest;
+import lems.cowshed.dto.post.request.PostSaveRequest;
+import lems.cowshed.dto.post.response.PostPagingInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.post.PostService;
 import lombok.RequiredArgsConstructor;

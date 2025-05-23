@@ -1,10 +1,11 @@
 package lems.cowshed.domain.post;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.domain.comment.Comment;
+import lems.cowshed.domain.post.comment.Comment;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventRepository;
-import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.post.PostRepository;
+import lems.cowshed.repository.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

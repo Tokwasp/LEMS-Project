@@ -1,13 +1,13 @@
 package lems.cowshed.service.regular.event;
 
-import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantDetails;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantsInfo;
+import lems.cowshed.dto.regular.event.response.RegularParticipantDetails;
+import lems.cowshed.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.regular.event.RegularEvent;
-import lems.cowshed.domain.regular.event.RegularEventRepository;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lems.cowshed.domain.regular.event.participation.RegularEventParticipationRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.exception.BusinessException;
 import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;

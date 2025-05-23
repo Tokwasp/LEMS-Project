@@ -2,7 +2,7 @@ package lems.cowshed.domain.post;
 
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
-import lems.cowshed.domain.comment.Comment;
+import lems.cowshed.domain.post.comment.Comment;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Getter;

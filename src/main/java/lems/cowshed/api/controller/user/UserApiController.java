@@ -2,10 +2,11 @@ package lems.cowshed.api.controller.user;
 
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.*;
+import lems.cowshed.dto.user.request.UserEditRequestDto;
+import lems.cowshed.dto.user.request.UserLoginRequestDto;
+import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.response.UserInfo;
+import lems.cowshed.dto.user.response.UserMyPageInfo;
 import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.mail.code.CodeFinder;
 import lems.cowshed.domain.mail.code.CodeType;

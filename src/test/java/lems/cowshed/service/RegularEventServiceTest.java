@@ -2,22 +2,25 @@ package lems.cowshed.service;
 
 import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
-import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
+import lems.cowshed.dto.regular.event.request.RegularEventEditRequest;
+import lems.cowshed.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.dto.regular.event.response.RegularEventPagingInfo;
+import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventRepository;
+import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
-import lems.cowshed.domain.regular.event.RegularEventRepository;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lems.cowshed.domain.regular.event.participation.RegularEventParticipationRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.UserRepository;
+import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.service.regular.event.RegularEventService;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -106,7 +109,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        RegularEvent regularEvent = createRegularEvent(user, event, "정기 모임", "정기 모임 장소");
+        RegularEvent regularEvent = createRegularEvent(user.getId(), event, "정기 모임", "정기 모임 장소");
         regularEventRepository.save(regularEvent);
 
         //when
@@ -166,6 +169,43 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .isInstanceOf(NoSuchElementException.class);
     }
 
+    @DisplayName("정기 모임을 페이징 조회 한다.")
+    @Test
+    void findPagingInfo() {
+        //given
+        Long myUserId = 1L;
+        Long differUserId = 2L;
+
+        RegularEvent regularEvent = createRegularEvent(myUserId, null, "정기 모임", "장소");
+        regularEventRepository.save(regularEvent);
+
+        RegularEvent regularEvent2 = createRegularEvent(myUserId, null, "정기 모임2", "장소2");
+        RegularEventParticipation participation = createParticipation(myUserId);
+        participation.connectRegularEvent(regularEvent2);
+
+        RegularEventParticipation participation2 = createParticipation(differUserId);
+        participation2.connectRegularEvent(regularEvent2);
+        regularEventRepository.save(regularEvent2);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        RegularEventPagingInfo pagingInfo = regularEventService.findPagingInfo(pageRequest, myUserId);
+
+        //then
+        assertThat(pagingInfo.getRegularEventInfos())
+                .extracting( "name", "location", "participantsCount", "isParticipated")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("정기 모임", "장소", 0, false),
+                        Tuple.tuple("정기 모임2", "장소2", 2, true)
+                );
+    }
+
+    private RegularEventParticipation createParticipation(Long userId){
+        return RegularEventParticipation.builder()
+                .userId(userId)
+                .build();
+    }
+
     private RegularEventEditRequest createRegularEditRequest(String name, String location) {
         return RegularEventEditRequest.builder()
                 .name(name)
@@ -193,14 +233,14 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private RegularEvent createRegularEvent(User user, Event event, String name, String location){
+    private RegularEvent createRegularEvent(Long userId, Event event, String name, String location){
         return RegularEvent.builder()
                 .name(name)
                 .event(event)
                 .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
                 .location(location)
                 .capacity(50)
-                .userId(user.getId())
+                .userId(userId)
                 .build();
     }
 

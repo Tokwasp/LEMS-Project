@@ -1,8 +1,9 @@
 package lems.cowshed.domain.event;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.domain.user.UserRepository;
-import lems.cowshed.domain.event.participation.EventParticipantRepository;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.user.UserRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
