@@ -60,6 +60,15 @@ public class RegularEventService {
         regularEvent.edit(editCommand);
     }
 
+    @Transactional
+    public Long delete(Long regularId) {
+        RegularEvent regularEvent = regularEventRepository.findById(regularId)
+                .orElseThrow(() -> new NotFoundException(REGULAR_EVENT_ID, REGULAR_EVENT_NOT_FOUND));
+
+        regularEventRepository.delete(regularEvent);
+        return regularEvent.getId();
+    }
+
     private RegularEventParticipation createRegularEventParticipation(Long userId, RegularEvent regularEvent) {
         return RegularEventParticipation.builder()
                 .userId(userId)

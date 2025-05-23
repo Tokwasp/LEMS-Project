@@ -5,7 +5,6 @@ import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
 import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
 import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
@@ -16,17 +15,17 @@ import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.service.regular.event.RegularEventService;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static lems.cowshed.domain.user.Mbti.INTP;
-import static lems.cowshed.domain.user.Mbti.ISTP;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RegularEventServiceTest extends IntegrationTestSupport {
 
@@ -129,7 +128,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         Event event = createEvent(user.getUsername(), "테스트 모임");
         eventRepository.save(event);
 
-        RegularEvent regularEvent = createRegularEvent(user, event);
+        RegularEvent regularEvent = createRegularEvent(user.getId(), event);
         regularEventRepository.save(regularEvent);
 
         RegularEventEditRequest request = createRegularEditRequest("이름 변경", "장소 변경");
@@ -143,6 +142,28 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         assertThat(findRegularEvent)
                 .extracting("name", "location")
                 .containsExactly("이름 변경", "장소 변경");
+    }
+
+    @DisplayName("정기 모임을 제거 한다.")
+    @Test
+    void delete() {
+        //given
+        User user = createUser("정기 모임 생성자", "RegularEventCreator");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(user.getId(), event);
+        regularEventRepository.save(regularEvent);
+
+        //when
+        Long deletedId = regularEventService.delete(regularEvent.getId());
+        em.flush(); em.clear();
+
+        //then
+        assertThatThrownBy(() -> regularEventRepository.findById(deletedId).orElseThrow())
+                .isInstanceOf(NoSuchElementException.class);
     }
 
     private RegularEventEditRequest createRegularEditRequest(String name, String location) {
@@ -161,14 +182,14 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private RegularEvent createRegularEvent(User user, Event event){
+    private RegularEvent createRegularEvent(Long userId, Event event){
         return RegularEvent.builder()
                 .name("정기 모임")
                 .event(event)
                 .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
                 .location("테스트 장소")
                 .capacity(50)
-                .userId(user.getId())
+                .userId(userId)
                 .build();
     }
 
