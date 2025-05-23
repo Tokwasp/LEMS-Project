@@ -26,14 +26,19 @@ public class RegularEventParticipationService {
 
     private final UserRepository userRepository;
     private final RegularEventRepository regularEventRepository;
-    private final RegularEventParticipationRepository regularEventParticipationRepository;
+    private final RegularEventParticipationRepository participationRepository;
 
     @Transactional
-    public void saveParticipation(Long regularId, Long userId) {
+    public Long saveParticipation(Long regularId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        RegularEvent regularEvent = regularEventRepository.findRegularEventWithLockById(regularId)
+        participationRepository.findByRegularEventIdAndUserId(regularId, userId)
+                .ifPresent(participation -> {
+                    throw new BusinessException(REGULAR_EVENT_ID, REGULAR_EVENT_ALREADY_PARTICIPATION);
+                });
+
+        RegularEvent regularEvent = regularEventRepository.findWithLockById(regularId)
                 .orElseThrow(() -> new NotFoundException(REGULAR_EVENT_ID, REGULAR_EVENT_NOT_FOUND));
 
         long participantCount = regularEventRepository.getParticipantCount(regularEvent.getId());
@@ -41,23 +46,33 @@ public class RegularEventParticipationService {
         if(regularEvent.isNotPossibleParticipation(participantCount)){
             throw new BusinessException(REGULAR_EVENT_PARTICIPATION, REGULAR_EVENT_NOT_POSSIBLE_PARTICIPATION);
         }
-        regularEventParticipationRepository.save(RegularEventParticipation.of(user, regularEvent));
+
+        RegularEventParticipation participation = participationRepository.save(RegularEventParticipation.of(user, regularEvent));
+        return participation.getId();
     }
 
     public RegularParticipantsInfo getRegularParticipants(Long regularId) {
-        List<Long> participantsUserIds = regularEventRepository.findParticipantsUserIdsByRegularId(regularId);
+        RegularEvent regularEvent = regularEventRepository.findByIdFetchParticipation(regularId);
+        List<RegularEventParticipation> regularParticipants = regularEvent.getParticipations();
+        List<Long> participantsUserIds = getParticipantsUserIds(regularParticipants);
         List<User> participants = userRepository.findByIdIn(participantsUserIds);
 
         List<RegularParticipantDetails> details = convertDetails(participants);
-        return RegularParticipantsInfo.of(details, participantsUserIds.size());
+        return RegularParticipantsInfo.of(details, participantsUserIds.size(), regularEvent.getCapacity());
     }
 
     @Transactional
     public void deleteParticipation(Long participationId, Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
+        RegularEventParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
+                .orElseThrow(() -> new NotFoundException(REGULAR_EVENT_PARTICIPATION, REGULAR_EVENT_PARTICIPATION_NOT_FOUND));
 
-        regularEventParticipationRepository.deleteByIdAndUserId(participationId, userId);
+        participationRepository.delete(participation);
+    }
+
+    private List<Long> getParticipantsUserIds(List<RegularEventParticipation> participants) {
+        return participants.stream()
+                .map(RegularEventParticipation::getUserId)
+                .toList();
     }
 
     private List<RegularParticipantDetails> convertDetails(List<User> participants) {

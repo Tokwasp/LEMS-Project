@@ -14,16 +14,21 @@ public class RegularParticipantsInfo {
     @Schema(description = "정기 모임 참여한 인원 수")
     private int participantCount;
 
+    @Schema(description = "최대 인원 수")
+    private int capacity;
+
     @Builder
-    private RegularParticipantsInfo(List<RegularParticipantDetails> regularParticipants, int participantCount) {
+    private RegularParticipantsInfo(List<RegularParticipantDetails> regularParticipants, int participantCount, int capacity) {
         this.regularParticipants = regularParticipants;
         this.participantCount = participantCount;
+        this.capacity = capacity;
     }
 
-    public static RegularParticipantsInfo of(List<RegularParticipantDetails> regularParticipants, int participantCount){
+    public static RegularParticipantsInfo of(List<RegularParticipantDetails> regularParticipants, int participantCount, int capacity){
         return RegularParticipantsInfo.builder()
                 .regularParticipants(regularParticipants)
                 .participantCount(participantCount)
+                .capacity(capacity)
                 .build();
     }
 }

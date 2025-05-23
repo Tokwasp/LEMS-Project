@@ -12,11 +12,14 @@ import java.util.Optional;
 public interface RegularEventRepository extends JpaRepository<RegularEvent, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<RegularEvent> findRegularEventWithLockById(Long regularId);
+    Optional<RegularEvent> findWithLockById(Long regularId);
 
     @Query("select count(rep) from RegularEventParticipation rep join rep.regularEvent re where re.id = :regularId")
     long getParticipantCount(@Param("regularId") long regularId);
 
     @Query("select rep.userId from RegularEventParticipation rep join rep.regularEvent re where re.id = :regularId")
     List<Long> findParticipantsUserIdsByRegularId(@Param("regularId") Long regularId);
+
+    @Query("select re from RegularEvent re left join fetch re.participations rep where re.id = :regularId")
+    RegularEvent findByIdFetchParticipation(Long regularId);
 }
