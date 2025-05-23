@@ -18,7 +18,8 @@ public interface CommentSpecification {
 
     @Operation(summary = "게시글 댓글 조회" , description = "게시글의 댓글을 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<CommentsInfo> getPostComments(@PathVariable Long postId);
+    CommonResponse<CommentsInfo> getPostComments(@PathVariable Long postId,
+                                                 @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "댓글 등록" , description = "댓글을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)

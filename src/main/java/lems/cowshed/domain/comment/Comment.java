@@ -36,4 +36,8 @@ public class Comment extends BaseEntity {
     public void modify(String comment) {
         this.context = comment;
     }
+
+    public boolean isMyUserId(Long userId) {
+        return this.userId.equals(userId);
+    }
 }
