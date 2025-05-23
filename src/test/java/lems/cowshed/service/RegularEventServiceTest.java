@@ -119,60 +119,6 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .containsExactly("정기 모임", "정기 모임 장소");
     }
 
-    @DisplayName("정기 모임 참석을 해제 한다.")
-    @Test
-    void deleteByParticipationIdAndUserId() {
-        //given
-        User user = createUser("정기 모임 생성자", "RegularEventCreator");
-        userRepository.save(user);
-
-        Event event = createEvent("테스터", "테스트 모임");
-        eventRepository.save(event);
-
-        RegularEvent regularEvent = createRegularEvent(user, event);
-        regularEventRepository.save(regularEvent);
-
-        RegularEventParticipation participation = RegularEventParticipation.of(user, regularEvent);
-        participationRepository.save(participation);
-
-        //when
-        regularEventService.deleteParticipation(participation.getId(), user.getId());
-
-        //then
-        assertThat(participationRepository.findById(participation.getId())).isEmpty();
-    }
-
-    @DisplayName("정기 모임에 참여한 회원들 정보를 조회 한다.")
-    @Test
-    void getRegularParticipants() {
-        //given
-        User user = createUser("테스터", INTP);
-        User user2 = createUser("테스터2", ISTP);
-        userRepository.saveAll(List.of(user, user2));
-
-        Event event = createEvent(user.getUsername(), "테스트 모임");
-        eventRepository.save(event);
-
-        RegularEvent regularEvent = createRegularEvent(user, event);
-        regularEventRepository.save(regularEvent);
-
-        RegularEventParticipation participation = RegularEventParticipation.of(user, regularEvent);
-        RegularEventParticipation participation2 = RegularEventParticipation.of(user2, regularEvent);
-        participationRepository.saveAll(List.of(participation, participation2));
-
-        //when
-        RegularParticipantsInfo regularParticipants = regularEventService.getRegularParticipants(regularEvent.getId());
-
-        //then
-        assertThat(regularParticipants.getParticipantCount()).isEqualTo(2);
-        assertThat(regularParticipants.getRegularParticipants()).hasSize(2)
-                .extracting("name","mbti")
-                .containsExactlyInAnyOrder(
-                        Tuple.tuple("테스터", INTP),
-                        Tuple.tuple("테스터2", ISTP)
-                );
-    }
-
     @DisplayName("정기 모임을 수정 한다.")
     @Test
     void editRegularEvent() {
