@@ -3,12 +3,12 @@ package lems.cowshed.repository.event.query;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lems.cowshed.api.controller.dto.event.response.*;
 import lems.cowshed.dto.event.response.EventSimpleInfo;
+import lems.cowshed.dto.event.response.QEventSimpleInfo;
 import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
-import lems.cowshed.api.controller.dto.event.response.query.QEventParticipantQueryDto;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.dto.event.response.query.QEventParticipantQueryDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
