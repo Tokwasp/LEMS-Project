@@ -1,12 +1,11 @@
 package lems.cowshed.service.event;
 
-import lems.cowshed.api.controller.dto.event.EventIdProvider;
-import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
-import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.api.controller.dto.event.response.*;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularEventInfo;
-import lems.cowshed.api.controller.dto.event.response.EventParticipantsInfo;
-import lems.cowshed.api.controller.dto.event.response.query.EventParticipantQueryDto;
+import lems.cowshed.dto.event.EventIdProvider;
+import lems.cowshed.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.dto.event.response.*;
+import lems.cowshed.dto.regular.event.response.RegularEventInfo;
+import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.config.aws.AwsS3Util;
 import lems.cowshed.domain.UploadFile;
 import lems.cowshed.domain.bookmark.Bookmark;
@@ -26,7 +25,6 @@ import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.UserRepository;
 import lems.cowshed.exception.BusinessException;
-import lems.cowshed.exception.Message;
 import lems.cowshed.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

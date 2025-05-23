@@ -2,10 +2,10 @@ package lems.cowshed.api.controller.regular.event;
 
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
-import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularEventPagingInfo;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
+import lems.cowshed.dto.regular.event.request.RegularEventEditRequest;
+import lems.cowshed.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.dto.regular.event.response.RegularEventPagingInfo;
+import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.regular.event.RegularEventService;
 import lombok.RequiredArgsConstructor;

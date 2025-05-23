@@ -1,10 +1,9 @@
 package lems.cowshed.api.controller.comment;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.comment.request.CommentModifyRequest;
-import lems.cowshed.api.controller.dto.comment.request.CommentSaveRequest;
-import lems.cowshed.api.controller.dto.comment.response.CommentInfo;
-import lems.cowshed.api.controller.dto.comment.response.CommentsInfo;
+import lems.cowshed.dto.comment.request.CommentModifyRequest;
+import lems.cowshed.dto.comment.request.CommentSaveRequest;
+import lems.cowshed.dto.comment.response.CommentsInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.service.comment.CommentService;
 import lombok.RequiredArgsConstructor;

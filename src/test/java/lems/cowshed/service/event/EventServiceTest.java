@@ -1,11 +1,10 @@
 package lems.cowshed.service.event;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.event.request.EventSaveRequestDto;
-import lems.cowshed.api.controller.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.api.controller.dto.event.response.*;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularEventInfo;
-import lems.cowshed.api.controller.dto.event.response.EventParticipantsInfo;
+import lems.cowshed.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.dto.event.response.*;
+import lems.cowshed.dto.regular.event.response.RegularEventInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;

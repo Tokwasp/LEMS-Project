@@ -1,6 +1,6 @@
 package lems.cowshed.service.mail;
 
-import lems.cowshed.api.controller.dto.user.verification.response.VerificationResultInfo;
+import lems.cowshed.dto.user.verification.response.VerificationResultInfo;
 import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.mail.MailVerificationStorage;
 import lems.cowshed.domain.mail.code.CodeType;

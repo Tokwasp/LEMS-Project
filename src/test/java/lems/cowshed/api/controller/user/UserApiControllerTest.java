@@ -1,8 +1,8 @@
 package lems.cowshed.api.controller.user;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserLoginRequestDto;
+import lems.cowshed.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.domain.user.Mbti;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

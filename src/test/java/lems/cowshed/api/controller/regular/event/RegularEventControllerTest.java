@@ -1,7 +1,7 @@
 package lems.cowshed.api.controller.regular.event;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.dto.regular.event.request.RegularEventSaveRequest;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;

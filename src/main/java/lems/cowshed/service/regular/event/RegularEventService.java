@@ -1,9 +1,9 @@
 package lems.cowshed.service.regular.event;
 
-import lems.cowshed.api.controller.dto.regular.event.request.RegularEventEditRequest;
-import lems.cowshed.api.controller.dto.regular.event.request.RegularEventSaveRequest;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularEventPagingInfo;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularEventSimpleInfo;
+import lems.cowshed.dto.regular.event.request.RegularEventEditRequest;
+import lems.cowshed.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.dto.regular.event.response.RegularEventPagingInfo;
+import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;

@@ -1,8 +1,8 @@
 package lems.cowshed.domain;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserEditRequestDto;
+import lems.cowshed.dto.user.request.UserSaveRequestDto;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;

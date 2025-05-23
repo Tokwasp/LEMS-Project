@@ -2,10 +2,10 @@ package lems.cowshed.service.comment;
 
 import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.comment.request.CommentModifyRequest;
-import lems.cowshed.api.controller.dto.comment.request.CommentSaveRequest;
-import lems.cowshed.api.controller.dto.comment.response.CommentInfo;
-import lems.cowshed.api.controller.dto.comment.response.CommentsInfo;
+import lems.cowshed.dto.comment.request.CommentModifyRequest;
+import lems.cowshed.dto.comment.request.CommentSaveRequest;
+import lems.cowshed.dto.comment.response.CommentInfo;
+import lems.cowshed.dto.comment.response.CommentsInfo;
 import lems.cowshed.domain.comment.Comment;
 import lems.cowshed.domain.post.Post;
 import lems.cowshed.domain.post.PostRepository;

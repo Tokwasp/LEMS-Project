@@ -2,13 +2,12 @@ package lems.cowshed.domain.event.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.api.controller.dto.event.EventIdProvider;
+import lems.cowshed.dto.event.EventIdProvider;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

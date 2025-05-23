@@ -1,7 +1,7 @@
 package lems.cowshed.service.regular.event;
 
-import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantDetails;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantsInfo;
+import lems.cowshed.dto.regular.event.response.RegularParticipantDetails;
+import lems.cowshed.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;

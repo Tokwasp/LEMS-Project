@@ -2,10 +2,10 @@ package lems.cowshed.service.post;
 
 import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.post.request.PostModifyRequest;
-import lems.cowshed.api.controller.dto.post.request.PostSaveRequest;
-import lems.cowshed.api.controller.dto.post.response.PostInfo;
-import lems.cowshed.api.controller.dto.post.response.PostPagingInfo;
+import lems.cowshed.dto.post.request.PostModifyRequest;
+import lems.cowshed.dto.post.request.PostSaveRequest;
+import lems.cowshed.dto.post.response.PostInfo;
+import lems.cowshed.dto.post.response.PostPagingInfo;
 import lems.cowshed.domain.comment.Comment;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.EventRepository;

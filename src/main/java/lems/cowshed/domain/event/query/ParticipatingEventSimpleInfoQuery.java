@@ -2,15 +2,12 @@ package lems.cowshed.domain.event.query;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.api.controller.dto.event.EventIdProvider;
+import lems.cowshed.dto.event.EventIdProvider;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 
 @Getter
 @Schema(description = "마이 페이지 회원이 참여한 모임 정보")

@@ -1,8 +1,8 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
-import lems.cowshed.api.controller.dto.event.response.EventsSearchInfo;
+import lems.cowshed.dto.event.response.EventSimpleInfo;
+import lems.cowshed.dto.event.response.EventsSearchInfo;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;

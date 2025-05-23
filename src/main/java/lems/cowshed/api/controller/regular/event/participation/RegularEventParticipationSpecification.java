@@ -3,7 +3,7 @@ package lems.cowshed.api.controller.regular.event.participation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.api.controller.dto.regular.event.response.RegularParticipantsInfo;
+import lems.cowshed.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;

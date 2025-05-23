@@ -1,10 +1,10 @@
 package lems.cowshed.service.user;
 
-import lems.cowshed.api.controller.dto.user.request.UserEditRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.api.controller.dto.user.request.UserSaveRequestDto;
-import lems.cowshed.api.controller.dto.user.response.UserMyPageInfo;
-import lems.cowshed.api.controller.dto.user.response.UserInfo;
+import lems.cowshed.dto.user.request.UserEditRequestDto;
+import lems.cowshed.dto.user.request.UserLoginRequestDto;
+import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.response.UserMyPageInfo;
+import lems.cowshed.dto.user.response.UserInfo;
 import lems.cowshed.domain.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.domain.event.query.EventQueryRepository;
 import lems.cowshed.domain.event.query.ParticipatingEventSimpleInfoQuery;

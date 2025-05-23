@@ -1,8 +1,8 @@
 package lems.cowshed.domain.event.query;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.api.controller.dto.event.response.EventSimpleInfo;
-import lems.cowshed.api.controller.dto.event.response.query.EventParticipantQueryDto;
+import lems.cowshed.dto.event.response.EventSimpleInfo;
+import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
