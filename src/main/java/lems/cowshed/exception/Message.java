@@ -29,6 +29,8 @@ public enum Message {
     EVENT_ALREADY_PARTICIPATION("모임에 이미 참여 중 입니다."),
 
     REGULAR_EVENT_NOT_FOUND("정기 모임을 찾지 못했습니다."),
+    REGULAR_EVENT_ALREADY_PARTICIPATION("정기 모임에 이미 참여중 입니다."),
+    REGULAR_EVENT_PARTICIPATION_NOT_FOUND("정기 모임 참여 정보를 찾지 못했습니다."),
     REGULAR_EVENT_NOT_POSSIBLE_PARTICIPATION("정기 모임 인원을 초과 하여 참석 실패 하였습니다."),
     REGULAR_EVENT_INVALID_UPDATE_CAPACITY("정기 모임에 참여한 회원이 최대 인원보다 더 많습니다."),
 

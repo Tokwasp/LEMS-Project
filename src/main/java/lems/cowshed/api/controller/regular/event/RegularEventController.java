@@ -37,4 +37,10 @@ public class RegularEventController implements RegularEventSpecification {
         regularEventService.editRegularEvent(request, regularId);
         return CommonResponse.success();
     }
+
+    @DeleteMapping("/regular/{regular-id}")
+    public CommonResponse<Void> delete(@PathVariable("regular-id") Long regularId) {
+        regularEventService.delete(regularId);
+        return null;
+    }
 }

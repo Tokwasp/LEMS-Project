@@ -38,4 +38,9 @@ public class RegularEventParticipation extends BaseEntity {
         regularEvent.getParticipations().add(regularEventParticipation);
         return regularEventParticipation;
     }
+
+    public void connectRegularEvent(RegularEvent regularEvent){
+        this.regularEvent = regularEvent;
+        regularEvent.getParticipations().add(this);
+    }
 }

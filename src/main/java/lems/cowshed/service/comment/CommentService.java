@@ -30,13 +30,13 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
-    public CommentsInfo getPostComments(Long postId, LocalDateTime dateTime) {
+    public CommentsInfo getPostComments(Long postId, Long userId, LocalDateTime dateTime) {
         List<Comment> comments = commentRepository.findByPostId(postId);
         List<Long> userIds = getUserIdsFrom(comments);
 
         List<User> users = userRepository.findByIdIn(userIds);
         Map<Long, User> groupIdMap = groupIdMap(users);
-        return CommentsInfo.Of(comments, groupIdMap, dateTime);
+        return CommentsInfo.Of(comments, groupIdMap, userId, dateTime);
     }
 
     @Transactional

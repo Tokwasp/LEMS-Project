@@ -20,8 +20,9 @@ public class CommentController implements CommentSpecification {
     private final CommentService commentService;
 
     @GetMapping("/posts/{post-id}/comments")
-    public CommonResponse<CommentsInfo> getPostComments(@PathVariable("post-id") Long postId) {
-        CommentsInfo commentsInfo = commentService.getPostComments(postId, LocalDateTime.now());
+    public CommonResponse<CommentsInfo> getPostComments(@PathVariable("post-id") Long postId,
+                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        CommentsInfo commentsInfo = commentService.getPostComments(postId, userDetails.getUserId(), LocalDateTime.now());
         return CommonResponse.success(commentsInfo);
     }
 

@@ -61,15 +61,15 @@ class CommentServiceTest extends IntegrationTestSupport {
 
         //when
         LocalDateTime currentDateTime = LocalDateTime.of(2025, 5, 22, 22, 0);
-        CommentsInfo commentsInfo = commentService.getPostComments(post.getId(), currentDateTime);
+        CommentsInfo commentsInfo = commentService.getPostComments(post.getId(), user.getId(), currentDateTime);
 
         //then
         List<CommentInfo> comments = commentsInfo.getComments();
         assertThat(comments).hasSize(2)
-                .extracting("username", "content")
+                .extracting("username", "isRegistrant", "content")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("테스터", "댓글"),
-                        Tuple.tuple("테스터2", "댓글2")
+                        Tuple.tuple("테스터", true, "댓글"),
+                        Tuple.tuple("테스터2", false, "댓글2")
                 );
     }
 

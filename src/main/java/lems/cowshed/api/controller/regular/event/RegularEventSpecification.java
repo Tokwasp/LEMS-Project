@@ -26,4 +26,7 @@ public interface RegularEventSpecification {
     @Operation(summary = "정기 모임 수정", description = "정기 모임을 수정 합니다.")
     CommonResponse<Void> editRegularEvent(@RequestBody RegularEventEditRequest request,
                                           @PathVariable("regular-id") Long regularId);
+
+    @Operation(summary = "정기 모임 삭제", description = "정기 모임을 삭제 합니다.")
+    CommonResponse<Void> delete(@PathVariable("regular-id") Long regularId);
 }

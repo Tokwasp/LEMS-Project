@@ -18,13 +18,15 @@ public class CommentsInfo {
         this.comments = comments;
     }
 
-    public static CommentsInfo Of(List<Comment> comments, Map<Long, User> groupIdMap, LocalDateTime currentDateTime) {
+    public static CommentsInfo Of(List<Comment> comments, Map<Long, User> groupIdMap,
+                                  Long userId, LocalDateTime currentDateTime) {
         List<CommentInfo> commentInfoList = comments.stream()
                 .map(comment ->
                         CommentInfo.of(
                                 findUserName(groupIdMap, comment),
                                 createDaysAgo(currentDateTime, comment),
-                                comment.getContext()
+                                comment.getContext(),
+                                comment.isMyUserId(userId)
                         )
                 ).toList();
 
