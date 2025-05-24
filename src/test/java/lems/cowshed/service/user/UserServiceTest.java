@@ -1,9 +1,9 @@
 package lems.cowshed.service.user;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.dto.user.request.UserEditRequestDto;
-import lems.cowshed.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserModifyRequest;
+import lems.cowshed.dto.user.request.UserLoginRequest;
+import lems.cowshed.dto.user.request.UserSaveRequest;
 import lems.cowshed.dto.user.response.UserMyPageInfo;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.repository.bookmark.BookmarkRepository;
@@ -59,7 +59,7 @@ class UserServiceTest extends IntegrationTestSupport {
     void signUp() {
         //given
         String email = "test@naver.com";
-        UserSaveRequestDto request = createSaveDto(email, "테스트", "tempPassword");
+        UserSaveRequest request = createSaveDto(email, "테스트", "tempPassword");
 
         //when
         userService.signUp(request);
@@ -78,10 +78,10 @@ class UserServiceTest extends IntegrationTestSupport {
                         "registeredEmail@naver.com-중복 닉네임"}, delimiter = '-')
     void signUp_WhenDuplicateNameOrEmail_ThrowsException(String email, String username) {
         //given
-        UserSaveRequestDto request = createSaveDto("registeredEmail@naver.com", "중복 닉네임");
+        UserSaveRequest request = createSaveDto("registeredEmail@naver.com", "중복 닉네임");
         userService.signUp(request);
 
-        UserSaveRequestDto newMember = createSaveDto(email, username);
+        UserSaveRequest newMember = createSaveDto(email, username);
 
         //when //then
         assertThatThrownBy(() -> userService.signUp(newMember))
@@ -95,12 +95,12 @@ class UserServiceTest extends IntegrationTestSupport {
         //given
         String email = "test@naver.com";
         String validPassword = "validPassword";
-        UserSaveRequestDto saveRequest = createSaveDto(email, "테스트", validPassword);
+        UserSaveRequest saveRequest = createSaveDto(email, "테스트", validPassword);
 
         userService.signUp(saveRequest);
 
         User user = userRepository.findByEmail(email).orElseThrow();
-        UserLoginRequestDto request = createLoginDto(email, validPassword);
+        UserLoginRequest request = createLoginDto(email, validPassword);
 
         //when //then
         userService.login(request);
@@ -110,7 +110,7 @@ class UserServiceTest extends IntegrationTestSupport {
     @Test
     void loginWhenNotFoundUserByEmail() {
         //given
-        UserLoginRequestDto request = createLoginDto("NonRegisterEmail@naver.com", "tempPassword");
+        UserLoginRequest request = createLoginDto("NonRegisterEmail@naver.com", "tempPassword");
 
         //when //then
         assertThatThrownBy(() -> userService.login(request))
@@ -123,11 +123,11 @@ class UserServiceTest extends IntegrationTestSupport {
     void loginWhenNotValidationPassword() {
         //given
         String email = "test@naver.com";
-        UserSaveRequestDto saveRequest = createSaveDto(email, "테스트", "validPassword");
+        UserSaveRequest saveRequest = createSaveDto(email, "테스트", "validPassword");
         userService.signUp(saveRequest);
 
         User user = userRepository.findByEmail(email).orElseThrow();
-        UserLoginRequestDto request = createLoginDto(user.getEmail(), "notValidPassword");
+        UserLoginRequest request = createLoginDto(user.getEmail(), "notValidPassword");
 
         //when //then
         assertThatThrownBy(() -> userService.login(request))
@@ -143,7 +143,7 @@ class UserServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         String editName = "수정한닉네임";
-        UserEditRequestDto request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
+        UserModifyRequest request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
 
         //when
         userService.editUser(request, user.getId(), user.getUsername());
@@ -164,7 +164,7 @@ class UserServiceTest extends IntegrationTestSupport {
         User user2 = createUser("등록된 닉네임", "new@naver.com");
         userRepository.save(user2);
 
-        UserEditRequestDto request = createEditDto("등록된 닉네임", "안녕하세요!", Mbti.INTP);
+        UserModifyRequest request = createEditDto("등록된 닉네임", "안녕하세요!", Mbti.INTP);
 
         //when //then
         assertThatThrownBy(() -> userService.editUser(request, user.getId(), user.getUsername()))
@@ -179,7 +179,7 @@ class UserServiceTest extends IntegrationTestSupport {
         User user = createUser("test", "test@naver.com");
         userRepository.save(user);
 
-        UserEditRequestDto request = createEditDto("새닉네임", "안녕하세요!", Mbti.INTP);
+        UserModifyRequest request = createEditDto("새닉네임", "안녕하세요!", Mbti.INTP);
 
         //when //then
         assertThatThrownBy(() -> userService.editUser(request, 2L, user.getUsername()))
@@ -246,31 +246,31 @@ class UserServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private UserSaveRequestDto createSaveDto(String email, String username, String password) {
-        return UserSaveRequestDto.builder()
+    private UserSaveRequest createSaveDto(String email, String username, String password) {
+        return UserSaveRequest.builder()
                 .email(email)
                 .username(username)
                 .password(password)
                 .build();
     }
 
-    private UserSaveRequestDto createSaveDto(String email, String username) {
-        return UserSaveRequestDto.builder()
+    private UserSaveRequest createSaveDto(String email, String username) {
+        return UserSaveRequest.builder()
                 .email(email)
                 .username(username)
                 .password("tempPassword")
                 .build();
     }
 
-    private UserLoginRequestDto createLoginDto(String email, String password){
-        return UserLoginRequestDto.builder()
+    private UserLoginRequest createLoginDto(String email, String password){
+        return UserLoginRequest.builder()
                 .email(email)
                 .password(password)
                 .build();
     }
 
-    private UserEditRequestDto createEditDto(String username, String introduction, Mbti mbti) {
-        return UserEditRequestDto.builder()
+    private UserModifyRequest createEditDto(String username, String introduction, Mbti mbti) {
+        return UserModifyRequest.builder()
                 .username(username)
                 .introduction(introduction)
                 .localName("대구광역시 수성구")
