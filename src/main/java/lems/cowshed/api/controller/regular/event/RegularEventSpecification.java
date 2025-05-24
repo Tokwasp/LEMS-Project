@@ -26,7 +26,8 @@ public interface RegularEventSpecification {
     CommonResponse<RegularEventSimpleInfo> getRegularEvent(@PathVariable("regular-id") Long regularId);
 
     @Operation(summary = "정기 모임 페이징 조회", description = "정기 모임을 조회 합니다.")
-    CommonResponse<RegularEventPagingInfo> findPagingInfo(Pageable pageable,
+    CommonResponse<RegularEventPagingInfo> findPagingInfo(@PathVariable("event-id") Long eventId,
+                                                          Pageable pageable,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "정기 모임 수정", description = "정기 모임을 수정 합니다.")

@@ -9,18 +9,25 @@ import lombok.Getter;
 @Getter
 @Schema(description = "모임 상세")
 public class EventInfo {
+
     @Schema(description = "모임 id", example = "1")
     Long eventId;
+
     @Schema(description = "모임 이름", example = "농구 모임")
     String name;
+
     @Schema(description = "카테고리", example = "스포츠")
     Category category;
+
     @Schema(description = "내용", example = "같이 운동하실 분 구합니다. 같이 프레스 운동 하면서 서로 보조해주실 분 구합니다.")
     String content;
+
     @Schema(description = "수용 인원", example = "100")
     int capacity;
+
     @Schema(description = "참여 신청 인원", example = "50")
     long applicants;
+
     @Schema(description = "모임 대표 이미지 주소", example = "URL 주소")
     private String accessUrl;
 
@@ -36,15 +43,21 @@ public class EventInfo {
         this.accessUrl = accessUrl;
     }
 
-    public static EventInfo of(Event event, int participantsCount) {
+    public static EventInfo of(Event event) {
+        String accessUrl = getAccessUrl(event);
+
         return EventInfo.builder()
                 .eventId(event.getId())
                 .name(event.getName())
                 .category(event.getCategory())
-                .accessUrl(event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null)
+                .accessUrl(accessUrl)
                 .content(event.getContent())
                 .capacity(event.getCapacity())
-                .applicants(participantsCount)
+                .applicants(event.getParticipants().size())
                 .build();
+    }
+
+    private static String getAccessUrl(Event event) {
+        return event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null;
     }
 }

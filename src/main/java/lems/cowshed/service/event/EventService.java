@@ -4,7 +4,6 @@ import lems.cowshed.dto.event.EventIdProvider;
 import lems.cowshed.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.dto.event.response.*;
-import lems.cowshed.dto.regular.event.response.RegularEventInfo;
 import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.config.aws.AwsS3Util;
 import lems.cowshed.domain.UploadFile;
@@ -12,7 +11,6 @@ import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.repository.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.event.EventEditCommand;
 import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.participation.EventParticipation;
@@ -40,7 +38,7 @@ import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.exception.Message.*;
 import static lems.cowshed.exception.Reason.*;
 
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class EventService {
@@ -54,38 +52,44 @@ public class EventService {
 
     public EventInfo getEvent(Long eventId, String username) {
         Event event = eventQueryRepository.findEventFetchParticipants(eventId);
-        int participantsCount = event.getParticipants().size();
 
         if(event.isNotSameAuthor(username)){
             throw new BusinessException(EVENT_AUTHOR, EVENT_NOT_REGISTERED_BY_USER);
         }
 
-        return EventInfo.of(event, participantsCount);
+        return EventInfo.of(event);
     }
 
+    @Transactional
     public Long saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
-        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
-        Event event = requestDto.toEntity(username, uploadFile);
-        Event savedEvent = eventRepository.save(event);
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(USER_NAME, USER_NOT_FOUND));
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        eventParticipantRepository.save(eventParticipation);
 
-        return savedEvent.getId();
+        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
+        Event event = requestDto.toEntity(username, uploadFile);
+
+        // TODO 연관관계 메서드 분리
+        EventParticipation.of(user, event);
+        eventRepository.save(event);
+
+        return event.getId();
     }
 
+    @Transactional
     public void editEvent(Long eventId, EventUpdateRequestDto request, String username) throws IOException {
-        Event event = eventRepository.findByIdAndAuthor(eventId, username)
+        Event event = eventRepository.findByIdAndAuthorFetchParticipation(eventId, username)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        long participantCount = eventParticipantRepository.getParticipationCountById(event.getId());
-        event.updateCapacity(participantCount, request.getCapacity());
-
         UploadFile uploadFile = awsS3Util.uploadFile(request.getFile());
-        EventEditCommand eventEditCommand = createEventEditCommand(request, uploadFile);
-        event.edit(eventEditCommand);
+
+        event.modify(
+                request.getName(),
+                request.getCapacity(),
+                request.getContent(),
+                request.getCategory(),
+                uploadFile,
+                event.getParticipants().size()
+        );
     }
 
     public EventParticipantsInfo getEventParticipants(Long eventId){
@@ -95,23 +99,17 @@ public class EventService {
 
     public EventWithRegularInfo getEventWithRegularInfo(Long eventId, Long userId, String username) {
         Event event = eventQueryRepository.findEventFetchParticipants(eventId);
-        boolean isRegistrant = event.getAuthor().equals(username);
-        List<Long> participantUserIds = getParticipantUserIds(event);
-        boolean isParticipant = isParticipatedEvent(userId, participantUserIds);
-
         BookmarkStatus bookmarkStatus = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK)
                 .map(Bookmark::getStatus)
                 .orElse(NOT_BOOKMARK);
 
         List<RegularEvent> regularEvents = eventQueryRepository.findRegularEventsFetchParticipants(event.getId());
-        Map<Long, Integer> participantCountMap = findParticipantCountMap(regularEvents);
-        List<RegularEvent> uniqueRegularEvents = findUniqueList(regularEvents);
-        List<RegularEventInfo> regularEventInfos = convertRegularEventInfo(uniqueRegularEvents, participantCountMap, userId);
-        return EventWithRegularInfo.of(event, isParticipant, isRegistrant, bookmarkStatus, regularEventInfos);
+        return EventWithRegularInfo.of(event, regularEvents, userId, username, bookmarkStatus);
     }
 
-    public EventsPagingInfo getEvents(Pageable Pageable, Long userId) {
-        Slice<Event> eventsToLookFor = eventRepository.findEventsBy(Pageable);
+    //TODO 코드 리팩토링
+    public EventsPagingInfo getEventsPaging(Pageable pageable, Long userId) {
+        Slice<Event> eventsToLookFor = eventRepository.findEventsBy(pageable);
 
         List<Event> content = eventsToLookFor.getContent();
         Events events = Events.of(content);
@@ -127,6 +125,7 @@ public class EventService {
         return EventsPagingInfo.of(result, eventsToLookFor.isLast());
     }
 
+    @Transactional
     public void deleteEvent(Long eventId, String username) {
         Event event = eventRepository.findByIdAndAuthor(eventId, username).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
@@ -134,6 +133,7 @@ public class EventService {
         eventRepository.delete(event);
     }
 
+    // TODO 코드 리팩토링
     public BookmarkedEventsPagingInfo getEventsBookmarkedByUser(Pageable pageable, Long userId) {
         List<BookmarkedEventSimpleInfoQuery> bookmarkedEvents = eventQueryRepository.findBookmarkedEventsFromUser(userId, pageable);
 
@@ -144,6 +144,7 @@ public class EventService {
         return BookmarkedEventsPagingInfo.of(result);
     }
 
+    // TODO
     public ParticipatingEventsPagingInfo getEventsParticipatedInUser(Pageable pageable, Long userId) {
         List<Long> eventIds = eventQueryRepository.getEventIdsParticipatedByUser(userId, pageable);
         List<ParticipatingEventSimpleInfoQuery> queryResponse = eventQueryRepository.findEventsParticipatedByUserWithApplicants(eventIds);
@@ -155,6 +156,8 @@ public class EventService {
         return ParticipatingEventsPagingInfo.from(bookmarkedResponse);
     }
 
+    //TODO
+    @Transactional
     public EventsSearchInfo searchEventsByNameOrContent(String content, Long userId) {
         List<EventSimpleInfo> EventWithbookmarkStatus = eventQueryRepository.searchEventsWithBookmarkStatus(content, userId);
 
@@ -166,27 +169,6 @@ public class EventService {
         updateBookmarkStatus(EventWithbookmarkStatus);
 
         return EventsSearchInfo.of(EventWithbookmarkStatus);
-    }
-
-    private EventEditCommand createEventEditCommand(EventUpdateRequestDto request, UploadFile uploadFile) {
-        return EventEditCommand.of(
-                request.getName(),
-                request.getCategory(),
-                request.getContent(),
-                request.getCapacity(),
-                uploadFile
-        );
-    }
-
-    private boolean isParticipatedEvent(Long userId, List<Long> participantUserIds) {
-        return participantUserIds.stream()
-                .anyMatch(id -> Objects.equals(userId, id));
-    }
-
-    private List<Long> getParticipantUserIds(Event event) {
-        return event.getParticipants().stream()
-                .map(participant -> participant.getUser().getId())
-                .toList();
     }
 
     private <T extends EventIdProvider> List<Long> getEventIds(List<T> events) {
@@ -240,34 +222,5 @@ public class EventService {
                 .map(dto ->
                         BookmarkedEventSimpleInfoQuery.updateApplicants(dto, eventParticipantsCountByEventId.getOrDefault(dto.getId(), 0L)))
                 .toList();
-    }
-
-    private List<RegularEventInfo> convertRegularEventInfo(List<RegularEvent> uniqueRegularEvents,
-                                                           Map<Long, Integer> participantCountMap, Long userId) {
-        return uniqueRegularEvents.stream()
-                .map(re ->
-                        RegularEventInfo.of(re,
-                                participantCountMap.get(re.getId()),
-                                re.getParticipations().stream()
-                                        .anyMatch(p -> p.getUserId().equals(userId)),
-                                re.getUserId().equals(userId))
-                )
-                .toList();
-    }
-
-    private List<RegularEvent> findUniqueList(List<RegularEvent> regularEvents) {
-        return regularEvents.stream()
-                .distinct()
-                .toList();
-    }
-
-    private Map<Long, Integer> findParticipantCountMap(List<RegularEvent> regularEvents) {
-        Map<Long, Integer> participantCountMap = new HashMap<>();
-        regularEvents.forEach(re -> {
-            long regularId = re.getId();
-            int count = re.getParticipations().size();
-            participantCountMap.put(regularId, participantCountMap.getOrDefault(regularId, 0) + count);
-        });
-        return participantCountMap;
     }
 }

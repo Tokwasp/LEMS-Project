@@ -2,6 +2,8 @@ package lems.cowshed.repository.regular.event;
 
 import jakarta.persistence.LockModeType;
 import lems.cowshed.domain.regular.event.RegularEvent;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +28,6 @@ public interface RegularEventRepository extends JpaRepository<RegularEvent, Long
 
     @Query("select distinct re from RegularEvent re left join fetch re.participations rep where re.id in :regularIds")
     List<RegularEvent> findByIdsFetchParticipation(@Param("regularIds") List<Long> regularEventIds);
+
+    Slice<RegularEvent> findByEventId(Long eventId, Pageable pageable);
 }

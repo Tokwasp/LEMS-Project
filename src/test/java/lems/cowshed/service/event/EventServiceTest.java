@@ -249,7 +249,7 @@ class EventServiceTest extends IntegrationTestSupport {
         assertThat(result.getApplicants()).isEqualTo(2);
     }
 
-    @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참여 하지 않았다면 결과 정기 모임의 상태는 참여x 이다.")
+    @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참여 하지 않았다면 결과 정기 모임 참여 id는 null 이다.")
     @Test
     void getEventWithRegularInfo_WhenNotParticipatedRegularEvent_ThenReturnNotParticipated() {
         //given
@@ -267,11 +267,11 @@ class EventServiceTest extends IntegrationTestSupport {
 
         //then
         assertThat(response.getRegularEvents())
-                .extracting("name", "isParticipated")
-                .containsExactly(Tuple.tuple("정기 모임", false));
+                .extracting("name", "participationId")
+                .containsExactly(Tuple.tuple("정기 모임", null));
     }
 
-    @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참여 했다면 결과 정기 모임의 상태는 참여o 이다.")
+    @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참여 했다면 결과 정기 모임 참여 id를 확인 한다.")
     @Test
     void getEventWithRegularInfo_WhenParticipatedRegularEvent_ThenReturnParticipated() {
         //given
@@ -292,8 +292,8 @@ class EventServiceTest extends IntegrationTestSupport {
 
         //then
         assertThat(response.getRegularEvents())
-                .extracting("name", "isParticipated")
-                .containsExactly(Tuple.tuple("정기 모임", true));
+                .extracting("name", "participationId")
+                .containsExactly(Tuple.tuple("정기 모임", regularParticipation.getId()));
     }
 
     @DisplayName("모임과 정기모임을 함께 조회할 때 정기모임에 참석 했다면 정기 모임 참여 인원수는 1명 이다.")
@@ -354,7 +354,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("두명의 회원이 하나의 모임에 참여 할때 모임의 참여자 수는 두명이다.")
     @Test
-    void getEventsWithApplicantsWithRegular() {
+    void getEventsPagingWithApplicantsWithRegular() {
         //given
         Event event = createEvent("테스터", "테스트 모임", 2);
         eventRepository.save(event);
@@ -370,7 +370,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
+        EventsPagingInfo result = eventService.getEventsPaging(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -407,7 +407,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("페이징 정보를 받아 모임을 조회 합니다.")
     @Test
-    void getEventsWithRegular() {
+    void getEventsPagingWithRegular() {
         //given
         User user = createUser("테스터", "testEmail");
         userRepository.save(user);
@@ -420,7 +420,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Pageable pageable = PageRequest.of(1, 3);
 
         //when
-        EventsPagingInfo result = eventService.getEvents(pageable, user.getId());
+        EventsPagingInfo result = eventService.getEventsPaging(pageable, user.getId());
 
         //then
         assertThat(result.getContent())
@@ -430,7 +430,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("모임에 참여한 회원이 없을 경우 참여자 수는 0명이다.")
     @Test
-    void getEventsWhenNothingApplicantsWithRegular() {
+    void getEventsPagingWhenNothingApplicantsWithRegular() {
         //given
         Event event = createEvent("테스터", "테스트 모임", 2);
         eventRepository.save(event);
@@ -438,7 +438,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventsPagingInfo result = eventService.getEvents(pageable, 0L);
+        EventsPagingInfo result = eventService.getEventsPaging(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -547,7 +547,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
     @DisplayName("북마크한 모임을 페이징 조회 할 때 북마크 여부를 확인 한다.")
     @Test
-    void getEventsForBookmarkWithRegular() {
+    void getEventsPagingForBookmarkWithRegular() {
         //given
         User user = createUser("북마크 테스터", "test@naver.com");
         userRepository.save(user);
@@ -563,7 +563,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Pageable pageable = PageRequest.of(0, 2);
 
         //when
-        List<EventSimpleInfo> result = eventService.getEvents(pageable, user.getId()).getContent();
+        List<EventSimpleInfo> result = eventService.getEventsPaging(pageable, user.getId()).getContent();
 
         //then
         assertThat(result)

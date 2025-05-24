@@ -173,30 +173,33 @@ class RegularEventServiceTest extends IntegrationTestSupport {
     @Test
     void findPagingInfo() {
         //given
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
         Long myUserId = 1L;
         Long differUserId = 2L;
 
-        RegularEvent regularEvent = createRegularEvent(myUserId, null, "정기 모임", "장소");
+        RegularEvent regularEvent = createRegularEvent(myUserId, event, "정기 모임", "장소");
         regularEventRepository.save(regularEvent);
 
-        RegularEvent regularEvent2 = createRegularEvent(myUserId, null, "정기 모임2", "장소2");
-        RegularEventParticipation participation = createParticipation(myUserId);
+        RegularEvent regularEvent2 = createRegularEvent(differUserId, event, "정기 모임2", "장소2");
+        RegularEventParticipation participation = createParticipation(differUserId);
         participation.connectRegularEvent(regularEvent2);
 
-        RegularEventParticipation participation2 = createParticipation(differUserId);
+        RegularEventParticipation participation2 = createParticipation(myUserId);
         participation2.connectRegularEvent(regularEvent2);
         regularEventRepository.save(regularEvent2);
 
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        RegularEventPagingInfo pagingInfo = regularEventService.findPagingInfo(pageRequest, myUserId);
+        RegularEventPagingInfo pagingInfo = regularEventService.findPagingInfo(event.getId(), pageRequest, myUserId);
 
         //then
         assertThat(pagingInfo.getRegularEventInfos())
-                .extracting( "name", "location", "participantsCount", "isParticipated")
+                .extracting( "name", "location", "participantsCount", "participationId", "isRegistrant")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("정기 모임", "장소", 0, false),
-                        Tuple.tuple("정기 모임2", "장소2", 2, true)
+                        Tuple.tuple("정기 모임", "장소", 0, null, true),
+                        Tuple.tuple("정기 모임2", "장소2", 2, participation2.getId(), false)
                 );
     }
 

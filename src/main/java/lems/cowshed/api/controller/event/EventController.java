@@ -52,9 +52,9 @@ public class EventController implements EventSpecification {
     }
 
     @GetMapping
-    public CommonResponse<EventsPagingInfo> getEvents(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        EventsPagingInfo events = eventService.getEvents(pageable, customUserDetails.getUserId());
+    public CommonResponse<EventsPagingInfo> getEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        EventsPagingInfo events = eventService.getEventsPaging(pageable, customUserDetails.getUserId());
         return CommonResponse.success(events);
     }
 

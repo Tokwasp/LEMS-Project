@@ -1,6 +1,7 @@
 package lems.cowshed.dto.regular.event.response;
 
 import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -25,46 +26,57 @@ public class RegularEventPagingInfo {
                 .toList();
 
         return RegularEventPagingInfo.builder()
-                .regularEventInfos((regularEventInfos))
+                .regularEventInfos(regularEventInfos)
                 .hasNext(hasNext)
                 .build();
     }
 
     @Getter
     private static class RegularEventInfo {
-        private final Long id;
-        private final String name;
-        private final LocalDateTime dateTime;
-        private final String location;
-        private final int participantsCount;
-        private final int capacity;
-        private final boolean isParticipated;
+        private Long id;
+        private Long participationId;
+        private String name;
+        private LocalDateTime dateTime;
+        private String location;
+        private int participantsCount;
+        private int capacity;
+        private boolean isRegistrant;
 
         @Builder
-        private RegularEventInfo(Long id, String name, LocalDateTime dateTime, String location,
-                                int participantsCount, int capacity, boolean isParticipated) {
+        private RegularEventInfo(Long id, Long participationId, String name, LocalDateTime dateTime,
+                                 String location, int participantsCount, int capacity, boolean isRegistrant) {
             this.id = id;
+            this.participationId = participationId;
             this.name = name;
             this.dateTime = dateTime;
             this.location = location;
             this.participantsCount = participantsCount;
             this.capacity = capacity;
-            this.isParticipated = isParticipated;
+            this.isRegistrant = isRegistrant;
         }
 
         private static RegularEventInfo of(RegularEvent regularEvent, Long userId){
-            boolean isParticipated = regularEvent.getParticipations().stream()
-                    .anyMatch(p -> p.getUserId().equals(userId));
+            Long participationId = getParticipationId(regularEvent, userId);
+            boolean isRegistrant = regularEvent.getUserId().equals(userId);
 
             return RegularEventInfo.builder()
                     .id(regularEvent.getId())
+                    .participationId(participationId)
                     .name(regularEvent.getName())
                     .dateTime(regularEvent.getDateTime())
                     .location(regularEvent.getLocation())
                     .participantsCount(regularEvent.getParticipations().size())
                     .capacity(regularEvent.getCapacity())
-                    .isParticipated(isParticipated)
+                    .isRegistrant(isRegistrant)
                     .build();
+        }
+
+        private static Long getParticipationId(RegularEvent regularEvent, Long userId) {
+            return regularEvent.getParticipations().stream()
+                    .filter(p -> p.getUserId().equals(userId))
+                    .map(RegularEventParticipation::getId)
+                    .findFirst()
+                    .orElse(null);
         }
     }
 }
