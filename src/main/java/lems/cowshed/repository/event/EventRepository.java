@@ -14,13 +14,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Event> findEventWithLockById(Long eventId);
     Slice<Event> findEventsBy(Pageable pageable);
     Event findByName(String name);
+
+    @Query("select distinct e from Event e left join fetch e.participants where e.id = :eventId and e.author = :author")
+    Optional<Event> findByIdAndAuthorFetchParticipation(@Param("eventId") Long eventId, @Param("author") String author);
+
     Optional<Event> findByIdAndAuthor(Long eventId, String author);
 
     @Query("SELECT b.event.id FROM Bookmark b WHERE b.user.id = :userId AND b.event.id IN :eventIds AND b.status = :bookmarkStatus")

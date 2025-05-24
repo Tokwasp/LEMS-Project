@@ -59,14 +59,15 @@ public class Event extends BaseEntity {
         this.uploadFile = uploadFile;
     }
 
-    public void edit(EventEditCommand command) {
-        this.name = command.getName();
-        this.category = command.getCategory();
-        this.content = command.getContent();
-        this.capacity = command.getCapacity();
+    public void modify(String name, int capacity, String content,
+                       Category category, UploadFile uploadFile, int participantsCount) {
+        this.name = name;
+        this.category = category;
+        this.content = content;
+        updateCapacity(participantsCount, capacity);
 
         if(uploadFile != null){
-            this.updateUploadFile(command.getUploadFile());
+            this.updateUploadFile(uploadFile);
         }
     }
 

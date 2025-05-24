@@ -23,8 +23,8 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<EventsPagingInfo> getEvents(Pageable pageable,
-                                               @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventsPagingInfo> getEventsPaging(Pageable pageable,
+                                                     @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)

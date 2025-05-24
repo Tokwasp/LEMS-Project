@@ -59,7 +59,7 @@ public class EventQueryRepository {
 
     public List<RegularEvent> findRegularEventsFetchParticipants(Long eventId) {
         return queryFactory
-                .select(regularEvent)
+                .select(regularEvent).distinct()
                 .from(regularEvent)
                 .join(regularEvent.event, event)
                 .leftJoin(regularEvent.participations, regularEventParticipation).fetchJoin()
