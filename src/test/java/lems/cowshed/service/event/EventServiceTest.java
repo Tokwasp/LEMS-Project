@@ -725,11 +725,6 @@ class EventServiceTest extends IntegrationTestSupport {
     }
 
     private RegularEventParticipation createRegularParticipation(Long userId, RegularEvent regularEvent){
-        RegularEventParticipation regularEventParticipation = RegularEventParticipation.builder()
-                .userId(userId)
-                .regularEvent(regularEvent)
-                .build();
-        regularEvent.getParticipations().add(regularEventParticipation);
-        return regularEventParticipation;
+        return RegularEventParticipation.of(userId, regularEvent);
     }
 }

@@ -47,7 +47,7 @@ public class RegularEventParticipationService {
             throw new BusinessException(REGULAR_EVENT_PARTICIPATION, REGULAR_EVENT_NOT_POSSIBLE_PARTICIPATION);
         }
 
-        RegularEventParticipation participation = participationRepository.save(RegularEventParticipation.of(user, regularEvent));
+        RegularEventParticipation participation = participationRepository.save(RegularEventParticipation.of(user.getId(), regularEvent));
         return participation.getId();
     }
 

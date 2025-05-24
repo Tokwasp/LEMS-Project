@@ -108,8 +108,8 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(user.getId(), event);
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation participation = RegularEventParticipation.of(user, regularEvent);
-        RegularEventParticipation participation2 = RegularEventParticipation.of(user2, regularEvent);
+        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent);
+        RegularEventParticipation participation2 = RegularEventParticipation.of(user2.getId(), regularEvent);
         participationRepository.saveAll(List.of(participation, participation2));
 
         //when
@@ -139,7 +139,7 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(user.getId(), event);
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation participation = RegularEventParticipation.of(user, regularEvent);
+        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent);
         participationRepository.save(participation);
 
         //when

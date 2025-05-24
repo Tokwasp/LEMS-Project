@@ -46,8 +46,8 @@ class RegularEventParticipationRepositoryTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(event, "정기모임", "장소", user.getId());
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation regularEventParticipation = RegularEventParticipation.of(user, regularEvent);
-        RegularEventParticipation regularEventParticipation2 = RegularEventParticipation.of(user2, regularEvent);
+        RegularEventParticipation regularEventParticipation = RegularEventParticipation.of(user.getId(), regularEvent);
+        RegularEventParticipation regularEventParticipation2 = RegularEventParticipation.of(user2.getId(), regularEvent);
         participationRepository.saveAll(List.of(regularEventParticipation, regularEventParticipation2));
 
         //when

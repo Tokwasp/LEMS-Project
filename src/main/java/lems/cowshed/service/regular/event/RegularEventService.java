@@ -89,10 +89,7 @@ public class RegularEventService {
     }
 
     private RegularEventParticipation createRegularEventParticipation(Long userId, RegularEvent regularEvent) {
-        return RegularEventParticipation.builder()
-                .userId(userId)
-                .regularEvent(regularEvent)
-                .build();
+        return RegularEventParticipation.of(userId, regularEvent);
     }
 
     private RegularEventEditCommand createRegularEditCommand(RegularEventEditRequest request) {

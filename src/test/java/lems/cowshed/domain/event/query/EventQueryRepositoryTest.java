@@ -100,7 +100,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(event, "테스트 모임", "테스트 장소");
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation regularEventParticipation = RegularEventParticipation.of(user, regularEvent);
+        RegularEventParticipation regularEventParticipation = RegularEventParticipation.of(user.getId(), regularEvent);
         regularEventParticipationRepository.save(regularEventParticipation);
 
         //when
