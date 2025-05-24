@@ -1,17 +1,15 @@
 package lems.cowshed.dto.user.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Mbti;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "회원 수정")
-public class UserEditRequestDto {
+public class UserModifyRequest {
 
     @Schema(description = "닉네임", example = "외양간")
     private String username;
@@ -29,7 +27,7 @@ public class UserEditRequestDto {
     private Mbti mbti;
 
     @Builder
-    private UserEditRequestDto(String username, String introduction, String localName, LocalDate birth, Mbti mbti) {
+    private UserModifyRequest(String username, String introduction, String localName, LocalDate birth, Mbti mbti) {
         this.username = username;
         this.introduction = introduction;
         this.localName = localName;

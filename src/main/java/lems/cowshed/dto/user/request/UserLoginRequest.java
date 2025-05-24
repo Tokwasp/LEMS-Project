@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserLoginRequestDto {
+public class UserLoginRequest {
 
     @Schema(description = "이메일", example = "test1234@naver.com")
     @NotBlank(message = "이메일 값은 필수 입니다.")
@@ -20,7 +20,7 @@ public class UserLoginRequestDto {
     private String password;
 
     @Builder
-    public UserLoginRequestDto(String email, String password) {
+    public UserLoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }

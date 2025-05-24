@@ -8,9 +8,9 @@ import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
-import lems.cowshed.dto.user.request.UserEditRequestDto;
-import lems.cowshed.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserModifyRequest;
+import lems.cowshed.dto.user.request.UserLoginRequest;
+import lems.cowshed.dto.user.request.UserSaveRequest;
 import lems.cowshed.domain.user.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,15 +21,15 @@ public interface UserSpecification {
 
     @Operation(summary = "회원 가입", description = "회원정보를 받아 회원 가입을 합니다. [회원 가입]")
     @ApiErrorCodeExample(ErrorCode.BUSINESS_ERROR)
-    CommonResponse<Void> signUp(@RequestBody UserSaveRequestDto userSaveRequestDto);
+    CommonResponse<Void> signUp(@RequestBody UserSaveRequest userSaveRequest);
 
     @Operation(summary = "로그인", description = "이메일/비밀번호을 통해 로그인을 합니다. [로그인]")
     @ApiErrorCodeExamples({ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> login (@RequestBody UserLoginRequestDto UserLoginRequestDto);
+    CommonResponse<Void> login (@RequestBody UserLoginRequest UserLoginRequest);
 
     @Operation(summary = "회원 수정", description = "회원 정보를 수정한다. [마이 페이지 -> 프로필 편집]")
     @ApiErrorCodeExamples({ErrorCode.BUSINESS_ERROR, ErrorCode.NOT_FOUND_ERROR})
-    CommonResponse<Void> editUser(@RequestBody UserEditRequestDto UserEditRequestDto,
+    CommonResponse<Void> editUser(@RequestBody UserModifyRequest UserModifyRequest,
                                   @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "회원 이메일 임시 비밀번호 전송", description = "회원의 메일로 임시 비밀번호를 전송 합니다.")

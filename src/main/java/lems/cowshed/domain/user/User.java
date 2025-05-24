@@ -2,7 +2,7 @@ package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
 
-import lems.cowshed.dto.user.request.UserEditRequestDto;
+import lems.cowshed.dto.user.request.UserModifyRequest;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lombok.*;
@@ -76,12 +76,12 @@ public class User extends BaseEntity {
     }
 
     //TODO
-    public void modifyContents(UserEditRequestDto userEditRequestDto){
-        if(userEditRequestDto.getUsername() != null) {this.username = userEditRequestDto.getUsername();}
-        if(userEditRequestDto.getIntroduction() != null) {this.introduction = userEditRequestDto.getIntroduction();}
-        if(userEditRequestDto.getLocalName() != null) {this.location = userEditRequestDto.getLocalName();}
-        if(userEditRequestDto.getBirth() != null) {this.birth = userEditRequestDto.getBirth();}
-        if(userEditRequestDto.getMbti() != null) {this.mbti = userEditRequestDto.getMbti();}
+    public void modifyContents(UserModifyRequest userModifyRequest){
+        if(userModifyRequest.getUsername() != null) {this.username = userModifyRequest.getUsername();}
+        if(userModifyRequest.getIntroduction() != null) {this.introduction = userModifyRequest.getIntroduction();}
+        if(userModifyRequest.getLocalName() != null) {this.location = userModifyRequest.getLocalName();}
+        if(userModifyRequest.getBirth() != null) {this.birth = userModifyRequest.getBirth();}
+        if(userModifyRequest.getMbti() != null) {this.mbti = userModifyRequest.getMbti();}
     }
 
     public void modifyPassword(String password) {

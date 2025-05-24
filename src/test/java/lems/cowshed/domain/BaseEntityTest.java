@@ -1,8 +1,8 @@
 package lems.cowshed.domain;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.dto.user.request.UserEditRequestDto;
-import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserModifyRequest;
+import lems.cowshed.dto.user.request.UserSaveRequest;
 import lems.cowshed.repository.bookmark.BookmarkRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
@@ -47,7 +47,7 @@ class BaseEntityTest extends IntegrationTestSupport {
         //given
         LocalDateTime beforeSave = LocalDateTime.now();
         String email = "test@naver.com";
-        UserSaveRequestDto request = createSaveDto(email, "테스트", "tempPassword");
+        UserSaveRequest request = createSaveDto(email, "테스트", "tempPassword");
 
         //when
         userService.signUp(request);
@@ -71,7 +71,7 @@ class BaseEntityTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         String editName = "수정한닉네임";
-        UserEditRequestDto request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
+        UserModifyRequest request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
 
         //when
         userService.editUser(request, user.getId(), user.getUsername());
@@ -92,16 +92,16 @@ class BaseEntityTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private UserSaveRequestDto createSaveDto(String email, String username, String password) {
-        return UserSaveRequestDto.builder()
+    private UserSaveRequest createSaveDto(String email, String username, String password) {
+        return UserSaveRequest.builder()
                 .email(email)
                 .username(username)
                 .password(password)
                 .build();
     }
 
-    private UserEditRequestDto createEditDto(String username, String introduction, Mbti mbti) {
-        return UserEditRequestDto.builder()
+    private UserModifyRequest createEditDto(String username, String introduction, Mbti mbti) {
+        return UserModifyRequest.builder()
                 .username(username)
                 .introduction(introduction)
                 .localName("대구광역시 수성구")

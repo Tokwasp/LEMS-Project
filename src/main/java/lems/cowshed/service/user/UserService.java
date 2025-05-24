@@ -1,10 +1,12 @@
 package lems.cowshed.service.user;
 
-import lems.cowshed.dto.user.request.UserEditRequestDto;
-import lems.cowshed.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserModifyRequest;
+import lems.cowshed.dto.user.request.UserLoginRequest;
+import lems.cowshed.dto.user.request.UserSaveRequest;
 import lems.cowshed.dto.user.response.UserMyPageInfo;
 import lems.cowshed.dto.user.response.UserInfo;
+import lems.cowshed.global.exception.BusinessException;
+import lems.cowshed.global.exception.NotFoundException;
 import lems.cowshed.repository.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.repository.event.query.EventQueryRepository;
 import lems.cowshed.repository.event.query.ParticipatingEventSimpleInfoQuery;
@@ -13,7 +15,6 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.repository.user.query.MyPageUserQueryDto;
 import lems.cowshed.repository.user.query.UserQueryRepository;
-import lems.cowshed.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,8 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
-import static lems.cowshed.exception.Message.*;
-import static lems.cowshed.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.*;
+import static lems.cowshed.global.exception.Reason.*;
 
 @RequiredArgsConstructor
 @Transactional
@@ -35,7 +36,7 @@ public class UserService {
     private final EventQueryRepository eventQueryRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public void signUp(UserSaveRequestDto request) {
+    public void signUp(UserSaveRequest request) {
         if(userRepository.existsByEmailOrUsername(request.getEmail(), request.getUsername())){
             throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
         }
@@ -44,7 +45,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void login(UserLoginRequestDto loginDto){
+    public void login(UserLoginRequest loginDto){
         String email = loginDto.getEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_NOT_FOUND));
@@ -54,7 +55,7 @@ public class UserService {
         }
     }
 
-    public void editUser(UserEditRequestDto editDto, Long userId, String myUsername){
+    public void editUser(UserModifyRequest editDto, Long userId, String myUsername){
         if(isChangeUsername(editDto, myUsername)) {
             userRepository.findByUsername(editDto.getUsername())
                     .ifPresent(u -> {
@@ -115,11 +116,11 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    private boolean isPasswordValidationFail(UserLoginRequestDto loginDto, User user) {
+    private boolean isPasswordValidationFail(UserLoginRequest loginDto, User user) {
         return !bCryptPasswordEncoder.matches(loginDto.getPassword(), user.getPassword());
     }
 
-    private boolean isChangeUsername(UserEditRequestDto editDto, String myUsername) {
+    private boolean isChangeUsername(UserModifyRequest editDto, String myUsername) {
         return !editDto.getUsername().equals(myUsername);
     }
 
