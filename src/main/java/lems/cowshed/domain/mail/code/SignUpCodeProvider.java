@@ -1,12 +1,11 @@
 package lems.cowshed.domain.mail.code;
 
-import lems.cowshed.exception.BusinessException;
+import lems.cowshed.global.exception.BusinessException;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
-
-import static lems.cowshed.exception.Message.*;
-import static lems.cowshed.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.*;
+import static lems.cowshed.global.exception.Reason.*;
 
 @Component
 public class SignUpCodeProvider implements CodeProvidable {

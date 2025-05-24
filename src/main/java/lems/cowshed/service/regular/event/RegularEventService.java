@@ -11,7 +11,7 @@ import lems.cowshed.domain.regular.event.RegularEventEditCommand;
 import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
-import lems.cowshed.exception.NotFoundException;
+import lems.cowshed.global.exception.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static lems.cowshed.exception.Message.*;
-import static lems.cowshed.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.*;
+import static lems.cowshed.global.exception.Reason.*;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor

@@ -1,12 +1,12 @@
 package lems.cowshed.domain.mail.code;
 
-import lems.cowshed.exception.BusinessException;
+import lems.cowshed.global.exception.BusinessException;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 
-import static lems.cowshed.exception.Message.CODE_TYPE_MISMATCH;
-import static lems.cowshed.exception.Reason.CODE_TYPE;
+import static lems.cowshed.global.exception.Message.CODE_TYPE_MISMATCH;
+import static lems.cowshed.global.exception.Reason.CODE_TYPE;
 
 @Component
 public class PasswordCodeProvider implements CodeProvidable {

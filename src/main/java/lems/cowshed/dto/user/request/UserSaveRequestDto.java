@@ -2,6 +2,7 @@ package lems.cowshed.dto.user.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lems.cowshed.dto.Enum;
 import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Mbti;
@@ -16,6 +17,10 @@ public class UserSaveRequestDto {
 
     @Schema(description = "닉네임", example = "외양간")
     @NotBlank(message = "유저 닉네임은 필수 입니다.")
+    @Pattern(
+            regexp = "^[A-Za-z가-힣0-9]{2,10}$",
+            message = "회원의 이름은 한글과 영어 문자만 가능하며 최대 10자리 입니다."
+    )
     private String username;
 
     @Schema(description = "이메일", example = "test1234@naver.com")

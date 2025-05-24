@@ -6,14 +6,14 @@ import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.repository.event.participation.EventParticipantRepository;
-import lems.cowshed.exception.BusinessException;
-import lems.cowshed.exception.NotFoundException;
+import lems.cowshed.global.exception.BusinessException;
+import lems.cowshed.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static lems.cowshed.exception.Message.*;
-import static lems.cowshed.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.*;
+import static lems.cowshed.global.exception.Reason.*;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
