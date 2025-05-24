@@ -53,8 +53,8 @@ public class RegularEventService {
         return RegularEventSimpleInfo.from(regularEvent);
     }
 
-    public RegularEventPagingInfo findPagingInfo(Pageable pageable, Long userId) {
-        Slice<RegularEvent> pagingInfo = regularEventRepository.findAll(pageable);
+    public RegularEventPagingInfo findPagingInfo(Long eventId, Pageable pageable, Long userId) {
+        Slice<RegularEvent> pagingInfo = regularEventRepository.findByEventId(eventId, pageable);
         List<Long> regularEventIds = getRegularEventIds(pagingInfo.getContent());
 
         List<RegularEvent> regularEvents = regularEventRepository.findByIdsFetchParticipation(regularEventIds);

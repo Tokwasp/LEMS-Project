@@ -34,11 +34,12 @@ public class RegularEventController implements RegularEventSpecification {
         return CommonResponse.success(info);
     }
 
-    @GetMapping("/regular/search")
-    public CommonResponse<RegularEventPagingInfo> findPagingInfo(@PageableDefault(page = 0, size = 5) Pageable pageable,
-                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+    @GetMapping("/events/{event-id}/regular/search")
+    public CommonResponse<RegularEventPagingInfo> findPagingInfo(@PathVariable("event-id") Long eventId,
+                                                                 @PageableDefault(page = 0, size = 5) Pageable pageable,
+                                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        RegularEventPagingInfo pagingInfo = regularEventService.findPagingInfo(pageable, userDetails.getUserId());
+        RegularEventPagingInfo pagingInfo = regularEventService.findPagingInfo(eventId, pageable, userDetails.getUserId());
         return CommonResponse.success(pagingInfo);
     }
 
