@@ -1,5 +1,8 @@
 package lems.cowshed.service.user;
 
+import lems.cowshed.domain.mail.Mail;
+import lems.cowshed.domain.mail.code.CodeFinder;
+import lems.cowshed.domain.mail.code.CodeType;
 import lems.cowshed.dto.user.request.UserModifyRequest;
 import lems.cowshed.dto.user.request.UserLoginRequest;
 import lems.cowshed.dto.user.request.UserSaveRequest;
@@ -15,6 +18,7 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.repository.user.query.MyPageUserQueryDto;
 import lems.cowshed.repository.user.query.UserQueryRepository;
+import lems.cowshed.service.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,16 +30,19 @@ import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.global.exception.Message.*;
 import static lems.cowshed.global.exception.Reason.*;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class UserService {
 
+    private final MailService mailService;
+    private final CodeFinder codeFinder;
     private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
     private final EventQueryRepository eventQueryRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Transactional
     public void signUp(UserSaveRequest request) {
         if(userRepository.existsByEmailOrUsername(request.getEmail(), request.getUsername())){
             throw new BusinessException(USERNAME_OR_EMAIL, USERNAME_OR_EMAIL_EXIST);
@@ -45,27 +52,55 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void login(UserLoginRequest loginDto){
-        String email = loginDto.getEmail();
-        User user = userRepository.findByEmail(email)
+    public void login(UserLoginRequest request){
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_NOT_FOUND));
 
-        if(isPasswordValidationFail(loginDto, user)){
+        if(isPasswordValidationFail(request, user)){
             throw new BusinessException(USER_PASSWORD, USER_ID_PASSWORD_CHECK);
         }
     }
 
-    public void editUser(UserModifyRequest editDto, Long userId, String myUsername){
-        if(isChangeUsername(editDto, myUsername)) {
-            userRepository.findByUsername(editDto.getUsername())
-                    .ifPresent(u -> {
-                        throw new BusinessException(USER_NAME, USERNAME_EXIST);
-                    });
-        }
+    //TODO 회원 수정 정보 JWT 반환
+    @Transactional
+    public void editUser(UserModifyRequest request, Long userId){
+        checkDuplicatedUsername(request);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        user.modifyContents(editDto);
+        user.modify(
+                request.getUsername(),
+                request.getIntroduction(),
+                request.getLocation(),
+                request.getBirth(),
+                request.getMbti()
+        );
+    }
+
+    @Transactional
+    public void sendTemporaryPasswordToEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_EMAIL_NOT_FOUND));
+
+        String password = codeFinder.findCodeFrom(CodeType.PASSWORD);
+        mailService.sendCodeToMail(CodeType.PASSWORD, Mail.of(email, password));
+        user.modifyPassword(bCryptPasswordEncoder.encode(password));
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
+
+        userRepository.delete(user);
+    }
+
+    public boolean isDuplicatedUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean isExistEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 
     public UserMyPageInfo findMyPage(Long userId) {
@@ -84,24 +119,6 @@ public class UserService {
         return UserMyPageInfo.of(userDto, participatedEvents, bookmarkedEventList);
     }
 
-    public User findUserFrom(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(USER_EMAIL, USER_EMAIL_NOT_FOUND));
-    }
-
-    public boolean isDuplicatedUsername(String username) {
-        return userRepository.findByUsername(username).isPresent();
-    }
-
-    public boolean isExistEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
-
-    public void modifyPassword(User user, String password) {
-        User findUser = userRepository.findById(user.getId()).orElseThrow();
-        findUser.modifyPassword(bCryptPasswordEncoder.encode(password));
-    }
-
     public UserInfo findUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
@@ -109,19 +126,15 @@ public class UserService {
         return UserInfo.from(user);
     }
 
-    public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
-
-        userRepository.delete(user);
+    private void checkDuplicatedUsername(UserModifyRequest request) {
+        userRepository.findByUsername(request.getUsername())
+                .ifPresent(u -> {
+                    throw new BusinessException(USER_NAME, USERNAME_EXIST);
+                });
     }
 
     private boolean isPasswordValidationFail(UserLoginRequest loginDto, User user) {
         return !bCryptPasswordEncoder.matches(loginDto.getPassword(), user.getPassword());
-    }
-
-    private boolean isChangeUsername(UserModifyRequest editDto, String myUsername) {
-        return !editDto.getUsername().equals(myUsername);
     }
 
     private void setApplicants(Map<Long,Long> participantsCountByGroupId, List<BookmarkedEventSimpleInfoQuery> bookmarkList) {

@@ -29,7 +29,6 @@ public class UserApiController implements UserSpecification{
 
     private final UserService userService;
     private final MailService mailService;
-    private final CodeFinder codeFinder;
 
     @PostMapping("/signUp")
     public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequest request) {
@@ -49,10 +48,10 @@ public class UserApiController implements UserSpecification{
         return CommonResponse.success();
     }
 
-    @PatchMapping
+    @PutMapping
     public CommonResponse<Void> editUser(@RequestBody UserModifyRequest userModifyRequest,
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        userService.editUser(userModifyRequest, customUserDetails.getUserId(), customUserDetails.getUsername());
+        userService.editUser(userModifyRequest, customUserDetails.getUserId());
         return CommonResponse.success();
     }
 
@@ -64,11 +63,7 @@ public class UserApiController implements UserSpecification{
 
     @PostMapping("/password-reset")
     public CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email){
-        User user = userService.findUserFrom(email);
-        String password = codeFinder.findCodeFrom(CodeType.PASSWORD);
-
-        mailService.sendCodeToMail(CodeType.PASSWORD, Mail.of(email, password));
-        userService.modifyPassword(user, password);
+        userService.sendTemporaryPasswordToEmail(email);
         return CommonResponse.success();
     }
 

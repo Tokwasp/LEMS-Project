@@ -39,7 +39,7 @@ class UserApiControllerTest extends ControllerTestSupport {
         //given
         UserSaveRequest request = UserSaveRequest.builder()
                 .email("test@naver.com")
-                .password("tempPassword")
+                .password("tempPassword!@")
                 .gender(MALE)
                 .mbti(Mbti.INTP)
                 .build();

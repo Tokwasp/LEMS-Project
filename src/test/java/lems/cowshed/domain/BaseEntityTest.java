@@ -74,7 +74,7 @@ class BaseEntityTest extends IntegrationTestSupport {
         UserModifyRequest request = createEditDto(editName, "안녕하세요!", Mbti.INTP);
 
         //when
-        userService.editUser(request, user.getId(), user.getUsername());
+        userService.editUser(request, user.getId());
 
         //then
         userRepository.flush();
@@ -104,7 +104,7 @@ class BaseEntityTest extends IntegrationTestSupport {
         return UserModifyRequest.builder()
                 .username(username)
                 .introduction(introduction)
-                .localName("대구광역시 수성구")
+                .location("대구광역시 수성구")
                 .birth(LocalDate.of(2024, 11, 20))
                 .mbti(mbti)
                 .build();
