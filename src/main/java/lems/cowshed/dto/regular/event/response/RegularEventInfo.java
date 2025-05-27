@@ -16,13 +16,12 @@ public class RegularEventInfo {
     private LocalDateTime dateTime;
     private int capacity;
     private int applicants;
-    private boolean isParticipated;
     private boolean isRegularRegistrant;
 
     @Builder
     private RegularEventInfo(long id, Long participationId, String name,
                              String location, LocalDateTime dateTime, int capacity,
-                             int applicants, boolean isParticipated, boolean isRegularRegistrant) {
+                             int applicants, boolean isRegularRegistrant) {
         this.id = id;
         this.participationId = participationId;
         this.name = name;
@@ -30,7 +29,6 @@ public class RegularEventInfo {
         this.dateTime = dateTime;
         this.capacity = capacity;
         this.applicants = applicants;
-        this.isParticipated = isParticipated;
         this.isRegularRegistrant = isRegularRegistrant;
     }
 

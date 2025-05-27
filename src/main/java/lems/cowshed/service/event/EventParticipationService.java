@@ -6,16 +6,16 @@ import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.repository.event.participation.EventParticipantRepository;
-import lems.cowshed.exception.BusinessException;
-import lems.cowshed.exception.NotFoundException;
+import lems.cowshed.global.exception.BusinessException;
+import lems.cowshed.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static lems.cowshed.exception.Message.*;
-import static lems.cowshed.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.*;
+import static lems.cowshed.global.exception.Reason.*;
 
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class EventParticipationService {
@@ -24,17 +24,27 @@ public class EventParticipationService {
     private final EventRepository eventRepository;
     private final EventParticipantRepository eventParticipantRepository;
 
+    @Transactional
     public long saveEventParticipation(Long eventId, Long userId) {
         checkAlreadyParticipation(eventId, userId);
 
-        Event event = findEvent(eventId);
-        eventParticipation(event);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        User user = findUser(userId);
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        return eventParticipantRepository.save(eventParticipation).getId();
+        Event event = eventRepository.findPessimisticById(eventId)
+                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+
+        long participantCount = eventParticipantRepository.getParticipationCountById(event.getId());
+        if (isNotParticipateToEvent(event, participantCount)) {
+            throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
+        }
+
+        EventParticipation participation = EventParticipation.of(user, event);
+        eventParticipantRepository.save(participation);
+        return participation.getId();
     }
 
+    @Transactional
     public void deleteEventParticipation(Long eventId, Long userId) {
         EventParticipation eventParticipation = eventParticipantRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException(EVENT_PARTICIPATION, EVENT_PARTICIPATION_FOUND));
@@ -42,29 +52,14 @@ public class EventParticipationService {
         eventParticipantRepository.delete(eventParticipation);
     }
 
-    private boolean isNotPossibleParticipateToEvent(Event event, long capacity) {
-        return event.isOverCapacity(capacity);
-    }
-
-    private User findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
-    }
-
-    private Event findEvent(Long eventId) {
-        return eventRepository.findEventWithLockById(eventId)
-                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
-    }
-
-    private void eventParticipation(Event event) {
-        long participantCount = eventParticipantRepository.getParticipationCountById(event.getId());
-        if (isNotPossibleParticipateToEvent(event, participantCount)) {
-            throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
-        }
-    }
-
     private void checkAlreadyParticipation(Long eventId, Long userId) {
         eventParticipantRepository.findByEventIdAndUserId(eventId, userId)
-                .ifPresent(participant -> {throw new BusinessException(EVENT_PARTICIPATION, EVENT_ALREADY_PARTICIPATION);});
+                .ifPresent(participant -> {
+                    throw new BusinessException(EVENT_PARTICIPATION, EVENT_ALREADY_PARTICIPATION);
+                });
+    }
+
+    private boolean isNotParticipateToEvent(Event event, long capacity) {
+        return event.isOverCapacity(capacity);
     }
 }

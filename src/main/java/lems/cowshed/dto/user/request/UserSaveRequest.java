@@ -1,32 +1,34 @@
 package lems.cowshed.dto.user.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lems.cowshed.dto.Enum;
 import lems.cowshed.domain.user.Gender;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
+import lems.cowshed.global.validator.EmailCheck;
+import lems.cowshed.global.validator.NameCheck;
+import lems.cowshed.global.validator.PasswordCheck;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserSaveRequestDto {
+public class UserSaveRequest {
 
     @Schema(description = "닉네임", example = "외양간")
-    @NotBlank(message = "유저 닉네임은 필수 입니다.")
+    @NameCheck
     private String username;
 
     @Schema(description = "이메일", example = "test1234@naver.com")
-    @NotBlank(message = "이메일 값은 필수 입니다.")
+    @EmailCheck
     private String email;
 
     @Schema(description = "인증 번호", example = "1352175142")
     private String code;
 
     @Schema(description = "비밀번호", example = "****")
-    @NotBlank(message = "패스워드는 필수 입니다.")
+    @PasswordCheck
     private String password;
 
     @Schema(description = "성별", example = "MALE")
@@ -38,8 +40,8 @@ public class UserSaveRequestDto {
     private Mbti mbti;
 
     @Builder
-    private UserSaveRequestDto(String username, String email, String code,
-                               String password, Gender gender, Mbti mbti) {
+    private UserSaveRequest(String username, String email, String code,
+                            String password, Gender gender, Mbti mbti) {
         this.username = username;
         this.email = email;
         this.code = code;

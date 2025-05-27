@@ -1,4 +1,4 @@
-package lems.cowshed.exception;
+package lems.cowshed.global.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

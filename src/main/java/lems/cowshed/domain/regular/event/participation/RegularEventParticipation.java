@@ -3,14 +3,10 @@ package lems.cowshed.domain.regular.event.participation;
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.regular.event.RegularEvent;
-import lems.cowshed.domain.user.User;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class RegularEventParticipation extends BaseEntity {
 
@@ -23,19 +19,19 @@ public class RegularEventParticipation extends BaseEntity {
     @JoinColumn(name = "regular_event_id")
     private RegularEvent regularEvent;
 
+    protected RegularEventParticipation() {}
+
     @Builder
-    private RegularEventParticipation(Long userId, RegularEvent regularEvent) {
+    private RegularEventParticipation(Long userId) {
         this.userId = userId;
-        this.regularEvent = regularEvent;
     }
 
-    public static RegularEventParticipation of(User user, RegularEvent regularEvent){
+    public static RegularEventParticipation of(Long userId, RegularEvent regularEvent){
         RegularEventParticipation regularEventParticipation = RegularEventParticipation.builder()
-                .userId(user.getId())
-                .regularEvent(regularEvent)
+                .userId(userId)
                 .build();
 
-        regularEvent.getParticipations().add(regularEventParticipation);
+        regularEventParticipation.connectRegularEvent(regularEvent);
         return regularEventParticipation;
     }
 

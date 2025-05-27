@@ -2,7 +2,6 @@ package lems.cowshed.domain.user;
 
 import jakarta.persistence.*;
 
-import lems.cowshed.dto.user.request.UserEditRequestDto;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lombok.*;
@@ -14,7 +13,6 @@ import java.util.Objects;
 
 @Getter
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
     @Id
@@ -50,6 +48,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();
 
+    protected User() {}
+
     @Builder
     private User(Long id, String username, String password,
                  Role role, String email, Mbti mbti,
@@ -75,13 +75,12 @@ public class User extends BaseEntity {
                 .build();
     }
 
-    //TODO
-    public void modifyContents(UserEditRequestDto userEditRequestDto){
-        if(userEditRequestDto.getUsername() != null) {this.username = userEditRequestDto.getUsername();}
-        if(userEditRequestDto.getIntroduction() != null) {this.introduction = userEditRequestDto.getIntroduction();}
-        if(userEditRequestDto.getLocalName() != null) {this.location = userEditRequestDto.getLocalName();}
-        if(userEditRequestDto.getBirth() != null) {this.birth = userEditRequestDto.getBirth();}
-        if(userEditRequestDto.getMbti() != null) {this.mbti = userEditRequestDto.getMbti();}
+    public void modify(String username, String introduction, String location, LocalDate birth, Mbti mbti){
+        this.username = username;
+        this.introduction = introduction;
+        this.location = location;
+        this.birth = birth;
+        this.mbti = mbti;
     }
 
     public void modifyPassword(String password) {

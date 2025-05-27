@@ -12,7 +12,7 @@ import lems.cowshed.repository.regular.event.participation.RegularEventParticipa
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
-import lems.cowshed.exception.BusinessException;
+import lems.cowshed.global.exception.BusinessException;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -108,8 +108,8 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(user.getId(), event);
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation participation = RegularEventParticipation.of(user, regularEvent);
-        RegularEventParticipation participation2 = RegularEventParticipation.of(user2, regularEvent);
+        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent);
+        RegularEventParticipation participation2 = RegularEventParticipation.of(user2.getId(), regularEvent);
         participationRepository.saveAll(List.of(participation, participation2));
 
         //when
@@ -139,7 +139,7 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(user.getId(), event);
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation participation = RegularEventParticipation.of(user, regularEvent);
+        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent);
         participationRepository.save(participation);
 
         //when

@@ -1,7 +1,6 @@
-package lems.cowshed.exception;
+package lems.cowshed.global.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 public class BusinessException extends IllegalArgumentException{

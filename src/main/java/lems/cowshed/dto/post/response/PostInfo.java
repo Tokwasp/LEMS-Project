@@ -12,6 +12,7 @@ import java.util.Map;
 @Getter
 public class PostInfo {
 
+    private Long id;
     private String subject;
     private String content;
     private LocalDateTime createdDateTime;
@@ -21,8 +22,9 @@ public class PostInfo {
     private long commentCount;
 
     @Builder
-    private PostInfo(String subject, String content, LocalDateTime createdDateTime,
+    private PostInfo(Long id,String subject, String content, LocalDateTime createdDateTime,
                      String username, boolean isRegistrant, long commentCount) {
+        this.id = id;
         this.subject = subject;
         this.content = content;
         this.createdDateTime = createdDateTime;
@@ -33,6 +35,7 @@ public class PostInfo {
 
     public static PostInfo of(Post post, String username, Long userId, int commentCount){
         return PostInfo.builder()
+                .id(post.getId())
                 .subject(post.getSubject())
                 .content(post.getContent())
                 .username(username)

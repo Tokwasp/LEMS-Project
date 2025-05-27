@@ -17,7 +17,8 @@ import java.util.Set;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Event> findEventWithLockById(Long eventId);
+    Optional<Event> findPessimisticById(Long eventId);
+
     Slice<Event> findEventsBy(Pageable pageable);
     Event findByName(String name);
 

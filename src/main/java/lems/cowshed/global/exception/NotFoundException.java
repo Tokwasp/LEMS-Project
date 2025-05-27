@@ -1,4 +1,4 @@
-package lems.cowshed.exception;
+package lems.cowshed.global.exception;
 
 public class NotFoundException extends BusinessException {
 

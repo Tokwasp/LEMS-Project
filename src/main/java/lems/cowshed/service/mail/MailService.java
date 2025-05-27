@@ -4,7 +4,7 @@ import lems.cowshed.dto.user.verification.response.VerificationResultInfo;
 import lems.cowshed.domain.mail.Mail;
 import lems.cowshed.domain.mail.MailVerificationStorage;
 import lems.cowshed.domain.mail.code.CodeType;
-import lems.cowshed.exception.BusinessException;
+import lems.cowshed.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,9 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-
-import static lems.cowshed.exception.Message.*;
-import static lems.cowshed.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.*;
+import static lems.cowshed.global.exception.Reason.*;
 
 @RequiredArgsConstructor
 @Service

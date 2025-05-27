@@ -18,8 +18,8 @@ import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.repository.event.participation.EventParticipantRepository;
-import lems.cowshed.exception.BusinessException;
-import lems.cowshed.exception.NotFoundException;
+import lems.cowshed.global.exception.BusinessException;
+import lems.cowshed.global.exception.NotFoundException;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -725,11 +725,6 @@ class EventServiceTest extends IntegrationTestSupport {
     }
 
     private RegularEventParticipation createRegularParticipation(Long userId, RegularEvent regularEvent){
-        RegularEventParticipation regularEventParticipation = RegularEventParticipation.builder()
-                .userId(userId)
-                .regularEvent(regularEvent)
-                .build();
-        regularEvent.getParticipations().add(regularEventParticipation);
-        return regularEventParticipation;
+        return RegularEventParticipation.of(userId, regularEvent);
     }
 }

@@ -1,8 +1,8 @@
 package lems.cowshed.api.controller.user;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.dto.user.request.UserLoginRequestDto;
-import lems.cowshed.dto.user.request.UserSaveRequestDto;
+import lems.cowshed.dto.user.request.UserLoginRequest;
+import lems.cowshed.dto.user.request.UserSaveRequest;
 import lems.cowshed.domain.user.Mbti;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ class UserApiControllerTest extends ControllerTestSupport {
     @Test
     void saveUser() throws Exception {
         //given
-        UserSaveRequestDto request = createRequestDto();
+        UserSaveRequest request = createRequestDto();
 
         //when //then
         mockMvc.perform(
@@ -37,9 +37,9 @@ class UserApiControllerTest extends ControllerTestSupport {
     @Test
     void saveUserWithoutUsername() throws Exception {
         //given
-        UserSaveRequestDto request = UserSaveRequestDto.builder()
+        UserSaveRequest request = UserSaveRequest.builder()
                 .email("test@naver.com")
-                .password("tempPassword")
+                .password("tempPassword!@")
                 .gender(MALE)
                 .mbti(Mbti.INTP)
                 .build();
@@ -61,9 +61,9 @@ class UserApiControllerTest extends ControllerTestSupport {
     @Test
     void saveUserWithoutEmail() throws Exception {
         //given
-        UserSaveRequestDto request = UserSaveRequestDto.builder()
+        UserSaveRequest request = UserSaveRequest.builder()
                 .username("test")
-                .password("tempPassword")
+                .password("tempPassword!@")
                 .gender(MALE)
                 .mbti(Mbti.INTP)
                 .build();
@@ -84,7 +84,7 @@ class UserApiControllerTest extends ControllerTestSupport {
     @Test
     void saveUserWithoutPassword() throws Exception {
         //given
-        UserSaveRequestDto request = UserSaveRequestDto.builder()
+        UserSaveRequest request = UserSaveRequest.builder()
                 .username("test")
                 .email("test@naver.com")
                 .gender(MALE)
@@ -100,16 +100,16 @@ class UserApiControllerTest extends ControllerTestSupport {
                 )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].field").value("password"))
-                .andExpect(jsonPath("$.errors[0].message").value("패스워드는 필수 입니다."));
+                .andExpect(jsonPath("$.errors[0].message").value("회원 비밀번호는 필수 입니다."));
     }
 
     @DisplayName("신규 회원이 회원 가입을 할 때 성별 값은 필수 입니다.")
     @Test
     void saveUserWithoutGender() throws Exception {
         //given
-        UserSaveRequestDto request = UserSaveRequestDto.builder()
+        UserSaveRequest request = UserSaveRequest.builder()
                 .username("test")
-                .password("tempPassword")
+                .password("tempPassword!@")
                 .email("test@naver.com")
                 .mbti(Mbti.INTP)
                 .build();
@@ -130,7 +130,7 @@ class UserApiControllerTest extends ControllerTestSupport {
     @Test
     void loginWhenEmailIsEmpty() throws Exception {
         //given
-        UserLoginRequestDto request = UserLoginRequestDto.builder()
+        UserLoginRequest request = UserLoginRequest.builder()
                 .email(" ")
                 .password("tempPassword")
                 .build();
@@ -151,7 +151,7 @@ class UserApiControllerTest extends ControllerTestSupport {
     @Test
     void loginWhenPasswordIsNull() throws Exception {
         //given
-        UserLoginRequestDto request = UserLoginRequestDto.builder()
+        UserLoginRequest request = UserLoginRequest.builder()
                 .email("test@naver.com")
                 .password(null)
                 .build();
@@ -168,12 +168,12 @@ class UserApiControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.errors[0].message").value("패스워드는 필수 입니다."));
     }
 
-    private UserSaveRequestDto createRequestDto(){
-        return UserSaveRequestDto.builder()
+    private UserSaveRequest createRequestDto(){
+        return UserSaveRequest.builder()
                 .username("test")
                 .email("test@naver.com")
                 .code("1234")
-                .password("tempPassword")
+                .password("tempPassword!@")
                 .gender(MALE)
                 .mbti(Mbti.INFJ)
                 .build();

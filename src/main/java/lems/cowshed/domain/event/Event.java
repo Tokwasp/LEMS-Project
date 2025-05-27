@@ -5,15 +5,14 @@ import jakarta.validation.constraints.Max;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.UploadFile;
 import lems.cowshed.domain.event.participation.EventParticipation;
-import lems.cowshed.exception.BusinessException;
+import lems.cowshed.global.exception.BusinessException;
 
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static lems.cowshed.exception.Message.*;
-import static lems.cowshed.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.*;
+import static lems.cowshed.global.exception.Reason.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
