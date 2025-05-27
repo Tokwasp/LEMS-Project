@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface RegularEventParticipationSpecification {
 
     @Operation(summary = "정기 모임 참여", description = "정기 모임에 참여 합니다.")
-    CommonResponse<Void> save(@PathVariable("regular-id") Long regularId, @AuthenticationPrincipal CustomUserDetails userDetails);
+    CommonResponse<Long> save(@PathVariable("regular-id") Long regularId, @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "정기 모임 참여 해제", description = "정기 모임에 참여를 해제 합니다.")
     CommonResponse<Void> delete(@PathVariable("regular-id") Long regularId, @AuthenticationPrincipal CustomUserDetails userDetails);

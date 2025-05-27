@@ -16,10 +16,10 @@ public class RegularEventParticipationController implements RegularEventParticip
     private final RegularEventParticipationService participationService;
 
     @PostMapping("/{regular-id}/participation")
-    public CommonResponse<Void> save(@PathVariable("regular-id") Long regularId,
+    public CommonResponse<Long> save(@PathVariable("regular-id") Long regularId,
                                      @AuthenticationPrincipal CustomUserDetails userDetails){
-        participationService.saveParticipation(regularId,userDetails.getUserId());
-        return CommonResponse.success();
+        Long participationId = participationService.saveParticipation(regularId, userDetails.getUserId());
+        return CommonResponse.success(participationId);
     }
 
     @GetMapping("/{regular-id}/participants")
