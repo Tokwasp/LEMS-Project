@@ -23,6 +23,7 @@ public class CommentsInfo {
         List<CommentInfo> commentInfoList = comments.stream()
                 .map(comment ->
                         CommentInfo.of(
+                                comment.getId(),
                                 findUserName(groupIdMap, comment),
                                 createDaysAgo(currentDateTime, comment),
                                 comment.getContext(),
