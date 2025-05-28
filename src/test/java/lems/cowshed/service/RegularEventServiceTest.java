@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static lems.cowshed.domain.user.Mbti.INTP;
+import static lems.cowshed.dto.regular.event.response.RegularEventPagingInfo.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -169,7 +170,124 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .isInstanceOf(NoSuchElementException.class);
     }
 
-    @DisplayName("정기 모임을 페이징 조회 한다.")
+    @DisplayName("정기 모임을 페이징 조회할 때 정기 모임에 참여 하지 않았을때 참여 식별자는 null이다.")
+    @Test
+    void findPagingInfo_WhenNotParticipated_thenParticipationIdIsNull() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        Long userId = 1L;
+        RegularEvent regularEvent = createRegularEvent(userId, event, "정기 모임", "장소");
+        regularEventRepository.save(regularEvent);
+
+        //when
+        PageRequest request = PageRequest.of(0, 2);
+        RegularEventPagingInfo result = regularEventService.findPagingInfo(event.getId(), request, userId);
+
+        //then
+        assertThat(result.isHasNext()).isFalse();
+        List<RegularEventInfo> regularEventInfos = result.getRegularEventInfos();
+
+        assertThat(regularEventInfos).hasSize(1)
+                .extracting("participationId", "isRegistrant")
+                .containsExactly(
+                        Tuple.tuple(null, true)
+                );
+    }
+
+    @DisplayName("정기모임을 페이징 조회할 때 회원이 정기 모임에 참여 했다면 참여 ID 값이 있다.")
+    @Test
+    void findPagingInfo_WhenParticipated_thenParticipationIdIsExist() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        Long userId = 1L;
+        RegularEvent regularEvent = createRegularEvent(userId, event, "정기 모임", "장소");
+
+        RegularEventParticipation participation = createParticipation(userId);
+        participation.connectRegularEvent(regularEvent);
+        regularEventRepository.save(regularEvent);
+
+        //when
+        PageRequest request = PageRequest.of(0, 2);
+        RegularEventPagingInfo result = regularEventService.findPagingInfo(event.getId(), request, userId);
+
+        //then
+        assertThat(result.isHasNext()).isFalse();
+        List<RegularEventInfo> regularEventInfos = result.getRegularEventInfos();
+
+        assertThat(regularEventInfos).hasSize(1)
+                .extracting("participationId", "isRegistrant")
+                .containsExactly(
+                        Tuple.tuple(participation.getId(), true)
+                );
+    }
+
+    @DisplayName("정기모임을 페이징 조회할 때 회원이 등록 하지 않은 정기 모임이라면 정기 모임 등록 여부는 false 이다.")
+    @Test
+    void findPagingInfo_WhenNotRegistrant_thenRegistrantIsFalse() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        Long differentUserId = 1L;
+        RegularEvent regularEvent = createRegularEvent(differentUserId, event, "정기 모임", "장소");
+
+        RegularEventParticipation participation = createParticipation(differentUserId);
+        participation.connectRegularEvent(regularEvent);
+        regularEventRepository.save(regularEvent);
+
+        //when
+        Long myUserId = 2L;
+        PageRequest request = PageRequest.of(0, 2);
+        RegularEventPagingInfo result = regularEventService.findPagingInfo(event.getId(), request, myUserId);
+
+        //then
+        assertThat(result.isHasNext()).isFalse();
+        List<RegularEventInfo> regularEventInfos = result.getRegularEventInfos();
+
+        assertThat(regularEventInfos).hasSize(1)
+                .extracting("participationId", "isRegistrant", "participantsCount")
+                .containsExactly(
+                        Tuple.tuple(null, false, 1)
+                );
+    }
+
+    @DisplayName("정기모임을 페이징 조회할 때 두 회원이 정기 모임에 참여 했다면 참여자 수는 2명이다.")
+    @Test
+    void findPagingInfo_WhenTwoParticipated_ThenTwoParticipants() {
+        //given
+        Event event = createEvent("테스터", "테스트 모임");
+        eventRepository.save(event);
+
+        Long myUserId = 1L;
+        RegularEvent regularEvent = createRegularEvent(myUserId, event, "정기 모임", "장소");
+        RegularEventParticipation participation = createParticipation(myUserId);
+        participation.connectRegularEvent(regularEvent);
+
+        Long differentUserId = 2L;
+        RegularEventParticipation participation2 = createParticipation(differentUserId);
+        participation2.connectRegularEvent(regularEvent);
+        regularEventRepository.save(regularEvent);
+
+        //when
+        PageRequest request = PageRequest.of(0, 2);
+        RegularEventPagingInfo result = regularEventService.findPagingInfo(event.getId(), request, myUserId);
+
+        //then
+        assertThat(result.isHasNext()).isFalse();
+        List<RegularEventInfo> regularEventInfos = result.getRegularEventInfos();
+
+        assertThat(regularEventInfos).hasSize(1)
+                .extracting("participationId", "isRegistrant", "participantsCount")
+                .containsExactly(
+                        Tuple.tuple(participation.getId(), true, 2)
+                );
+    }
+
+    @DisplayName("정기 모임을 페이징 조회할 때 두 정기 모임이 등록된 경우를 확인 한다.")
     @Test
     void findPagingInfo() {
         //given
@@ -177,16 +295,14 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         eventRepository.save(event);
 
         Long myUserId = 1L;
-        Long differUserId = 2L;
-
         RegularEvent regularEvent = createRegularEvent(myUserId, event, "정기 모임", "장소");
+        RegularEventParticipation participation = createParticipation(myUserId);
+        participation.connectRegularEvent(regularEvent);
         regularEventRepository.save(regularEvent);
 
+        Long differUserId = 2L;
         RegularEvent regularEvent2 = createRegularEvent(differUserId, event, "정기 모임2", "장소2");
-        RegularEventParticipation participation = createParticipation(differUserId);
-        participation.connectRegularEvent(regularEvent2);
-
-        RegularEventParticipation participation2 = createParticipation(myUserId);
+        RegularEventParticipation participation2 = createParticipation(differUserId);
         participation2.connectRegularEvent(regularEvent2);
         regularEventRepository.save(regularEvent2);
 
@@ -195,11 +311,15 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         RegularEventPagingInfo pagingInfo = regularEventService.findPagingInfo(event.getId(), pageRequest, myUserId);
 
         //then
-        assertThat(pagingInfo.getRegularEventInfos())
+        assertThat(pagingInfo.isHasNext()).isFalse();
+
+        List<RegularEventInfo> regularEventInfos = pagingInfo.getRegularEventInfos();
+
+        assertThat(regularEventInfos)
                 .extracting( "name", "location", "participantsCount", "participationId", "isRegistrant")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("정기 모임", "장소", 0, null, true),
-                        Tuple.tuple("정기 모임2", "장소2", 2, participation2.getId(), false)
+                        Tuple.tuple("정기 모임", "장소", 1, participation.getId(), true),
+                        Tuple.tuple("정기 모임2", "장소2", 1, null, false)
                 );
     }
 
