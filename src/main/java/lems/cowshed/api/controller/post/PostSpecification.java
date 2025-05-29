@@ -9,6 +9,7 @@ import lems.cowshed.dto.post.request.PostSaveRequest;
 import lems.cowshed.dto.post.response.PostPagingInfo;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.domain.user.CustomUserDetails;
+import lems.cowshed.dto.post.response.PostSimpleInfo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,7 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "post api" , description = "게시글 API")
 public interface PostSpecification {
 
-    @Operation(summary = "게시글 조회", description = "게시글을 페이징 조회 합니다.")
+    @Operation(summary = "게시글 조회", description = "게시글을 조회 합니다.")
+    CommonResponse<PostSimpleInfo> get(@PathVariable("post-id") Long postId,
+                                       @AuthenticationPrincipal CustomUserDetails userDetails);
+
+    @Operation(summary = "게시글 페이징 조회", description = "게시글을 페이징 조회 합니다.")
     CommonResponse<PostPagingInfo> getPaging(@PathVariable("event-id") Long eventId,
                                              @PageableDefault(page = 0, size = 5) Pageable pageable,
                                              @AuthenticationPrincipal CustomUserDetails userDetails);
