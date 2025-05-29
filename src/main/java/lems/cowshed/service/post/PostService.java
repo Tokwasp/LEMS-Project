@@ -5,6 +5,7 @@ import lems.cowshed.dto.post.request.PostSaveRequest;
 import lems.cowshed.dto.post.response.PostInfo;
 import lems.cowshed.dto.post.response.PostPagingInfo;
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.dto.post.response.PostSimpleInfo;
 import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.post.Post;
 import lems.cowshed.repository.post.PostRepository;
@@ -32,6 +33,13 @@ public class PostService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final PostRepository postRepository;
+
+    public PostSimpleInfo get(Long postId, Long userId) {
+        Post post = postRepository.findByIdAndUserId(postId, userId)
+                .orElseThrow(() -> new NotFoundException(Reason.POST_ID, Message.POST_ID));
+
+        return PostSimpleInfo.from(post);
+    }
 
     @Transactional
     public Long save(PostSaveRequest request, Long eventId, Long userId){

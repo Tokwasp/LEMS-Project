@@ -8,6 +8,7 @@ import lems.cowshed.dto.post.response.PostInfo;
 import lems.cowshed.dto.post.response.PostPagingInfo;
 import lems.cowshed.domain.post.comment.Comment;
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.dto.post.response.PostSimpleInfo;
 import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.post.Post;
 import lems.cowshed.repository.post.PostRepository;
@@ -43,6 +44,27 @@ class PostServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private EntityManager em;
+
+    @DisplayName("게시글을 조회 한다.")
+    @Test
+    void get() {
+        //given
+        Event event = createEvent("테스터");
+        eventRepository.save(event);
+
+        Long userId = 1L;
+        Post post = createPost("제목", "내용", event, userId);
+        postRepository.save(post);
+        em.flush(); em.clear();
+
+        //when
+        PostSimpleInfo result = postService.get(post.getId(), userId);
+
+        //then
+        assertThat(result)
+                .extracting("subject", "content")
+                .containsExactly("제목", "내용");
+    }
 
     @DisplayName("게시글을 저장 한다.")
     @Test
