@@ -121,14 +121,17 @@ class PostServiceTest extends IntegrationTestSupport {
 
         Post post = createPost("제목", "내용", event, user.getId());
 
-        createComment(post,"댓글1", user.getId());
-        createComment(post,"댓글2", user.getId());
-        createComment(post,"댓글3", user.getId());
+        Comment comment = createComment("댓글1", user.getId());
+        comment.connectPost(post);
+        Comment comment2 = createComment("댓글2", user.getId());
+        comment2.connectPost(post);
+        Comment comment3 = createComment("댓글3", user.getId());
+        comment3.connectPost(post);
         postRepository.save(post);
 
         //when
         PageRequest pageRequest = PageRequest.of(0, 1);
-        PostPagingInfo result = postService.getPaging(pageRequest, user.getId());
+        PostPagingInfo result = postService.getPaging(event.getId(), pageRequest, user.getId());
 
         //then
         List<PostInfo> postInfos = result.getPostInfos();
@@ -140,14 +143,51 @@ class PostServiceTest extends IntegrationTestSupport {
                 );
     }
 
-    private Comment createComment(Post post, String context, Long userId) {
-        Comment comment = Comment.builder()
+    @DisplayName("게시글이 2개 일때 게시글 페이징을 조회 한다.")
+    @Test
+    void getPaging_WhenTwoPost() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터");
+        eventRepository.save(event);
+
+        Post post = createPost("제목", "내용", event, user.getId());
+        Comment comment = createComment("댓글1", user.getId());
+        comment.connectPost(post);
+        Comment comment2 = createComment("댓글2", user.getId());
+        comment2.connectPost(post);
+        postRepository.save(post);
+
+        User user2 = createUser("테스터2", "test2@naver.com");
+        userRepository.save(user2);
+
+        Post post2 = createPost("제목2", "내용2", event, user2.getId());
+        Comment comment3 = createComment("댓글3", user2.getId());
+        comment3.connectPost(post2);
+        postRepository.save(post2);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        PostPagingInfo result = postService.getPaging(event.getId(), pageRequest, user.getId());
+
+        //then
+        List<PostInfo> postInfos = result.getPostInfos();
+        assertThat(postInfos).hasSize(2);
+        assertThat(postInfos)
+                .extracting("subject", "content", "username", "isRegistrant", "commentCount")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("제목", "내용","테스터", true, 2L),
+                        Tuple.tuple("제목2", "내용2", "테스터2", false, 1L)
+                );
+    }
+
+    private Comment createComment(String context, Long userId) {
+        return Comment.builder()
                 .context(context)
                 .userId(userId)
                 .build();
-
-        comment.connectPost(post);
-        return comment;
     }
 
     private PostModifyRequest createPostModifyRequest(String subject, String content){

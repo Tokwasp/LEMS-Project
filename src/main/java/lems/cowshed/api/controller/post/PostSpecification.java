@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface PostSpecification {
 
     @Operation(summary = "게시글 조회", description = "게시글을 페이징 조회 합니다.")
-    CommonResponse<PostPagingInfo> getPaging(@PageableDefault(page = 0, size = 5) Pageable pageable,
+    CommonResponse<PostPagingInfo> getPaging(@PathVariable("event-id") Long eventId,
+                                             @PageableDefault(page = 0, size = 5) Pageable pageable,
                                              @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "게시글 등록" , description = "요청 정보를 통해 게시글을 등록 합니다.")

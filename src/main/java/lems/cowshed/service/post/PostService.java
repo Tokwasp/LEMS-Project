@@ -63,8 +63,8 @@ public class PostService {
         return post.getId();
     }
 
-    public PostPagingInfo getPaging(Pageable pageable, Long userId) {
-        Slice<Post> pagingPosts = postRepository.findAll(pageable);
+    public PostPagingInfo getPaging(Long eventId, Pageable pageable, Long userId) {
+        Slice<Post> pagingPosts = postRepository.findByEventId(eventId, pageable);
         List<Long> userIds = getUserIdsFrom(pagingPosts.getContent());
 
         List<User> users = userRepository.findByIdIn(userIds);
