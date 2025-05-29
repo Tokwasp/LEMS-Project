@@ -14,7 +14,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<Post> findByIdAndUserId(Long postId, Long userId);
 
-    @Query("select distinct p from Post p join fetch Comment c on p.id = c.post.id where p.id in :postIds")
+    @Query("select distinct p from Post p left join fetch Comment c on p.id = c.post.id where p.id in :postIds")
     List<Post> findPostFetchComment(@Param("postIds") List<Long> postIds);
 
     Slice<Post> findByEventId(Long eventId, Pageable pageable);
