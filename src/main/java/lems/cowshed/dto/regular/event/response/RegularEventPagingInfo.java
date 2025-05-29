@@ -32,7 +32,7 @@ public class RegularEventPagingInfo {
     }
 
     @Getter
-    private static class RegularEventInfo {
+    public static class RegularEventInfo {
         private Long id;
         private Long participationId;
         private String name;

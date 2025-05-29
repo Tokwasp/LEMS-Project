@@ -54,12 +54,20 @@ class PostRepositoryTest extends IntegrationTestSupport {
     @Test
     void findPostFetchComment() {
         //given
-        long userId = 1L;
-        Post post = createPost(null, "제목", "내용", userId);
+        Event event = createEvent("테스터", "모임 이름");
+        eventRepository.save(event);
 
-        createComment(post, "댓글", userId);
-        createComment(post,"댓글2", userId);
-        createComment(post,"댓글3", userId);
+        long userId = 1L;
+        Post post = createPost(event, "제목", "내용", userId);
+
+        Comment comment = createComment( "댓글", userId);
+        comment.connectPost(post);
+
+        Comment comment2 = createComment("댓글2", userId);
+        comment2.connectPost(post);
+
+        Comment comment3 = createComment( "댓글3", userId);
+        comment3.connectPost(post);
         postRepository.save(post);
 
         //when
@@ -82,14 +90,11 @@ class PostRepositoryTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private Comment createComment(Post post, String context, Long userId){
-        Comment comment = Comment.builder()
+    private Comment createComment(String context, Long userId){
+       return Comment.builder()
                 .userId(userId)
                 .context(context)
                 .build();
-
-        comment.connectPost(post);
-        return comment;
     }
 
     private Post createPost(Event event, String subject, String content, Long userId){

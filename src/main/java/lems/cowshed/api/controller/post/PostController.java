@@ -38,10 +38,11 @@ public class PostController implements PostSpecification {
         return CommonResponse.success();
     }
 
-    @GetMapping("/posts/search")
-    public CommonResponse<PostPagingInfo> getPaging(@PageableDefault(page = 0, size = 5) Pageable pageable,
+    @GetMapping("/events/{event-id}/posts/search")
+    public CommonResponse<PostPagingInfo> getPaging(@PathVariable("event-id") Long eventId,
+                                                    @PageableDefault(page = 0, size = 5) Pageable pageable,
                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
-        PostPagingInfo postPagingInfo = postService.getPaging(pageable, userDetails.getUserId());
+        PostPagingInfo postPagingInfo = postService.getPaging(eventId, pageable, userDetails.getUserId());
         return CommonResponse.success(postPagingInfo);
     }
 }
