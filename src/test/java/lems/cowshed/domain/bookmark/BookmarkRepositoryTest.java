@@ -35,7 +35,8 @@ class BookmarkRepositoryTest extends IntegrationTestSupport {
         Event event = createEvent("테스트 모임");
         eventRepository.save(event);
 
-        Bookmark bookmark = createBookmark(event, user);
+        Bookmark bookmark = createBookmark(user.getId());
+        bookmark.connectEvent(event);
         bookmarkRepository.save(bookmark);
 
         //when
@@ -61,10 +62,9 @@ class BookmarkRepositoryTest extends IntegrationTestSupport {
         assertThat(bookmarks).isEmpty();
     }
 
-    private Bookmark createBookmark(Event event, User user) {
+    private Bookmark createBookmark(Long userId) {
         return Bookmark.builder()
-                .event(event)
-                .user(user)
+                .userId(userId)
                 .build();
     }
 

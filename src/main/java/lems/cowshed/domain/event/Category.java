@@ -1,7 +1,9 @@
 package lems.cowshed.domain.event;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.Getter;
 
+@Getter
 public enum Category {
     SPORTS("운동"), TRAVEL("여행"), READING("독서"), RESTAURANT("맛집"),
     PERFORMANCE("공연"), PICTURE("사진"), SELF_DEVELOPMENT("자기계발"), HOBBY("취미"),

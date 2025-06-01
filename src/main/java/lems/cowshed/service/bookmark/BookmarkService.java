@@ -1,8 +1,6 @@
 package lems.cowshed.service.bookmark;
 
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.global.exception.Message;
-import lems.cowshed.global.exception.Reason;
 import lems.cowshed.repository.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.repository.event.EventRepository;
@@ -18,7 +16,7 @@ import static lems.cowshed.global.exception.Message.*;
 import static lems.cowshed.global.exception.Reason.*;
 
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 @Service
 public class BookmarkService {
 
@@ -26,6 +24,7 @@ public class BookmarkService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public Long saveBookmark(long eventId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
@@ -34,14 +33,17 @@ public class BookmarkService {
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND)
         );
 
-        return bookmarkRepository.save(Bookmark.create(event, user, BOOKMARK)).getId();
+        Bookmark bookmark = Bookmark.of(user.getId());
+        bookmark.connectEvent(event);
+        return bookmarkRepository.save(bookmark).getId();
     }
 
+    @Transactional
     public void deleteBookmark(Long eventId, Long userId) {
         Bookmark bookmark = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK)
                 .orElseThrow(() -> new NotFoundException(BOOKMARK_ID, BOOKMARK_NOT_FOUND));
 
-        bookmark.deleteBookmark();
+        bookmarkRepository.delete(bookmark);
     }
 
 }
