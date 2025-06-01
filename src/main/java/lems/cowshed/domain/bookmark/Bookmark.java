@@ -3,7 +3,6 @@ package lems.cowshed.domain.bookmark;
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,29 +24,27 @@ public class Bookmark extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     private BookmarkStatus status;
 
     @Builder
-    private Bookmark(Event event, User user, BookmarkStatus status) {
-        this.event = event;
-        this.user = user;
+    private Bookmark(Long userId, BookmarkStatus status) {
+        this.userId = userId;
         this.status = status;
     }
 
-    public static Bookmark create(Event event, User user, BookmarkStatus status){
+    public static Bookmark of(Long userId){
         return Bookmark.builder()
-                .event(event)
-                .user(user)
-                .status(status)
+                .userId(userId)
+                .status(BOOKMARK)
                 .build();
     }
 
-    public void deleteBookmark(){
-        this.status = DELETE;
+    public void connectEvent(Event event){
+        this.event = event;
+        event.getBookmarks().add(this);
     }
+
 }
