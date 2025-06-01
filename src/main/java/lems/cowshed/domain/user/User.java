@@ -3,12 +3,9 @@ package lems.cowshed.domain.user;
 import jakarta.persistence.*;
 
 import lems.cowshed.domain.BaseEntity;
-import lems.cowshed.domain.bookmark.Bookmark;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -44,9 +41,6 @@ public class User extends BaseEntity {
 
     @Column(length = 200)
     private String introduction;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> bookmarks = new ArrayList<>();
 
     protected User() {}
 
