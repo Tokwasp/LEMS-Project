@@ -1,20 +1,24 @@
 package lems.cowshed.repository.event.query;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lems.cowshed.dto.event.response.EventSimpleInfo;
-import lems.cowshed.dto.event.response.QEventSimpleInfo;
+import lems.cowshed.domain.event.Category;
 import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.dto.event.response.query.QEventParticipantQueryDto;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
@@ -102,7 +106,7 @@ public class EventQueryRepository {
                 .from(bookmark)
                 .join(bookmark.event, event)
                 .on(bookmark.event.id.eq(event.id)
-                        .and(bookmark.user.id.eq(userId))
+                        .and(bookmark.userId.eq(userId))
                         .and(bookmark.status.eq(BOOKMARK)))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
@@ -142,23 +146,36 @@ public class EventQueryRepository {
                 ));
     }
 
-    public List<EventSimpleInfo> searchEventsWithBookmarkStatus(String content, Long userId) {
-        return queryFactory.select(
-                new QEventSimpleInfo(
-                        event.id,
-                        event.name,
-                        event.author,
-                        event.content,
-                        event.capacity,
-                        event.createdDateTime,
-                        bookmark.status
-                ))
-                .from(bookmark)
-                .rightJoin(bookmark.event, event)
-                .on(bookmark.event.id.eq(event.id)
-                        .and(bookmark.user.id.eq(userId))
-                        .and(bookmark.status.eq(BOOKMARK)))
-                .where(event.name.contains(content).or(event.content.contains(content)))
+    public Slice<Event> search(Pageable pageable, String keyword, Category category) {
+        List<Event> events = queryFactory.selectFrom(event)
+                .where(keywordLike(keyword), categoryIn(category))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .orderBy(event.createdDateTime.desc())
                 .fetch();
+
+        boolean hasNext = events.size() > pageable.getPageSize();
+
+        if (hasNext) {
+            events.remove(events.size() - 1);
+        }
+
+        return new SliceImpl<>(events, pageable, hasNext);
+    }
+
+    private BooleanBuilder categoryIn(Category category) {
+        return nullSafeBuilder(() -> event.category.in(category));
+    }
+
+    private BooleanBuilder keywordLike(String content) {
+        return nullSafeBuilder(() -> event.content.contains(content).or(event.name.contains(content)));
+    }
+
+    private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f){
+        try{
+            return new BooleanBuilder(f.get());
+        } catch (Exception e){
+            return new BooleanBuilder();
+        }
     }
 }

@@ -1,7 +1,6 @@
 package lems.cowshed.domain.event.query;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.dto.event.response.EventSimpleInfo;
 import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.repository.bookmark.BookmarkRepository;
@@ -165,7 +164,8 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         Event event = createEvent("산책 모임", "테스터");
         eventRepository.save(event);
 
-        Bookmark bookmark = createBookmark(event, user);
+        Bookmark bookmark = createBookmark(user.getId());
+        bookmark.connectEvent(event);
         bookmarkRepository.save(bookmark);
 
         //when
@@ -175,27 +175,6 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         //then
         assertThat(result).hasSize(1)
                 .extracting("bookmarkStatus").containsExactly(BOOKMARK);
-    }
-
-    @DisplayName("모임 검색을 할때 모임 이름 혹은 내용이 포함된 모임을 찾는다.")
-    @Test
-    void searchEventsWithBookmarkStatus() {
-        //given
-        User user = createUser("테스터", INTP);
-        userRepository.save(user);
-        Event event = createEvent("산책 모임", "테스터", "테스트 내용");
-        eventRepository.save(event);
-
-        Bookmark bookmark = createBookmark(event, user);
-        bookmarkRepository.save(bookmark);
-
-        //when
-        List<EventSimpleInfo> result = eventQueryRepository.searchEventsWithBookmarkStatus("테스트", user.getId());
-
-        //then
-        assertThat(result).isNotEmpty()
-                .extracting("name", "content", "bookmarkStatus")
-                .containsExactly(Tuple.tuple("산책 모임", "테스트 내용", BOOKMARK));
     }
 
     @DisplayName("모임에 참여한 회원들을 조회 한다.")
@@ -268,10 +247,9 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private Bookmark createBookmark(Event event, User user) {
+    private Bookmark createBookmark(Long userId) {
         return Bookmark.builder()
-                .event(event)
-                .user(user)
+                .userId(userId)
                 .status(BOOKMARK)
                 .build();
     }
@@ -287,13 +265,6 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         return Event.builder()
                 .name(name)
                 .author(author)
-                .build();
-    }
-
-    private Event createEvent(String name, String author, String content){
-        return Event.builder()
-                .name(name)
-                .content(content)
                 .build();
     }
 }

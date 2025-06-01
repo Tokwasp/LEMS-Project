@@ -1,9 +1,6 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.ControllerTestSupport;
-import lems.cowshed.dto.event.response.EventSimpleInfo;
-import lems.cowshed.dto.event.response.EventsSearchInfo;
-import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.user.Role;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.domain.user.CustomUserDetails;
@@ -11,11 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import java.util.List;
-
-import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static lems.cowshed.domain.event.Category.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -96,40 +89,6 @@ class EventControllerTest extends ControllerTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("OK"));
 
-    }
-
-    @DisplayName("키워드로 모임을 검색 한다.")
-    @Test
-    void searchEventsByNameOrContent() throws Exception {
-        //given
-        String keyword = "모임";
-        Long userId = 1L;
-
-        Event event = createEvent("테스터", "모임", "내용");
-        List<EventSimpleInfo> eventSimpleInfoList = List.of(EventSimpleInfo.of(event, 2L, BOOKMARK));
-        EventsSearchInfo mockResult = new EventsSearchInfo(eventSimpleInfoList);
-
-        when(eventService.searchEventsByNameOrContent(keyword, userId)).thenReturn(mockResult);
-
-        //when //then
-        mockMvc.perform(
-                        get("/events/search")
-                                .param("keyword", keyword)
-                                .with(user(new CustomUserDetails(createForUserDetails())))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.searchResults[0].name").value("모임"))
-                .andExpect(jsonPath("$.data.searchResults[0].applicants").value(2L))
-                .andExpect(jsonPath("$.data.searchResults[0].bookmarkStatus").value("BOOKMARK"));
-    }
-
-    private static Event createEvent(String author, String name, String content){
-        return Event.builder()
-                .name(name)
-                .author(author)
-                .content(content)
-                .build();
     }
 
     private User createForUserDetails(){

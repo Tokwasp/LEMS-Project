@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.UploadFile;
+import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.global.exception.BusinessException;
 
@@ -46,6 +47,9 @@ public class Event extends BaseEntity {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventParticipation> participants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarks = new ArrayList<>();
 
     @Builder
     public Event(String name, Category category, String author, String content,

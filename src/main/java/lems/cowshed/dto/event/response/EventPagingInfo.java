@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Schema(description = "메인 모임 리스트중 하나의 모임")
-public class EventSimpleInfo implements EventIdProvider {
+public class EventPagingInfo implements EventIdProvider {
 
     @Schema(description = "모임 id", example = "1")
     private Long id;
@@ -40,7 +40,7 @@ public class EventSimpleInfo implements EventIdProvider {
     private BookmarkStatus bookmarkStatus;
 
     @QueryProjection
-    public EventSimpleInfo(Long id, String name, String author, String content,
+    public EventPagingInfo(Long id, String name, String author, String content,
                            int capacity, LocalDateTime createdDateTime, BookmarkStatus bookmarkStatus){
         this.id = id;
         this.name = name;
@@ -52,7 +52,7 @@ public class EventSimpleInfo implements EventIdProvider {
     }
 
     @Builder
-    public EventSimpleInfo(Long id, String name, String author, String content, int capacity,
+    public EventPagingInfo(Long id, String name, String author, String content, int capacity,
                            LocalDateTime createdDateTime, long applicants, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
@@ -64,8 +64,8 @@ public class EventSimpleInfo implements EventIdProvider {
         this.bookmarkStatus = bookmarkStatus;
     }
 
-    public static EventSimpleInfo of(Event event, long participantsCount, BookmarkStatus bookmarkStatus){
-        return EventSimpleInfo.builder()
+    public static EventPagingInfo of(Event event, long participantsCount, BookmarkStatus bookmarkStatus){
+        return EventPagingInfo.builder()
                 .id(event.getId())
                 .name(event.getName())
                 .author(event.getAuthor())
@@ -82,13 +82,4 @@ public class EventSimpleInfo implements EventIdProvider {
     public Long getEventId() {
         return this.id;
     }
-
-    public void changeApplicants(Long applicants){
-        this.applicants = applicants;
-    }
-
-    public void updateBookmarkStatus(BookmarkStatus bookmarkStatus){
-        this.bookmarkStatus = bookmarkStatus;
-    }
-
 }

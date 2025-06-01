@@ -1,6 +1,7 @@
 package lems.cowshed.service.event;
 
 import lems.cowshed.IntegrationTestSupport;
+import lems.cowshed.domain.event.Category;
 import lems.cowshed.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.dto.event.response.*;
@@ -198,7 +199,8 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        Bookmark bookmark = createBookmark(event, user);
+        Bookmark bookmark = createBookmark(user.getId());
+        bookmark.connectEvent(event);
         bookmarkRepository.save(bookmark);
 
         //when
@@ -370,7 +372,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventsPagingInfo result = eventService.getEventsPaging(pageable, 0L);
+        EventsPagingResponse result = eventService.getEventsPaging(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -420,7 +422,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Pageable pageable = PageRequest.of(1, 3);
 
         //when
-        EventsPagingInfo result = eventService.getEventsPaging(pageable, user.getId());
+        EventsPagingResponse result = eventService.getEventsPaging(pageable, user.getId());
 
         //then
         assertThat(result.getContent())
@@ -438,7 +440,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Pageable pageable = PageRequest.of(0, 1);
 
         //when
-        EventsPagingInfo result = eventService.getEventsPaging(pageable, 0L);
+        EventsPagingResponse result = eventService.getEventsPaging(pageable, 0L);
 
         //then
         assertThat(result.getContent()).hasSize(1)
@@ -529,7 +531,8 @@ class EventServiceTest extends IntegrationTestSupport {
             Event event = createEvent(author, "테스트" + i);
             eventRepository.save(event);
 
-            Bookmark bookmark = createBookmark(event, user);
+            Bookmark bookmark = createBookmark(user.getId());
+            bookmark.connectEvent(event);
             bookmarkRepository.save(bookmark);
         }
 
@@ -558,12 +561,13 @@ class EventServiceTest extends IntegrationTestSupport {
         Event unBookmarkEvent = createEvent("테스트", "북마크 안한 모임");
         eventRepository.save(unBookmarkEvent);
 
-        Bookmark bookmark = createBookmark(bookmarkEvent, user);
+        Bookmark bookmark = createBookmark(user.getId());
+        bookmark.connectEvent(bookmarkEvent);
         bookmarkRepository.save(bookmark);
         Pageable pageable = PageRequest.of(0, 2);
 
         //when
-        List<EventSimpleInfo> result = eventService.getEventsPaging(pageable, user.getId()).getContent();
+        List<EventPagingInfo> result = eventService.getEventsPaging(pageable, user.getId()).getContent();
 
         //then
         assertThat(result)
@@ -571,87 +575,180 @@ class EventServiceTest extends IntegrationTestSupport {
                 .containsExactlyInAnyOrder(BOOKMARK, NOT_BOOKMARK);
     }
 
-    @DisplayName("이름 혹은 내용에 검색어가 있는 모임을 조회 한다.")
+    @DisplayName("모임을 검색할때 검색어가 없고 카테고리를 선택 하지 않으면 모임 전체중 일부를 조회 한다.")
     @Test
-    void searchEventsByNameOrContent() {
+    void searchEvents() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        Event event = createEvent("테스터", "모임" , "내용", Category.GAME);
+        Event event2 = createEvent("테스터", "모임2", "내용2", Category.HOBBY);
+        eventRepository.saveAll(List.of(event,event2));
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, null, null, user.getId());
+
+        //then
+        assertThat(response.getEventSearchInfos()).hasSize(2);
+        assertThat(response.isHasNext()).isFalse();
+
+        List<EventSearchInfo> eventSearchInfos = response.getEventSearchInfos();
+        assertThat(eventSearchInfos)
+                .extracting("name", "category", "applicants", "bookmarkStatus")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("모임", "게임", 0, NOT_BOOKMARK),
+                        Tuple.tuple("모임2", "취미", 0, NOT_BOOKMARK)
+                );
+    }
+
+    @DisplayName("모임 이름 혹은 내용에 검색어가 있는 모임을 조회 한다.")
+    @Test
+    void searchEvents_WhenKeywordExist() {
         //given
         User user = createUser("테스터", "test@naver.com");
         userRepository.save(user);
 
         String searchKeyword = "검색";
-        Event eventWithKeywordInName = createEvent("테스터", "테스트 " + searchKeyword, "내용");
-        Event eventWithKeywordInContent = createEvent("테스터", "모임", searchKeyword + " 테스트");
-        Event dummyEvent = createEvent("dummyUser", "dummyName", "dummyContent");
-        eventRepository.saveAll(List.of(eventWithKeywordInName,eventWithKeywordInContent,dummyEvent));
+        Event event = createEvent("테스터", "모임 " + searchKeyword, "내용", Category.GAME);
+        Event event2 = createEvent("테스터", "모임", "내용", Category.HOBBY);
+        eventRepository.saveAll(List.of(event,event2));
 
         //when
-        List<EventSimpleInfo> result = eventService.searchEventsByNameOrContent(searchKeyword, user.getId()).getSearchResults();
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, null, user.getId());
 
         //then
-        assertThat(result).hasSize(2)
-                .extracting("name", "content", "bookmarkStatus")
-                .containsExactlyInAnyOrder(
-                        Tuple.tuple("테스트 검색", "내용", NOT_BOOKMARK),
-                        Tuple.tuple("모임", "검색 테스트", NOT_BOOKMARK)
-                );
+        assertThat(response.getEventSearchInfos()).hasSize(1);
+        assertThat(response.isHasNext()).isFalse();
+
+        List<EventSearchInfo> eventSearchInfos = response.getEventSearchInfos();
+        assertThat(eventSearchInfos)
+                .extracting("name", "category", "applicants", "bookmarkStatus")
+                .containsExactly(Tuple.tuple("모임 검색", "게임", 0, NOT_BOOKMARK));
     }
 
-    @DisplayName("모임을 검색할 때 회원이 북마크한 모임이라면 북마크 상태 이다.")
+    @DisplayName("카테고리를 통해 모임을 조회 한다.")
     @Test
-    void searchEventsByNameOrContent_WhenUserHasBookmarkedEvent() {
+    void searchEvents_WhenCategoryExist() {
         //given
         User user = createUser("테스터", "test@naver.com");
-        User dummyUser = createUser("dummyUser", "test@naver.com");
-        userRepository.saveAll(List.of(user, dummyUser));
+        userRepository.save(user);
 
-        String searchKeyword = "모임";
-        Event bookmarkedEvent = createEvent("테스터", searchKeyword, "북마크");
-        Event notBookmarkedEvent = createEvent("테스터", searchKeyword, "북마크 NO");
-        eventRepository.saveAll(List.of(bookmarkedEvent, notBookmarkedEvent));
-
-        Bookmark bookmark = createBookmark(bookmarkedEvent, user);
-        bookmarkRepository.save(bookmark);
+        Category searchCategory = Category.HOBBY;
+        Event event = createEvent("테스터", "모임", "내용", Category.GAME);
+        Event event2 = createEvent("테스터", "모임2", "내용2", Category.HOBBY);
+        eventRepository.saveAll(List.of(event,event2));
 
         //when
-        List<EventSimpleInfo> result = eventService.searchEventsByNameOrContent(searchKeyword, user.getId()).getSearchResults();
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, null, searchCategory, user.getId());
 
         //then
-        assertThat(result).hasSize(2)
-                .extracting("content", "bookmarkStatus")
+        assertThat(response.getEventSearchInfos()).hasSize(1);
+        assertThat(response.isHasNext()).isFalse();
+
+        List<EventSearchInfo> eventSearchInfos = response.getEventSearchInfos();
+        assertThat(eventSearchInfos)
+                .extracting("name", "category", "applicants", "bookmarkStatus")
+                .containsExactly(Tuple.tuple("모임2", "취미", 0, NOT_BOOKMARK));
+    }
+
+    @DisplayName("모임 이름 혹은 내용에 검색어가 포함되고 카테고리도 같은 모임을 조회 한다.")
+    @Test
+    void searchEvents_WhenKeywordAndCategoryExist() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        String searchKeyword = "검색";
+        Category searchCategory = Category.PET;
+        Event event = createEvent("테스터", "모임 " + searchKeyword, "내용", Category.GAME);
+
+        Event event2 = createEvent("테스터", "모임2" , "내용 " + searchKeyword, searchCategory);
+        Event event3 = createEvent("테스터", "모임3", "내용", searchCategory);
+        eventRepository.saveAll(List.of(event,event2, event3));
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, searchCategory, user.getId());
+
+        //then
+        assertThat(response.getEventSearchInfos()).hasSize(1);
+        assertThat(response.isHasNext()).isFalse();
+
+        List<EventSearchInfo> eventSearchInfos = response.getEventSearchInfos();
+        assertThat(eventSearchInfos)
+                .extracting("name", "category", "applicants", "bookmarkStatus")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("북마크", BOOKMARK),
-                        Tuple.tuple("북마크 NO", NOT_BOOKMARK)
+                        Tuple.tuple("모임2", "반려동물", 0, NOT_BOOKMARK)
                 );
     }
 
-    @DisplayName("모임 검색 시 참여 인원 수가 정확히 반환 된다.")
+    @DisplayName("모임을 서칭할 때 두명이 모임에 참여 했다면 참여 인원은 두명이다.")
     @Test
-    void searchEventsByNameOrContent_WhenParticipantsAreCountedCorrectly() {
+    void searchEvents_WhenTwoParticipants_ThenApplicantsTwo() {
         //given
-        User user1 = createUser("테스터", "test@naver.com");
-        User user2 = createUser("테스터2", "test@naver.com");
-        userRepository.saveAll(List.of(user1, user2));
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
 
-        String searchKeyword = "모임";
+        User user2 = createUser("테스터", "test@naver.com");
+        userRepository.save(user2);
 
-        Event eventWithTwoParticipants = createEvent("테스터", searchKeyword);
-        Event eventWithOneParticipant = createEvent("테스터2", searchKeyword);
-        eventRepository.saveAll(List.of(eventWithTwoParticipants, eventWithOneParticipant));
-
-        EventParticipation participation1 = EventParticipation.of(user1, eventWithTwoParticipants);
-        EventParticipation participation2 = EventParticipation.of(user2, eventWithTwoParticipants);
-        EventParticipation participation3 = EventParticipation.of(user1, eventWithOneParticipant);
-        eventParticipantRepository.saveAll(List.of(participation1, participation2, participation3));
+        String searchKeyword = "검색";
+        Category searchCategory = Category.PET;
+        Event event = createEvent("테스터", "모임 " + searchKeyword, "내용", searchCategory);
+        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+        eventRepository.save(event);
 
         //when
-        List<EventSimpleInfo> result = eventService.searchEventsByNameOrContent(searchKeyword, user1.getId()).getSearchResults();
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, searchCategory, user.getId());
 
         //then
-        assertThat(result).hasSize(2)
-                .extracting("name", "applicants")
+        assertThat(response.getEventSearchInfos()).hasSize(1);
+        assertThat(response.isHasNext()).isFalse();
+
+        List<EventSearchInfo> eventSearchInfos = response.getEventSearchInfos();
+        assertThat(eventSearchInfos)
+                .extracting("name", "category", "content", "applicants", "bookmarkStatus")
+                .containsExactly(Tuple.tuple("모임 검색", "반려동물", "내용", 2, NOT_BOOKMARK));
+    }
+
+    @DisplayName("모임을 서칭할 때 모임에 북마크 했다면 북마크 상태는 BOOKMARK 이다.")
+    @Test
+    void searchEvents_WhenBookmarked_ThenStatusIsBookmark() {
+        //given
+        User user = createUser("테스터", "test@naver.com");
+        userRepository.save(user);
+
+        String searchKeyword = "검색";
+        Category searchCategory = Category.PET;
+
+        Event event = createEvent("테스터", "모임 " + searchKeyword, "내용", searchCategory);
+        Bookmark bookmark = Bookmark.of(user.getId());
+        bookmark.connectEvent(event);
+        eventRepository.save(event);
+
+        Event event2 = createEvent("테스터", "모임2 " + searchKeyword, "내용2", searchCategory);
+        eventRepository.save(event2);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, searchCategory, user.getId());
+
+        //then
+        assertThat(response.getEventSearchInfos()).hasSize(2);
+        assertThat(response.isHasNext()).isFalse();
+
+        List<EventSearchInfo> eventSearchInfos = response.getEventSearchInfos();
+        assertThat(eventSearchInfos)
+                .extracting("name", "category", "content", "applicants", "bookmarkStatus")
                 .containsExactlyInAnyOrder(
-                        Tuple.tuple("모임", 2L),
-                        Tuple.tuple("모임", 1L)
+                        Tuple.tuple("모임 검색", "반려동물", "내용", 0, BOOKMARK),
+                        Tuple.tuple("모임2 검색", "반려동물", "내용2", 0, NOT_BOOKMARK)
                 );
     }
 
@@ -662,11 +759,12 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private static Event createEvent(String author, String name, String content){
+    private static Event createEvent(String author, String name, String content, Category category){
         return Event.builder()
                 .name(name)
                 .author(author)
                 .content(content)
+                .category(category)
                 .build();
     }
 
@@ -678,9 +776,10 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private EventSaveRequestDto createRequestDto(String name, String location, int capacity) {
+    private EventSaveRequestDto createRequestDto(String name, String content, int capacity) {
         return EventSaveRequestDto.builder()
                 .name(name)
+                .content(content)
                 .capacity(capacity)
                 .build();
     }
@@ -706,10 +805,9 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private Bookmark createBookmark(Event event, User user) {
+    private Bookmark createBookmark(Long userId) {
         return Bookmark.builder()
-                .event(event)
-                .user(user)
+                .userId(userId)
                 .status(BOOKMARK)
                 .build();
     }
