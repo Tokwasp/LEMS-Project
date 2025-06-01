@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
+import lems.cowshed.domain.event.Category;
 import lems.cowshed.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
@@ -18,13 +19,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
-@Tag(name="event", description="모임 API")
+@Tag(name = "event", description = "모임 API")
 public interface EventSpecification {
 
     @Operation(summary = "모임 목록 페이징 조회", description = "모임을 페이징 조회 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
-    CommonResponse<EventsPagingInfo> getEventsPaging(Pageable pageable,
-                                                     @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventsPagingResponse> getEventsPaging(Pageable pageable,
+                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "모임 등록", description = "모임을 등록 합니다.")
     @ApiErrorCodeExamples(ErrorCode.NOT_FOUND_ERROR)
@@ -63,6 +64,8 @@ public interface EventSpecification {
                                                                               @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "모임 검색", description = "해당 제목 혹은 내용이 포함된 모임을 검색 합니다.")
-    CommonResponse<EventsSearchInfo> searchEventsByNameOrContent(@RequestParam("keyword") String keyword,
-                                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails);
+    CommonResponse<EventsSearchResponse> search(@PageableDefault(page = 0, size = 5) Pageable pageable,
+                                                @RequestParam("content") String content,
+                                                @RequestParam("category") Category category,
+                                                @AuthenticationPrincipal CustomUserDetails customUserDetails);
 }
