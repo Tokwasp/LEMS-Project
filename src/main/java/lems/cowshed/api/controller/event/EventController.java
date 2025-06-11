@@ -80,7 +80,7 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(ParticipatingEvents);
     }
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     public CommonResponse<EventsSearchResponse> search(@PageableDefault(page = 0, size = 5) Pageable pageable,
                                                        @RequestBody EventSearchCondition eventSearchCondition,
                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -88,7 +88,7 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(searchEvent);
     }
 
-    @GetMapping("/search/count")
+    @PostMapping("/search/count")
     public CommonResponse<Integer> searchCount(@RequestBody EventSearchCondition eventSearchCondition) {
         int count = eventService.searchEventsCount(eventSearchCondition);
         return CommonResponse.success(count);
