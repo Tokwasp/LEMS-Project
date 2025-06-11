@@ -8,9 +8,12 @@ import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.service.bookmark.BookmarkService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.NoSuchElementException;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
 import static org.assertj.core.api.Assertions.*;
@@ -68,8 +71,8 @@ class BookmarkServiceTest extends IntegrationTestSupport {
         bookmarkService.deleteBookmark(event.getId(), user.getId());
 
         //then
-        Bookmark findBookmark = bookmarkRepository.findById(bookmark.getId()).orElseThrow();
-        assertThat(findBookmark.getStatus()).isEqualTo(DELETE);
+        assertThatThrownBy(() -> bookmarkRepository.findById(bookmark.getId()).get())
+                .isInstanceOf(NoSuchElementException.class);
     }
 
     private User createUser() {
