@@ -9,6 +9,7 @@ import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.service.bookmark.BookmarkService;
 import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
