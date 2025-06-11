@@ -2,18 +2,22 @@ package lems.cowshed.service;
 
 import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.dto.regular.event.request.RegularEventEditRequest;
-import lems.cowshed.dto.regular.event.request.RegularEventSaveRequest;
-import lems.cowshed.dto.regular.event.response.RegularEventPagingInfo;
-import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
+import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
-import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
+import lems.cowshed.dto.regular.event.request.RegularEventEditRequest;
+import lems.cowshed.dto.regular.event.request.RegularEventSaveRequest;
+import lems.cowshed.dto.regular.event.request.RegularSearchCondition;
+import lems.cowshed.dto.regular.event.response.RegularEventPagingInfo;
+import lems.cowshed.dto.regular.event.response.RegularEventSearchInfo;
+import lems.cowshed.dto.regular.event.response.RegularEventSearchResponse;
+import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.service.regular.event.RegularEventService;
 import org.assertj.core.groups.Tuple;
@@ -27,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static lems.cowshed.domain.user.Mbti.INTP;
-import static lems.cowshed.dto.regular.event.response.RegularEventPagingInfo.*;
+import static lems.cowshed.dto.regular.event.response.RegularEventPagingInfo.RegularEventInfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -60,7 +64,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         RegularEventSaveRequest request = RegularEventSaveRequest.builder()
                 .name("정기 모임")
-                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
                 .location("테스트 장소")
                 .capacity(50)
                 .build();
@@ -87,7 +91,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         RegularEventSaveRequest request = RegularEventSaveRequest.builder()
                 .name("정기 모임")
-                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
                 .location("테스트 장소")
                 .capacity(50)
                 .build();
@@ -139,7 +143,8 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         //when
         regularEventService.editRegularEvent(request, regularEvent.getId());
-        em.flush(); em.clear();
+        em.flush();
+        em.clear();
 
         //then
         RegularEvent findRegularEvent = regularEventRepository.findById(regularEvent.getId()).orElseThrow();
@@ -163,7 +168,8 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         //when
         Long deletedId = regularEventService.delete(regularEvent.getId());
-        em.flush(); em.clear();
+        em.flush();
+        em.clear();
 
         //then
         assertThatThrownBy(() -> regularEventRepository.findById(deletedId).orElseThrow())
@@ -316,14 +322,39 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         List<RegularEventInfo> regularEventInfos = pagingInfo.getRegularEventInfos();
 
         assertThat(regularEventInfos)
-                .extracting( "name", "location", "participantsCount", "participationId", "isRegistrant")
+                .extracting("name", "location", "participantsCount", "participationId", "isRegistrant")
                 .containsExactlyInAnyOrder(
                         Tuple.tuple("정기 모임", "장소", 1, participation.getId(), true),
                         Tuple.tuple("정기 모임2", "장소2", 1, null, false)
                 );
     }
 
-    private RegularEventParticipation createParticipation(Long userId){
+    @DisplayName("정기 모임을 검색 한다.")
+    @Test
+    void search() {
+        //given
+        Event event = createEvent(Category.GAME, "테스트 모임");
+        eventRepository.save(event);
+
+        RegularEvent regularEvent = createRegularEvent(null, event, "정기 모임", "장소");
+        regularEventRepository.save(regularEvent);
+
+        String searchContent = "모임";
+        RegularSearchCondition searchCondition = new RegularSearchCondition(searchContent, null);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        RegularEventSearchResponse response = regularEventService.search(pageRequest, searchCondition);
+
+        //then
+        List<RegularEventSearchInfo> searchInfos = response.getSearchInfos();
+        System.out.println(searchInfos);
+        assertThat(searchInfos).hasSize(1)
+                .extracting("name", "category")
+                .containsExactly(Tuple.tuple("정기 모임", "게임"));
+    }
+
+    private RegularEventParticipation createParticipation(Long userId) {
         return RegularEventParticipation.builder()
                 .userId(userId)
                 .build();
@@ -345,22 +376,29 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private RegularEvent createRegularEvent(Long userId, Event event){
+    private Event createEvent(Category category, String name) {
+        return Event.builder()
+                .name(name)
+                .category(category)
+                .build();
+    }
+
+    private RegularEvent createRegularEvent(Long userId, Event event) {
         return RegularEvent.builder()
                 .name("정기 모임")
                 .event(event)
-                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
                 .location("테스트 장소")
                 .capacity(50)
                 .userId(userId)
                 .build();
     }
 
-    private RegularEvent createRegularEvent(Long userId, Event event, String name, String location){
+    private RegularEvent createRegularEvent(Long userId, Event event, String name, String location) {
         return RegularEvent.builder()
                 .name(name)
                 .event(event)
-                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
                 .location(location)
                 .capacity(50)
                 .userId(userId)
