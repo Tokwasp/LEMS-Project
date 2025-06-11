@@ -18,22 +18,36 @@ public class EventsSearchResponse {
         this.hasNext = hasNext;
     }
 
-    public static EventsSearchResponse of(List<Event> eventsParticipation, List<Event> eventFetchBookmarks,
+    public static EventsSearchResponse of(List<Event> events, List<Event> eventFetchParticipation, List<Event> eventFetchBookmarks,
                                           Long userId, boolean hasNext) {
 
-        Map<Long, Boolean> eventMapBookmarkedByUser = mapEventIdToIsBookmarkedByUser(eventFetchBookmarks, userId);
+        Map<Long, Boolean> eventIdIsBookmarkedMap = convertMapAboutEventIdIsBookmarked(eventFetchBookmarks, userId);
+        Map<Long, Integer> eventIdParticipantsMap = convertMapAboutEventIdParticipants(eventFetchParticipation);
 
-        List<EventSearchInfo> eventSearchInfoList = eventsParticipation.stream()
-                .map(event -> EventSearchInfo.of(event, eventMapBookmarkedByUser.get(event.getId())))
+        List<EventSearchInfo> eventSearchInfoList = events.stream()
+                .map(event -> EventSearchInfo.of(
+                        event,
+                        eventIdParticipantsMap.get(event.getId()),
+                        eventIdIsBookmarkedMap.get(event.getId())
+                ))
                 .toList();
 
         return new EventsSearchResponse(eventSearchInfoList, hasNext);
     }
 
-    private static Map<Long, Boolean> mapEventIdToIsBookmarkedByUser(List<Event> events, Long userId) {
+    private static Map<Long, Boolean> convertMapAboutEventIdIsBookmarked(List<Event> events, Long userId) {
         return events.stream()
                 .collect(Collectors.toMap(Event::getId,
                         event -> event.getBookmarks().stream()
-                                .anyMatch(bookmark -> bookmark.getUserId().equals(userId))));
+                                .anyMatch(bookmark -> bookmark.getUserId().equals(userId))
+                ));
+    }
+
+    private static Map<Long, Integer> convertMapAboutEventIdParticipants(List<Event> eventsParticipation) {
+        return eventsParticipation.stream()
+                .collect(Collectors.toMap(
+                        Event::getId,
+                        event -> event.getParticipants().size()
+                ));
     }
 }

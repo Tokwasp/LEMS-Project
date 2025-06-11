@@ -63,7 +63,7 @@ class RegularEventRepositoryTest extends IntegrationTestSupport {
 
     @DisplayName("정기 모임 식별자들에 속하는 참여 정보를 같이 조회 한다.")
     @Test
-    void findByIdsFetchParticipation() {
+    void findByIdInFetchParticipation() {
         //given
         Long userId = 1L;
         RegularEvent regularEvent = createRegularEvent(null, "정기 모임", "장소");
@@ -77,7 +77,7 @@ class RegularEventRepositoryTest extends IntegrationTestSupport {
 
         //when
         List<Long> regularEventIds = List.of(regularEvent.getId(), regularEvent2.getId());
-        List<RegularEvent> regularEvents = regularEventRepository.findByIdsFetchParticipation(regularEventIds);
+        List<RegularEvent> regularEvents = regularEventRepository.findByIdInFetchParticipation(regularEventIds);
 
         //then
         assertThat(regularEvents).hasSize(2);

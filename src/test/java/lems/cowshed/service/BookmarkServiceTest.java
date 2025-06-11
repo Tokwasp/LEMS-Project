@@ -8,7 +8,8 @@ import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
 import lems.cowshed.service.bookmark.BookmarkService;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,7 @@ class BookmarkServiceTest extends IntegrationTestSupport {
         bookmarkService.deleteBookmark(event.getId(), user.getId());
 
         //then
-        assertThatThrownBy(() -> bookmarkRepository.findById(bookmark.getId()).orElseThrow())
+        assertThatThrownBy(() -> bookmarkRepository.findById(bookmark.getId()).get())
                 .isInstanceOf(NoSuchElementException.class);
     }
 

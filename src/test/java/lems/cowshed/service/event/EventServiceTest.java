@@ -3,6 +3,7 @@ package lems.cowshed.service.event;
 import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.dto.event.request.EventSearchCondition;
 import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.dto.event.response.*;
 import lems.cowshed.dto.regular.event.response.RegularEventInfo;
@@ -586,9 +587,11 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event2 = createEvent("테스터", "모임2", "내용2", Category.HOBBY);
         eventRepository.saveAll(List.of(event,event2));
 
+        EventSearchCondition searchCondition = createSearchCondition(null, null);
+
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        EventsSearchResponse response = eventService.searchEvents(pageRequest, null, null, user.getId());
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchCondition, user.getId());
 
         //then
         assertThat(response.getEventSearchInfos()).hasSize(2);
@@ -615,9 +618,11 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event2 = createEvent("테스터", "모임", "내용", Category.HOBBY);
         eventRepository.saveAll(List.of(event,event2));
 
+        EventSearchCondition searchCondition = createSearchCondition(searchKeyword, null);
+
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, null, user.getId());
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchCondition, user.getId());
 
         //then
         assertThat(response.getEventSearchInfos()).hasSize(1);
@@ -641,9 +646,11 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event2 = createEvent("테스터", "모임2", "내용2", Category.HOBBY);
         eventRepository.saveAll(List.of(event,event2));
 
+        EventSearchCondition searchCondition = createSearchCondition(null, searchCategory);
+
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        EventsSearchResponse response = eventService.searchEvents(pageRequest, null, searchCategory, user.getId());
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchCondition, user.getId());
 
         //then
         assertThat(response.getEventSearchInfos()).hasSize(1);
@@ -670,9 +677,11 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event3 = createEvent("테스터", "모임3", "내용", searchCategory);
         eventRepository.saveAll(List.of(event,event2, event3));
 
+        EventSearchCondition searchCondition = createSearchCondition(searchKeyword, searchCategory);
+
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, searchCategory, user.getId());
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchCondition, user.getId());
 
         //then
         assertThat(response.getEventSearchInfos()).hasSize(1);
@@ -703,9 +712,11 @@ class EventServiceTest extends IntegrationTestSupport {
         EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
         eventRepository.save(event);
 
+        EventSearchCondition searchCondition = createSearchCondition(searchKeyword, searchCategory);
+
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, searchCategory, user.getId());
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchCondition, user.getId());
 
         //then
         assertThat(response.getEventSearchInfos()).hasSize(1);
@@ -735,9 +746,11 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event2 = createEvent("테스터", "모임2 " + searchKeyword, "내용2", searchCategory);
         eventRepository.save(event2);
 
+        EventSearchCondition searchCondition = createSearchCondition(searchKeyword, searchCategory);
+
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchKeyword, searchCategory, user.getId());
+        EventsSearchResponse response = eventService.searchEvents(pageRequest, searchCondition, user.getId());
 
         //then
         assertThat(response.getEventSearchInfos()).hasSize(2);
@@ -750,6 +763,13 @@ class EventServiceTest extends IntegrationTestSupport {
                         Tuple.tuple("모임 검색", "반려동물", "내용", 0, BOOKMARK),
                         Tuple.tuple("모임2 검색", "반려동물", "내용2", 0, NOT_BOOKMARK)
                 );
+    }
+
+    private static EventSearchCondition createSearchCondition(String content, Category category){
+        return EventSearchCondition.builder()
+                .content(content)
+                .category(category)
+                .build();
     }
 
     private static Event createEvent(String author, String name) {

@@ -1,30 +1,30 @@
 package lems.cowshed.service.event;
 
-import lems.cowshed.domain.event.Category;
-import lems.cowshed.dto.event.EventIdProvider;
-import lems.cowshed.dto.event.request.EventSaveRequestDto;
-import lems.cowshed.dto.event.request.EventUpdateRequestDto;
-import lems.cowshed.dto.event.response.*;
-import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.config.aws.AwsS3Util;
 import lems.cowshed.domain.UploadFile;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.repository.bookmark.BookmarkRepository;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.participation.EventParticipation;
+import lems.cowshed.domain.event.participation.Participants;
+import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.user.User;
+import lems.cowshed.dto.event.EventIdProvider;
+import lems.cowshed.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.dto.event.request.EventSearchCondition;
+import lems.cowshed.dto.event.request.EventUpdateRequestDto;
+import lems.cowshed.dto.event.response.*;
+import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
+import lems.cowshed.global.exception.BusinessException;
+import lems.cowshed.global.exception.NotFoundException;
+import lems.cowshed.repository.bookmark.BookmarkRepository;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.repository.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.repository.event.query.EventQueryRepository;
 import lems.cowshed.repository.event.query.ParticipatingEventSimpleInfoQuery;
-import lems.cowshed.domain.event.participation.Participants;
-import lems.cowshed.repository.event.participation.EventParticipantRepository;
-import lems.cowshed.domain.regular.event.RegularEvent;
-import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
-import lems.cowshed.global.exception.BusinessException;
-import lems.cowshed.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,9 +32,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
 import static lems.cowshed.global.exception.Message.*;
 import static lems.cowshed.global.exception.Reason.*;
 
@@ -53,7 +56,7 @@ public class EventService {
     public EventInfo getEvent(Long eventId, String username) {
         Event event = eventQueryRepository.findEventFetchParticipants(eventId);
 
-        if(event.isNotSameAuthor(username)){
+        if (event.isNotSameAuthor(username)) {
             throw new BusinessException(EVENT_AUTHOR, EVENT_NOT_REGISTERED_BY_USER);
         }
 
@@ -92,7 +95,7 @@ public class EventService {
         );
     }
 
-    public EventParticipantsInfo getEventParticipants(Long eventId){
+    public EventParticipantsInfo getEventParticipants(Long eventId) {
         List<EventParticipantQueryDto> eventParticipants = eventQueryRepository.getEventParticipants(eventId);
         return EventParticipantsInfo.of(eventParticipants, eventParticipants.size());
     }
@@ -156,17 +159,21 @@ public class EventService {
         return ParticipatingEventsPagingInfo.from(bookmarkedResponse);
     }
 
-    public EventsSearchResponse searchEvents(Pageable pageable, String content, Category category, Long userId) {
-        Slice<Event> searchEvents = eventQueryRepository.search(pageable, content, category);
+    public EventsSearchResponse searchEvents(Pageable pageable, EventSearchCondition condition, Long userId) {
+        Slice<Event> searchEvents = eventQueryRepository.search(pageable, condition.getContent(), condition.getCategory());
         List<Event> events = searchEvents.getContent();
         List<Long> eventIds = getEventsId(events);
 
         List<Event> eventFetchParticipants = eventRepository.findByIdInFetchParticipation(eventIds);
         List<Event> eventFetchBookmarks = eventRepository.findByIdInFetchBookmarks(eventIds);
-        return EventsSearchResponse.of(eventFetchParticipants, eventFetchBookmarks, userId, searchEvents.hasNext());
+        return EventsSearchResponse.of(events, eventFetchParticipants, eventFetchBookmarks, userId, searchEvents.hasNext());
     }
 
-    private List<Long> getEventsId(List<Event> events){
+    public int searchEventsCount(EventSearchCondition condition) {
+        return eventQueryRepository.searchCount(condition.getContent(), condition.getCategory());
+    }
+
+    private List<Long> getEventsId(List<Event> events) {
         return events.stream()
                 .map(Event::getId)
                 .toList();

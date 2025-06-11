@@ -7,7 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
 
 @ToString
 @Getter
@@ -39,7 +40,7 @@ public class EventSearchInfo {
 
     @Builder
     private EventSearchInfo(Long id, String name, String content, String category,
-                           int applicants, int capacity, String accessUrl, BookmarkStatus bookmarkStatus) {
+                            int applicants, int capacity, String accessUrl, BookmarkStatus bookmarkStatus) {
         this.id = id;
         this.name = name;
         this.content = content;
@@ -50,7 +51,7 @@ public class EventSearchInfo {
         this.bookmarkStatus = bookmarkStatus;
     }
 
-    public static EventSearchInfo of(Event event, boolean isBookmarked) {
+    public static EventSearchInfo of(Event event, int participantCount, boolean isBookmarked) {
         return EventSearchInfo.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -58,7 +59,7 @@ public class EventSearchInfo {
                 .category(event.getCategory().getDescription())
                 .capacity(event.getCapacity())
                 .accessUrl(event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null)
-                .applicants(event.getParticipants().size())
+                .applicants(participantCount)
                 .bookmarkStatus(isBookmarked ? BOOKMARK : NOT_BOOKMARK)
                 .build();
     }
