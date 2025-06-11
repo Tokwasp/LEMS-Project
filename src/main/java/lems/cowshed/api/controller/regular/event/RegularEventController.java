@@ -36,13 +36,13 @@ public class RegularEventController implements RegularEventSpecification {
         return CommonResponse.success(info);
     }
 
-    @GetMapping("/regular/search/count")
+    @PostMapping("/regular/search/count")
     public CommonResponse<Integer> searchCount(@RequestBody RegularSearchCondition condition){
         int searchCount = regularEventService.searchCount(condition);
         return CommonResponse.success(searchCount);
     }
 
-    @GetMapping("/regular/search")
+    @PostMapping("/regular/search")
     public CommonResponse<RegularEventSearchResponse> search(@PageableDefault(page = 0, size = 5) Pageable pageable,
                                                              @RequestBody RegularSearchCondition condition) {
         RegularEventSearchResponse response = regularEventService.search(pageable, condition);
