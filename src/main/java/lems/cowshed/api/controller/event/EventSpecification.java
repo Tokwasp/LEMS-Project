@@ -4,18 +4,20 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.api.controller.ErrorCode;
-import lems.cowshed.domain.event.Category;
-import lems.cowshed.dto.event.request.EventSaveRequestDto;
-import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.config.swagger.ApiErrorCodeExample;
 import lems.cowshed.config.swagger.ApiErrorCodeExamples;
 import lems.cowshed.domain.user.CustomUserDetails;
+import lems.cowshed.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.dto.event.request.EventSearchCondition;
+import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.dto.event.response.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.IOException;
 
@@ -65,7 +67,9 @@ public interface EventSpecification {
 
     @Operation(summary = "모임 검색", description = "해당 제목 혹은 내용이 포함된 모임을 검색 합니다.")
     CommonResponse<EventsSearchResponse> search(@PageableDefault(page = 0, size = 5) Pageable pageable,
-                                                @RequestParam("content") String content,
-                                                @RequestParam("category") Category category,
+                                                @RequestBody EventSearchCondition eventSearchCondition,
                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
+    @Operation(summary = "모임 검색 개수 조회", description = "해당 제목 혹은 내용이 포함된 모임을 검색한 총 개수를 반환 합니다.")
+    CommonResponse<Integer> searchCount(@RequestBody EventSearchCondition eventSearchCondition);
 }

@@ -1,10 +1,10 @@
 package lems.cowshed.api.controller.event;
 
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.domain.event.Category;
-import lems.cowshed.dto.event.request.EventSaveRequestDto;
-import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.domain.user.CustomUserDetails;
+import lems.cowshed.dto.event.request.EventSaveRequestDto;
+import lems.cowshed.dto.event.request.EventSearchCondition;
+import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.dto.event.response.*;
 import lems.cowshed.service.event.EventService;
 import lombok.RequiredArgsConstructor;
@@ -82,11 +82,16 @@ public class EventController implements EventSpecification {
 
     @GetMapping("/search")
     public CommonResponse<EventsSearchResponse> search(@PageableDefault(page = 0, size = 5) Pageable pageable,
-                                                       @RequestParam("content") String content,
-                                                       @RequestParam("category") Category category,
+                                                       @RequestBody EventSearchCondition eventSearchCondition,
                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        EventsSearchResponse searchEvent = eventService.searchEvents(pageable, content, category, customUserDetails.getUserId());
+        EventsSearchResponse searchEvent = eventService.searchEvents(pageable, eventSearchCondition, customUserDetails.getUserId());
         return CommonResponse.success(searchEvent);
+    }
+
+    @GetMapping("/search/count")
+    public CommonResponse<Integer> searchCount(@RequestBody EventSearchCondition eventSearchCondition) {
+        int count = eventService.searchEventsCount(eventSearchCondition);
+        return CommonResponse.success(count);
     }
 
     @DeleteMapping("/{event-id}")

@@ -163,6 +163,15 @@ public class EventQueryRepository {
         return new SliceImpl<>(events, pageable, hasNext);
     }
 
+    public int searchCount(String content, Category category) {
+        Long count = queryFactory.select(event.count())
+                .from(event)
+                .where(keywordLike(content), categoryIn(category))
+                .fetchOne();
+
+        return count.intValue();
+    }
+
     private BooleanBuilder categoryIn(Category category) {
         return nullSafeBuilder(() -> event.category.in(category));
     }
