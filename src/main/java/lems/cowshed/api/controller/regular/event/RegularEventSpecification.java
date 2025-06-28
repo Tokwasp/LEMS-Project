@@ -33,7 +33,8 @@ public interface RegularEventSpecification {
 
     @Operation(summary = "정기 모임 검색", description = "정기 모임의 이름과 정기 모임 진행 날짜를 통해 모임을 조회 합니다.")
     CommonResponse<RegularEventSearchResponse> search(@PageableDefault(page = 0, size = 5) Pageable pageable,
-                                                      @RequestBody RegularSearchCondition condition);
+                                                      @RequestBody RegularSearchCondition condition,
+                                                      @AuthenticationPrincipal CustomUserDetails userDetails);
 
     @Operation(summary = "정기 모임 페이징 조회", description = "정기 모임을 조회 합니다.")
     CommonResponse<RegularEventPagingInfo> findPagingInfo(@PathVariable("event-id") Long eventId,
