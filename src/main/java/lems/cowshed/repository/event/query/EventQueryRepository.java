@@ -6,9 +6,9 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lems.cowshed.domain.event.Category;
-import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.dto.event.response.query.QEventParticipantQueryDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.bookmark.QBookmark.bookmark;
-import static lems.cowshed.domain.event.QEvent.*;
-import static lems.cowshed.domain.event.participation.QEventParticipation.*;
-import static lems.cowshed.domain.regular.event.QRegularEvent.*;
-import static lems.cowshed.domain.regular.event.participation.QRegularEventParticipation.*;
+import static lems.cowshed.domain.event.QEvent.event;
+import static lems.cowshed.domain.event.participation.QEventParticipation.eventParticipation;
+import static lems.cowshed.domain.regular.event.QRegularEvent.regularEvent;
+import static lems.cowshed.domain.regular.event.participation.QRegularEventParticipation.regularEventParticipation;
 import static lems.cowshed.domain.user.QUser.user;
 
 @Repository
@@ -170,6 +170,13 @@ public class EventQueryRepository {
                 .fetchOne();
 
         return count.intValue();
+    }
+
+    public List<Event> findEventFetchParticipantsIn(List<Long> eventIds) {
+        return queryFactory.selectFrom(event)
+                .leftJoin(event.participants, eventParticipation).fetchJoin()
+                .where(event.id.in(eventIds))
+                .fetch();
     }
 
     private BooleanBuilder categoryIn(Category category) {

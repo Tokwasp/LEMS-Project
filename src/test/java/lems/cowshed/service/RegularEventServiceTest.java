@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lems.cowshed.domain.user.Mbti;
@@ -16,6 +17,7 @@ import lems.cowshed.dto.regular.event.response.RegularEventSearchInfo;
 import lems.cowshed.dto.regular.event.response.RegularEventSearchResponse;
 import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.repository.user.UserRepository;
@@ -42,6 +44,9 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired
+    private EventParticipantRepository eventParticipantRepository;
 
     @Autowired
     private RegularEventRepository regularEventRepository;
@@ -344,14 +349,44 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
-        RegularEventSearchResponse response = regularEventService.search(pageRequest, searchCondition);
+        RegularEventSearchResponse response = regularEventService.search(pageRequest, searchCondition, null);
+
+        //then
+        List<RegularEventSearchInfo> searchInfos = response.getSearchInfos();
+        assertThat(searchInfos).hasSize(1)
+                .extracting("name", "category")
+                .containsExactly(Tuple.tuple("정기 모임", "게임"));
+    }
+
+    @DisplayName("정기 모임을 검색할때 회원이 모임에 참여 했는지 여부를 확인 한다. ")
+    @Test
+    void search_WhenRegisterEventByUser() {
+        //given
+        String author = "모임 생성자";
+        User user = createUser(author, "EventCreator");
+        userRepository.save(user);
+
+        Event event = createEvent(author, Category.GAME, "테스트 모임");
+        eventRepository.save(event);
+
+        EventParticipation participation = EventParticipation.of(user, event);
+        eventParticipantRepository.save(participation);
+
+        RegularEvent regularEvent = createRegularEvent(user.getId(), event, "정기 모임", "장소");
+        regularEventRepository.save(regularEvent);
+
+        RegularSearchCondition searchCondition = new RegularSearchCondition(null, null);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 2);
+        RegularEventSearchResponse response = regularEventService.search(pageRequest, searchCondition, user.getId());
 
         //then
         List<RegularEventSearchInfo> searchInfos = response.getSearchInfos();
         System.out.println(searchInfos);
         assertThat(searchInfos).hasSize(1)
-                .extracting("name", "category")
-                .containsExactly(Tuple.tuple("정기 모임", "게임"));
+                .extracting("name", "category", "isParticipated")
+                .containsExactly(Tuple.tuple("정기 모임", "게임", true));
     }
 
     private RegularEventParticipation createParticipation(Long userId) {
@@ -379,6 +414,14 @@ class RegularEventServiceTest extends IntegrationTestSupport {
     private Event createEvent(Category category, String name) {
         return Event.builder()
                 .name(name)
+                .category(category)
+                .build();
+    }
+
+    private Event createEvent(String author, Category category, String name) {
+        return Event.builder()
+                .name(name)
+                .author(author)
                 .category(category)
                 .build();
     }
