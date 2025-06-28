@@ -44,8 +44,9 @@ public class RegularEventController implements RegularEventSpecification {
 
     @PostMapping("/regular/search")
     public CommonResponse<RegularEventSearchResponse> search(@PageableDefault(page = 0, size = 5) Pageable pageable,
-                                                             @RequestBody RegularSearchCondition condition) {
-        RegularEventSearchResponse response = regularEventService.search(pageable, condition);
+                                                             @RequestBody RegularSearchCondition condition,
+                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        RegularEventSearchResponse response = regularEventService.search(pageable, condition, userDetails.getUserId());
         return CommonResponse.success(response);
     }
 

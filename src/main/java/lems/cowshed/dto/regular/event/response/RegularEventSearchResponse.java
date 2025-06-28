@@ -1,11 +1,13 @@
 package lems.cowshed.dto.regular.event.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
@@ -22,11 +24,17 @@ public class RegularEventSearchResponse {
         this.hasNext = hasNext;
     }
 
-    public static RegularEventSearchResponse of(List<RegularEvent> regularEvents, List<RegularEvent> regularFetchParticipation, boolean hasNext) {
-        Map<Long, Integer> regularIdParticipantMap = convertMapRegularIdParticipants(regularFetchParticipation);
+    public static RegularEventSearchResponse of(List<RegularEvent> regularEventFetchEvent, List<RegularEvent> regularFetchParticipation,
+                                                List<Event> eventFetchParticipation, Long userId, boolean hasNext) {
 
-        List<RegularEventSearchInfo> searchInfos = regularEvents.stream()
-                .map(regular -> RegularEventSearchInfo.of(regular, regularIdParticipantMap.get(regular.getId())))
+        Map<Long, Integer> regularIdParticipantMap = convertMapRegularIdParticipants(regularFetchParticipation);
+        Map<Long, Set<Long>> eventIdParticipantUserIdsMap = groupEventIdParticipantIds(eventFetchParticipation);
+
+        List<RegularEventSearchInfo> searchInfos = regularEventFetchEvent.stream()
+                .map(regular -> RegularEventSearchInfo.of(
+                        regular,
+                        regularIdParticipantMap.get(regular.getId()),
+                        eventIdParticipantUserIdsMap.get(regular.getEvent().getId()).contains(userId)))
                 .toList();
 
         return new RegularEventSearchResponse(searchInfos, hasNext);
@@ -40,4 +48,14 @@ public class RegularEventSearchResponse {
                 ));
     }
 
+    private static Map<Long, Set<Long>> groupEventIdParticipantIds(List<Event> events) {
+        return events.stream()
+                .collect(Collectors.groupingBy(
+                        Event::getId, Collectors.flatMapping(
+                                event -> event.getParticipants().stream()
+                                        .map(participant -> participant.getUser().getId()),
+                                Collectors.toSet()
+                        )
+                ));
+    }
 }

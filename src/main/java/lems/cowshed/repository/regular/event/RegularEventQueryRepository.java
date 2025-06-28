@@ -42,7 +42,7 @@ public class RegularEventQueryRepository {
         boolean hasNext = regularEvents.size() > pageable.getPageSize();
 
         if(hasNext){
-            regularEvents.remove(regularEvents.size() -1);
+            regularEvents.remove(regularEvents.size() - 1);
         }
 
         return new SliceImpl(regularEvents, pageable, hasNext);
@@ -53,6 +53,7 @@ public class RegularEventQueryRepository {
                 .from(regularEvent)
                 .where(nameLike(name), isSameDate(date))
                 .fetchOne();
+
         return count.intValue();
     }
 

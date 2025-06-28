@@ -12,6 +12,7 @@ import lems.cowshed.dto.regular.event.response.RegularEventSearchResponse;
 import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.global.exception.NotFoundException;
 import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.event.query.EventQueryRepository;
 import lems.cowshed.repository.regular.event.RegularEventQueryRepository;
 import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
@@ -23,8 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static lems.cowshed.global.exception.Message.*;
-import static lems.cowshed.global.exception.Reason.*;
+import static lems.cowshed.global.exception.Message.EVENT_NOT_FOUND;
+import static lems.cowshed.global.exception.Message.REGULAR_EVENT_NOT_FOUND;
+import static lems.cowshed.global.exception.Reason.EVENT_ID;
+import static lems.cowshed.global.exception.Reason.REGULAR_EVENT_ID;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -32,6 +35,7 @@ import static lems.cowshed.global.exception.Reason.*;
 public class RegularEventService {
 
     private final EventRepository eventRepository;
+    private final EventQueryRepository eventQueryRepository;
     private final RegularEventRepository regularEventRepository;
     private final RegularEventQueryRepository regularEventQueryRepository;
     private final RegularEventParticipationRepository regularEventParticipationRepository;
@@ -89,13 +93,16 @@ public class RegularEventService {
         return regularEventQueryRepository.searchCount(condition.getName(), condition.getDate());
     }
 
-    public RegularEventSearchResponse search(Pageable pageable, RegularSearchCondition condition) {
+    public RegularEventSearchResponse search(Pageable pageable, RegularSearchCondition condition, Long userId) {
         Slice<RegularEvent> slice = regularEventQueryRepository.searchFetchEvent(pageable, condition.getName(), condition.getDate());
         List<RegularEvent> regularEvents = slice.getContent();
         List<Long> regularEventIds = getRegularEventIds(regularEvents);
 
+        List<Long> eventIds = getEventIds(regularEvents);
+        List<Event> eventFetchParticipants = eventQueryRepository.findEventFetchParticipantsIn(eventIds);
+
         List<RegularEvent> regularFetchParticipation = regularEventRepository.findByIdInFetchParticipation(regularEventIds);
-        return RegularEventSearchResponse.of(regularEvents, regularFetchParticipation, slice.hasNext());
+        return RegularEventSearchResponse.of(regularEvents, regularFetchParticipation, eventFetchParticipants, userId, slice.hasNext());
     }
 
     private List<Long> getRegularEventIds(List<RegularEvent> regularEvents) {
@@ -115,5 +122,12 @@ public class RegularEventService {
                 request.getLocation(),
                 request.getCapacity()
         );
+    }
+
+    private List<Long> getEventIds(List<RegularEvent> regularEvents) {
+        return regularEvents.stream()
+                .map(re -> re.getEvent().getId())
+                .distinct()
+                .toList();
     }
 }
