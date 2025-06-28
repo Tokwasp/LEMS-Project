@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 public class RegularEventSearchInfo {
     private Long eventId;
+    private Long regularId;
     private String name;
     private String category;
     private String accessURL;
@@ -21,9 +22,10 @@ public class RegularEventSearchInfo {
     private int applicants;
 
     @Builder
-    private RegularEventSearchInfo(Long eventId, String name, String category, String accessURL,
+    private RegularEventSearchInfo(Long eventId, Long regularId, String name, String category, String accessURL,
                                    LocalDateTime dateTime, int capacity, int applicants, boolean isEventParticipated) {
         this.eventId = eventId;
+        this.regularId = regularId;
         this.name = name;
         this.category = category;
         this.accessURL = accessURL;
@@ -38,6 +40,7 @@ public class RegularEventSearchInfo {
 
         return RegularEventSearchInfo.builder()
                 .eventId(event.getId())
+                .regularId(regular.getId())
                 .category(event.getCategory().getDescription())
                 .accessURL(event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null)
                 .name(regular.getName())
