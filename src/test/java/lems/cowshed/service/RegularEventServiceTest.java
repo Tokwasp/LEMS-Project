@@ -385,7 +385,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         List<RegularEventSearchInfo> searchInfos = response.getSearchInfos();
         System.out.println(searchInfos);
         assertThat(searchInfos).hasSize(1)
-                .extracting("name", "category", "isParticipated")
+                .extracting("name", "category", "isEventParticipated")
                 .containsExactly(Tuple.tuple("정기 모임", "게임", true));
     }
 
