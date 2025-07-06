@@ -14,5 +14,10 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
     long getParticipationCountById(@Param("eventId") Long eventId);
 
     List<EventParticipation> findEventParticipationByEventIdIn(List<Long> eventIds);
-    Optional<EventParticipation> findByEventIdAndUserId (Long eventId, Long userId);
+
+    Optional<EventParticipation> findByEventIdAndUserId(Long eventId, Long userId);
+
+    @Query("SELECT count(ep) from EventParticipation ep where ep.user.id = :userId")
+    long findCountByUserId(@Param("userId") Long userId);
+
 }

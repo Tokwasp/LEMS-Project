@@ -2,16 +2,13 @@ package lems.cowshed.api.controller.user;
 
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
-import lems.cowshed.dto.user.request.UserModifyRequest;
+import lems.cowshed.domain.mail.Mail;
+import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.dto.user.request.UserLoginRequest;
+import lems.cowshed.dto.user.request.UserModifyRequest;
 import lems.cowshed.dto.user.request.UserSaveRequest;
 import lems.cowshed.dto.user.response.UserInfo;
 import lems.cowshed.dto.user.response.UserMyPageInfo;
-import lems.cowshed.domain.mail.Mail;
-import lems.cowshed.domain.mail.code.CodeFinder;
-import lems.cowshed.domain.mail.code.CodeType;
-import lems.cowshed.domain.user.User;
-import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.global.exception.BusinessException;
 import lems.cowshed.service.mail.MailService;
 import lems.cowshed.service.user.UserService;
@@ -25,7 +22,7 @@ import static lems.cowshed.global.exception.Reason.USER_CERTIFICATION_CODE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
-public class UserApiController implements UserSpecification{
+public class UserApiController implements UserSpecification {
 
     private final UserService userService;
     private final MailService mailService;
@@ -34,7 +31,7 @@ public class UserApiController implements UserSpecification{
     public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequest request) {
         Mail mail = Mail.of(request.getEmail(), request.getCode());
 
-        if(mailService.isMailVerifyFail(mail)){
+        if (mailService.isMailVerifyFail(mail)) {
             throw new BusinessException(USER_CERTIFICATION_CODE, USER_NOT_CERTIFICATION_CODE);
         }
 
@@ -43,14 +40,14 @@ public class UserApiController implements UserSpecification{
     }
 
     @PostMapping("/login")
-    public CommonResponse<Void> login(@Valid @RequestBody UserLoginRequest userLoginRequest){
+    public CommonResponse<Void> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
         userService.login(userLoginRequest);
         return CommonResponse.success();
     }
 
     @PutMapping
     public CommonResponse<Void> editUser(@RequestBody UserModifyRequest userModifyRequest,
-                                         @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         userService.editUser(userModifyRequest, customUserDetails.getUserId());
         return CommonResponse.success();
     }
@@ -62,19 +59,19 @@ public class UserApiController implements UserSpecification{
     }
 
     @PostMapping("/password-reset")
-    public CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email){
+    public CommonResponse<Void> sendTemporaryPasswordToEmail(@RequestParam String email) {
         userService.sendTemporaryPasswordToEmail(email);
         return CommonResponse.success();
     }
 
     @GetMapping
-    public CommonResponse<UserInfo> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<UserInfo> findUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         UserInfo response = userService.findUser(customUserDetails.getUserId());
         return CommonResponse.success(response);
     }
 
     @DeleteMapping
-    public CommonResponse<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public CommonResponse<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         userService.deleteUser(customUserDetails.getUserId());
         return CommonResponse.success();
     }
