@@ -2,13 +2,13 @@ package lems.cowshed.service.event;
 
 import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.repository.user.UserRepository;
-import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.global.exception.BusinessException;
 import lems.cowshed.global.exception.NotFoundException;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
+import lems.cowshed.repository.user.UserRepository;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,17 +52,16 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         //when
-        long userEventId = eventParticipationService.saveEventParticipation(event.getId(), user.getId());
+        eventParticipationService.saveEventParticipation(event.getId(), user.getId());
 
         //then
-        EventParticipation eventParticipation = eventParticipantRepository.findById(userEventId).orElseThrow();
-        assertThat(eventParticipation.getUser()).extracting("username").isEqualTo("테스터");
-        assertThat(eventParticipation.getEvent()).extracting("name").isEqualTo("자전거 모임");
+        Event findEvent = eventRepository.findById(event.getId()).orElseThrow();
+        assertThat(findEvent.getName()).isEqualTo("자전거 모임");
     }
 
     @Disabled
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @DisplayName("최대 인원이 3명인 모임에 5명의 회원이 동시에 참가 하면 3명만 참여 할 수 있다.")
+    @DisplayName("최대 인원이 3명인 모임에 5명의 회원이 동시에 참가 하면 1명만 참여 할 수 있다.")
     @Test
     void saveEventParticipation_WhenFiveUsersJoin_ThenThreeParticipantsAllowed() throws Exception {
         //given
@@ -70,7 +69,7 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         CountDownLatch countDownLatch = new CountDownLatch(taskCount);
 
-        Event findEvent =  eventRepository.save(createEvent("테스터", "테스트 모임", 3));
+        Event findEvent = eventRepository.save(createEvent("테스터", "테스트 모임", 3));
 
         List<User> users = Stream
                 .generate(() -> {
@@ -114,7 +113,7 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(eventParticipation);
 
         //when
@@ -135,7 +134,7 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(eventParticipation);
 
         //when //then

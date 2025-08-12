@@ -1,10 +1,13 @@
 package lems.cowshed.dto.user.mypage;
 
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class MyPageParticipatedEventsInfo {
@@ -18,13 +21,14 @@ public class MyPageParticipatedEventsInfo {
         this.hasNext = hasNext;
     }
 
-    public static MyPageParticipatedEventsInfo fromEvents(List<Event> events, boolean hasNext) {
+    public static MyPageParticipatedEventsInfo fromEvents(List<Event> events,
+                                                          Map<Long, List<EventParticipation>> groupedByEventIdMap, boolean hasNext) {
+
         List<MyParticipatedEventsInfo> result = events.stream()
-                .map(event -> MyParticipatedEventsInfo.of(
-                        event,
-                        event.getParticipants().size()
-                ))
-                .toList();
+                .map(event -> {
+                    List<EventParticipation> participants = groupedByEventIdMap.getOrDefault(event.getId(), Collections.emptyList());
+                    return MyParticipatedEventsInfo.of(event, participants.size());}
+                ).toList();
 
         return new MyPageParticipatedEventsInfo(result, hasNext);
     }

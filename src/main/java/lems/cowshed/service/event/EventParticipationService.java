@@ -31,15 +31,16 @@ public class EventParticipationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        Event event = eventRepository.findPessimisticById(eventId)
+        Event event = eventRepository.finByIdWithOptimisticLock(eventId)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
         long participantCount = eventParticipantRepository.getParticipationCountById(event.getId());
+
         if (isNotParticipateToEvent(event, participantCount)) {
             throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
         }
 
-        EventParticipation participation = EventParticipation.of(user, event);
+        EventParticipation participation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(participation);
         return participation.getId();
     }

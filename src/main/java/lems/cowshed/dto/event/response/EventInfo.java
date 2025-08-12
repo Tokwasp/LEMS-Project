@@ -43,7 +43,7 @@ public class EventInfo {
         this.accessUrl = accessUrl;
     }
 
-    public static EventInfo of(Event event) {
+    public static EventInfo of(Event event, int participantCount) {
         String accessUrl = getAccessUrl(event);
 
         return EventInfo.builder()
@@ -53,7 +53,7 @@ public class EventInfo {
                 .accessUrl(accessUrl)
                 .content(event.getContent())
                 .capacity(event.getCapacity())
-                .applicants(event.getParticipants().size())
+                .applicants(participantCount)
                 .build();
     }
 

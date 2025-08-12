@@ -179,7 +179,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(eventParticipation);
 
         //when
@@ -241,8 +241,8 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임");
         eventRepository.save(event);
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
         eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         //when
@@ -387,13 +387,13 @@ class EventServiceTest extends IntegrationTestSupport {
         //given
         User user = createUser("테스터", INTP);
         User user2 = createUser("테스터2", ISTP);
-        Event event = createEvent("산책 모임", "테스터");
-
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
-
         userRepository.saveAll(List.of(user, user2));
+
+        Event event = createEvent("산책 모임", "테스터");
         eventRepository.save(event);
+
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
         eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         //when
@@ -478,8 +478,8 @@ class EventServiceTest extends IntegrationTestSupport {
         Event event = createEvent("테스터", "자전거 모임", 2);
         eventRepository.save(event);
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
         eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         EventUpdateRequestDto updateRequest = createUpdateRequestDto("산책 모임", 1);
@@ -708,10 +708,11 @@ class EventServiceTest extends IntegrationTestSupport {
         String searchKeyword = "검색";
         Category searchCategory = Category.PET;
         Event event = createEvent("테스터", "모임 " + searchKeyword, "내용", searchCategory);
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
         eventRepository.save(event);
 
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
+        eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
         EventSearchCondition searchCondition = createSearchCondition(searchKeyword, searchCategory);
 
         //when

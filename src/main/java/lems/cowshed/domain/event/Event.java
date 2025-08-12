@@ -5,15 +5,17 @@ import jakarta.validation.constraints.Max;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.UploadFile;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.global.exception.BusinessException;
-
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import static lems.cowshed.global.exception.Message.*;
-import static lems.cowshed.global.exception.Reason.*;
+
+import static lems.cowshed.global.exception.Message.EVENT_INVALID_UPDATE_CAPACITY;
+import static lems.cowshed.global.exception.Reason.EVENT_PARTICIPATION;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,32 +23,26 @@ import static lems.cowshed.global.exception.Reason.*;
 public class Event extends BaseEntity {
 
     @Id
-    @Column(name = "event_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", length = 20)
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "category")
     private Category category;
 
-    @Column(name = "author", length = 20)
     private String author;
 
-    @Column(name = "content", length = 200)
     private String content;
 
     @Max(100)
-    @Column(name = "capacity")
     private int capacity;
 
     @Embedded
     private UploadFile uploadFile;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventParticipation> participants = new ArrayList<>();
+    @Version
+    private long version;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();
@@ -69,19 +65,19 @@ public class Event extends BaseEntity {
         this.content = content;
         updateCapacity(participantsCount, capacity);
 
-        if(uploadFile != null){
+        if (uploadFile != null) {
             this.updateUploadFile(uploadFile);
         }
     }
 
     public void updateCapacity(long participantsCount, int updateCapacity) {
-        if(participantsCount > updateCapacity){
+        if (participantsCount > updateCapacity) {
             throw new BusinessException(EVENT_PARTICIPATION, EVENT_INVALID_UPDATE_CAPACITY);
         }
         this.capacity = updateCapacity;
     }
 
-    public boolean isOverCapacity(long capacity){
+    public boolean isOverCapacity(long capacity) {
         return this.capacity <= capacity;
     }
 

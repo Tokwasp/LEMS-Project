@@ -14,9 +14,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
-import static lems.cowshed.domain.bookmark.QBookmark.*;
-import static lems.cowshed.domain.event.participation.QEventParticipation.*;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
+import static lems.cowshed.domain.bookmark.QBookmark.bookmark;
+import static lems.cowshed.domain.event.participation.QEventParticipation.eventParticipation;
 
 @Repository
 public class UserMyPageQueryRepository {
@@ -35,13 +35,13 @@ public class UserMyPageQueryRepository {
                         dynamicParticipatedEventId(lastEventId),
                         eventParticipation.user.id.eq(userId)
                 )
-                .orderBy(eventParticipation.event.id.desc())
+                .orderBy(eventParticipation.eventId.desc())
                 .limit(pageSize + 1)
                 .fetch();
 
         boolean hasNext = pageSize < content.size();
 
-        if(hasNext){
+        if (hasNext) {
             content.remove(content.size() - 1);
         }
         return new SliceImpl<>(content, PageRequest.of(0, pageSize), hasNext);
@@ -60,14 +60,14 @@ public class UserMyPageQueryRepository {
 
         boolean hasNext = pageSize < content.size();
 
-        if(hasNext){
+        if (hasNext) {
             content.remove(content.size() - 1);
         }
         return new SliceImpl<>(content, PageRequest.of(0, pageSize), hasNext);
     }
 
     private BooleanBuilder dynamicParticipatedEventId(Long lastEventId) {
-        return nullSafeBuilder(() -> eventParticipation.event.id.lt(lastEventId));
+        return nullSafeBuilder(() -> eventParticipation.eventId.lt(lastEventId));
     }
 
     private BooleanBuilder dynamicBookmarkEventId(Long eventId) {

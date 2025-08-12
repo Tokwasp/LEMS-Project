@@ -369,7 +369,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         Event event = createEvent(author, Category.GAME, "테스트 모임");
         eventRepository.save(event);
 
-        EventParticipation participation = EventParticipation.of(user, event);
+        EventParticipation participation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(participation);
 
         RegularEvent regularEvent = createRegularEvent(user.getId(), event, "정기 모임", "장소");

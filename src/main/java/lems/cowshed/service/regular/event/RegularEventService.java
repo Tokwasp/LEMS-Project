@@ -1,6 +1,7 @@
 package lems.cowshed.service.regular.event;
 
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lems.cowshed.domain.regular.event.RegularEventEditCommand;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
@@ -12,7 +13,7 @@ import lems.cowshed.dto.regular.event.response.RegularEventSearchResponse;
 import lems.cowshed.dto.regular.event.response.RegularEventSimpleInfo;
 import lems.cowshed.global.exception.NotFoundException;
 import lems.cowshed.repository.event.EventRepository;
-import lems.cowshed.repository.event.query.EventQueryRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.repository.regular.event.RegularEventQueryRepository;
 import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
@@ -35,7 +36,7 @@ import static lems.cowshed.global.exception.Reason.REGULAR_EVENT_ID;
 public class RegularEventService {
 
     private final EventRepository eventRepository;
-    private final EventQueryRepository eventQueryRepository;
+    private final EventParticipantRepository eventParticipantRepository;
     private final RegularEventRepository regularEventRepository;
     private final RegularEventQueryRepository regularEventQueryRepository;
     private final RegularEventParticipationRepository regularEventParticipationRepository;
@@ -99,10 +100,10 @@ public class RegularEventService {
         List<Long> regularEventIds = getRegularEventIds(regularEvents);
 
         List<Long> eventIds = getEventIds(regularEvents);
-        List<Event> eventFetchParticipants = eventQueryRepository.findEventFetchParticipantsIn(eventIds);
+        List<EventParticipation> participants = eventParticipantRepository.findByEventIdIn(eventIds);
 
         List<RegularEvent> regularFetchParticipation = regularEventRepository.findByIdInFetchParticipation(regularEventIds);
-        return RegularEventSearchResponse.of(regularEvents, regularFetchParticipation, eventFetchParticipants, userId, slice.hasNext());
+        return RegularEventSearchResponse.of(regularEvents, regularFetchParticipation, participants, userId, slice.hasNext());
     }
 
     private List<Long> getRegularEventIds(List<RegularEvent> regularEvents) {

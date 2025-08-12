@@ -217,8 +217,8 @@ class UserServiceTest extends IntegrationTestSupport {
         User user = createUser("테스터", INTP);
         userRepository.save(user);
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        EventParticipation eventParticipation2 = EventParticipation.of(user, event2);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
+        EventParticipation eventParticipation2 = EventParticipation.of(user, event2.getId());
         eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         Bookmark bookmark = createBookmark(user.getId());
