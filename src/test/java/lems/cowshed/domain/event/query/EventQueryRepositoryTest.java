@@ -115,13 +115,14 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
     void findEventWithParticipatedWhenTwoUserIds() {
         //given
         User user = createUser("테스터", INTP);
-        Event event = createEvent("산책 모임", "테스터");
-        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
-
         User user2 = createUser("테스터2", ESFJ);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
         userRepository.saveAll(List.of(user, user2));
+
+        Event event = createEvent("산책 모임", "테스터");
         eventRepository.save(event);
+
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
         eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         //when
@@ -197,13 +198,14 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         //given
         User user = createUser("테스터", INTP);
         User user2 = createUser("테스터2", ESFJ);
+        userRepository.saveAll(List.of(user, user2));
+
         Event event = createEvent("산책 모임", "테스터");
+        eventRepository.save(event);
 
         EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
         EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
 
-        userRepository.saveAll(List.of(user, user2));
-        eventRepository.save(event);
         eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
 
         //when

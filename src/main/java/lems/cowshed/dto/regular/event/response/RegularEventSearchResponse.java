@@ -5,6 +5,7 @@ import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class RegularEventSearchResponse {
                         RegularEventSearchInfo.of(
                                 regularEvent,
                                 regularIdParticipantMap.get(regularEvent.getId()),
-                                eventIdParticipantUserIdsMap.get(regularEvent.getEvent().getId()).contains(userId))
+                                eventIdParticipantUserIdsMap.getOrDefault(regularEvent.getEvent().getId(), Collections.emptySet()).contains(userId))
                 )
                 .toList();
 
