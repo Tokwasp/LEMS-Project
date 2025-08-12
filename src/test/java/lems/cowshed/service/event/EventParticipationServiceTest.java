@@ -61,7 +61,7 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
 
     @Disabled
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @DisplayName("최대 인원이 3명인 모임에 5명의 회원이 동시에 참가 하면 3명만 참여 할 수 있다.")
+    @DisplayName("최대 인원이 3명인 모임에 5명의 회원이 동시에 참가 하면 1명만 참여 할 수 있다.")
     @Test
     void saveEventParticipation_WhenFiveUsersJoin_ThenThreeParticipantsAllowed() throws Exception {
         //given
