@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static lems.cowshed.global.exception.Message.USER_NOT_FOUND;
 import static lems.cowshed.global.exception.Reason.USER_ID;
@@ -44,25 +46,41 @@ public class UserMyPageService {
     }
 
     public MyPageParticipatedEventsInfo getParticipatedEvents(Long lastEventId, Long userId, int pageSize) {
-        Slice<EventParticipation> myEventParticipation = userMyPageQueryRepository.findPagingEvents(lastEventId, userId, pageSize);
-        List<Event> events = findParticipatedEventInfo(myEventParticipation.getContent());
+        Slice<EventParticipation> slice = userMyPageQueryRepository.findPagingEvents(lastEventId, userId, pageSize);
+        List<EventParticipation> myEventParticipants = slice.getContent();
 
-        return MyPageParticipatedEventsInfo.fromEvents(events, myEventParticipation.hasNext());
+        List<Event> events = findConnectedEventFrom(myEventParticipants);
+        Map<Long, List<EventParticipation>> groupedByEventIdMap = findEventParticipantCountFrom(events);
+        return MyPageParticipatedEventsInfo.fromEvents(events, groupedByEventIdMap, slice.hasNext());
     }
 
     public MyPageBookmarkedEventsInfo getBookmarkedEvents(Long lastEventId, Long userId, int pageSize) {
         Slice<Bookmark> bookmarks = userMyPageQueryRepository.findPagingBookmark(lastEventId, userId, pageSize);
         List<Event> events = findBookmarkedEventInfo(bookmarks.getContent());
+        Map<Long, List<EventParticipation>> groupedByEventIdMap = findEventParticipantCountFrom(events);
 
-        return MyPageBookmarkedEventsInfo.of(events, bookmarks.hasNext());
+        return MyPageBookmarkedEventsInfo.of(events, groupedByEventIdMap, bookmarks.hasNext());
     }
 
-    private List<Event> findParticipatedEventInfo(List<EventParticipation> myEventParticipation) {
-        List<Long> eventIds = myEventParticipation.stream()
-                .map(p -> p.getEvent().getId())
+    private List<Event> findConnectedEventFrom(List<EventParticipation> eventParticipants){
+        List<Long> eventIds = eventParticipants.stream()
+                .map(EventParticipation::getEventId)
                 .toList();
 
-        return eventRepository.findByIdInFetchParticipation(eventIds);
+        return eventRepository.findByIdIn(eventIds);
+    }
+
+    private Map<Long, List<EventParticipation>> findEventParticipantCountFrom(List<Event> events){
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .toList();
+
+        List<EventParticipation> eventParticipants = participantRepository.findByEventIdIn(eventIds);
+
+        return eventParticipants.stream()
+                .collect(Collectors.groupingBy(
+                        EventParticipation::getEventId
+                ));
     }
 
     private List<Event> findBookmarkedEventInfo(List<Bookmark> bookmarks) {
@@ -70,7 +88,7 @@ public class UserMyPageService {
                 .map(b -> b.getEvent().getId())
                 .toList();
 
-        return eventRepository.findByIdInFetchParticipation(eventIds);
+        return eventRepository.findByIdIn(eventIds);
     }
 
 }
