@@ -20,8 +20,8 @@ public class Participants {
         return participants.stream()
                 .collect(
                         Collectors.groupingBy(
-                                userEvent -> userEvent.getEvent().getId()
-                                , Collectors.counting()
+                                EventParticipation::getEventId,
+                                Collectors.counting()
                         ));
     }
 }

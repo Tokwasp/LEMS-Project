@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
 import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
@@ -54,13 +55,16 @@ public class EventService {
     private final AwsS3Util awsS3Util;
 
     public EventInfo getEvent(Long eventId, String username) {
-        Event event = eventQueryRepository.findEventFetchParticipants(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+
+        List<EventParticipation> participants = eventParticipantRepository.findByEventId(event.getId());
 
         if (event.isNotSameAuthor(username)) {
             throw new BusinessException(EVENT_AUTHOR, EVENT_NOT_REGISTERED_BY_USER);
         }
 
-        return EventInfo.of(event);
+        return EventInfo.of(event, participants.size());
     }
 
     @Transactional
@@ -70,28 +74,28 @@ public class EventService {
 
         UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
         Event event = requestDto.toEntity(username, uploadFile);
-
-        // TODO 연관관계 메서드 분리
-        EventParticipation.of(user, event);
         eventRepository.save(event);
 
+        EventParticipation participation = EventParticipation.of(user, event.getId());
+        eventParticipantRepository.save(participation);
         return event.getId();
     }
 
     @Transactional
     public void editEvent(Long eventId, EventUpdateRequestDto request, String username) throws IOException {
-        Event event = eventRepository.findByIdAndAuthorFetchParticipation(eventId, username)
+        Event event = eventRepository.findByIdAndAuthor(eventId, username)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
         UploadFile uploadFile = awsS3Util.uploadFile(request.getFile());
 
+        List<EventParticipation> participants = eventParticipantRepository.findByEventIdIn(List.of(event.getId()));
         event.modify(
                 request.getName(),
                 request.getCapacity(),
                 request.getContent(),
                 request.getCategory(),
                 uploadFile,
-                event.getParticipants().size()
+                participants.size()
         );
     }
 
@@ -101,13 +105,17 @@ public class EventService {
     }
 
     public EventWithRegularInfo getEventWithRegularInfo(Long eventId, Long userId, String username) {
-        Event event = eventQueryRepository.findEventFetchParticipants(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
+
+        List<EventParticipation> participants = eventParticipantRepository.findByEventId(event.getId());
+
         BookmarkStatus bookmarkStatus = bookmarkRepository.findBookmark(userId, eventId, BOOKMARK)
                 .map(Bookmark::getStatus)
                 .orElse(NOT_BOOKMARK);
 
         List<RegularEvent> regularEvents = eventQueryRepository.findRegularEventsFetchParticipants(event.getId());
-        return EventWithRegularInfo.of(event, regularEvents, userId, username, bookmarkStatus);
+        return EventWithRegularInfo.of(event, participants, regularEvents, userId, username, bookmarkStatus);
     }
 
     //TODO 코드 리팩토링
@@ -161,12 +169,17 @@ public class EventService {
 
     public EventsSearchResponse searchEvents(Pageable pageable, EventSearchCondition condition, Long userId) {
         Slice<Event> searchEvents = eventQueryRepository.search(pageable, condition.getContent(), condition.getCategory());
-        List<Event> events = searchEvents.getContent();
-        List<Long> eventIds = getEventsId(events);
+        List<Event> targetEvents = searchEvents.getContent();
+        List<Long> eventIds = getEventsId(targetEvents);
 
-        List<Event> eventFetchParticipants = eventRepository.findByIdInFetchParticipation(eventIds);
+        List<EventParticipation> participants = eventParticipantRepository.findByEventIdIn(eventIds);
+        Map<Long, List<EventParticipation>> groupedByEventIdMap = participants.stream()
+                .collect(Collectors.groupingBy(
+                        EventParticipation::getEventId
+                ));
+
         List<Event> eventFetchBookmarks = eventRepository.findByIdInFetchBookmarks(eventIds);
-        return EventsSearchResponse.of(events, eventFetchParticipants, eventFetchBookmarks, userId, searchEvents.hasNext());
+        return EventsSearchResponse.of(targetEvents, groupedByEventIdMap, eventFetchBookmarks, userId, searchEvents.hasNext());
     }
 
     public int searchEventsCount(EventSearchCondition condition) {

@@ -48,17 +48,8 @@ public class EventQueryRepository {
                 ))
                 .from(eventParticipation)
                 .join(eventParticipation.user, user)
-                .on(eventParticipation.event.id.eq(eventId))
+                .on(eventParticipation.eventId.eq(eventId))
                 .fetch();
-    }
-
-    public Event findEventFetchParticipants(Long eventId){
-        return queryFactory
-                .select(event)
-                .from(event)
-                .leftJoin(event.participants, eventParticipation).fetchJoin()
-                .where(event.id.eq(eventId))
-                .fetchOne();
     }
 
     public List<RegularEvent> findRegularEventsFetchParticipants(Long eventId) {
@@ -84,8 +75,8 @@ public class EventQueryRepository {
                         event.createdDateTime
                 ))
                 .from(eventParticipation)
-                .rightJoin(eventParticipation.event, event)
-                .where(eventParticipation.event.id.in(eventIds))
+                .rightJoin(event).on(eventParticipation.eventId.eq(event.id))
+                .where(eventParticipation.eventId.in(eventIds))
                 .groupBy(event.id)
                 .fetch();
     }
@@ -133,16 +124,16 @@ public class EventQueryRepository {
     }
 
     public Map<Long,Long> findEventParticipantCountByEventIds(List<Long> eventIds) {
-        List<Tuple> tuples = queryFactory.select(eventParticipation.event.id, eventParticipation.event.id.count())
+        List<Tuple> tuples = queryFactory.select(eventParticipation.eventId, eventParticipation.eventId.count())
                 .from(eventParticipation)
-                .where(eventParticipation.event.id.in(eventIds))
-                .groupBy(eventParticipation.event.id)
+                .where(eventParticipation.eventId.in(eventIds))
+                .groupBy(eventParticipation.eventId)
                 .fetch();
 
         return tuples.stream()
                 .collect(Collectors.toMap(
-                        tuple -> tuple.get(eventParticipation.event.id),
-                        tuple -> Optional.ofNullable(tuple.get(eventParticipation.event.id.count())).orElse(0L)
+                        tuple -> tuple.get(eventParticipation.eventId),
+                        tuple -> Optional.ofNullable(tuple.get(eventParticipation.eventId.count())).orElse(0L)
                 ));
     }
 

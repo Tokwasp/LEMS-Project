@@ -1,23 +1,23 @@
 package lems.cowshed.domain.event.query;
 
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
 import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.repository.bookmark.BookmarkRepository;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
+import lems.cowshed.domain.user.Mbti;
+import lems.cowshed.domain.user.User;
+import lems.cowshed.dto.event.response.query.EventParticipantQueryDto;
+import lems.cowshed.repository.bookmark.BookmarkRepository;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.repository.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.repository.event.query.EventQueryRepository;
 import lems.cowshed.repository.event.query.ParticipatingEventSimpleInfoQuery;
 import lems.cowshed.repository.regular.event.RegularEventRepository;
-import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
-import lems.cowshed.domain.user.Mbti;
-import lems.cowshed.domain.user.User;
 import lems.cowshed.repository.user.UserRepository;
-import lems.cowshed.domain.event.participation.EventParticipation;
-import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +29,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
-import static lems.cowshed.domain.user.Mbti.*;
+import static lems.cowshed.domain.user.Mbti.ESFJ;
+import static lems.cowshed.domain.user.Mbti.INTP;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class EventQueryRepositoryTest extends IntegrationTestSupport {
@@ -56,34 +57,11 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
     BookmarkRepository bookmarkRepository;
 
     @BeforeEach
-    public void cleanUp(){
+    public void cleanUp() {
         eventParticipantRepository.deleteAllInBatch();
         bookmarkRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
         eventRepository.deleteAllInBatch();
-    }
-
-    @DisplayName("모임과 모임 인원 정보를 함께 조회 한다.")
-    @Test
-    void findEventFetchParticipants() {
-        //given
-        User user = createUser("테스터", INTP);
-        User user2 = createUser("테스터2", INTJ);
-        userRepository.saveAll(List.of(user, user2));
-
-        Event event = createEvent("산책 모임", "테스터");
-        eventRepository.save(event);
-
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
-        eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
-
-        //when
-        Event findEvent = eventQueryRepository.findEventFetchParticipants(event.getId());
-
-        //then
-        List<EventParticipation> participants = findEvent.getParticipants();
-        assertThat(participants).hasSize(2);
     }
 
     @DisplayName("정기 모임과 정기 모임 참여 정보를 함께 조회 한다.")
@@ -120,7 +98,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         Event event = createEvent("산책 모임", "테스터");
         eventRepository.save(event);
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(eventParticipation);
 
         //when
@@ -138,10 +116,10 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         //given
         User user = createUser("테스터", INTP);
         Event event = createEvent("산책 모임", "테스터");
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
 
         User user2 = createUser("테스터2", ESFJ);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
         userRepository.saveAll(List.of(user, user2));
         eventRepository.save(event);
         eventParticipantRepository.saveAll(List.of(eventParticipation, eventParticipation2));
@@ -185,7 +163,7 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         userRepository.save(user);
         Event event = createEvent("산책 모임", "테스터");
         eventRepository.save(event);
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(eventParticipation);
 
         //when
@@ -221,8 +199,8 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         User user2 = createUser("테스터2", ESFJ);
         Event event = createEvent("산책 모임", "테스터");
 
-        EventParticipation eventParticipation = EventParticipation.of(user, event);
-        EventParticipation eventParticipation2 = EventParticipation.of(user2, event);
+        EventParticipation eventParticipation = EventParticipation.of(user, event.getId());
+        EventParticipation eventParticipation2 = EventParticipation.of(user2, event.getId());
 
         userRepository.saveAll(List.of(user, user2));
         eventRepository.save(event);
@@ -237,11 +215,11 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
                 .containsExactlyInAnyOrder("테스터", "테스터2");
     }
 
-    private RegularEvent createRegularEvent(Event event, String name, String location){
+    private RegularEvent createRegularEvent(Event event, String name, String location) {
         return RegularEvent.builder()
                 .name(name)
                 .event(event)
-                .dateTime(LocalDateTime.of(2025,5,5,12,0,0))
+                .dateTime(LocalDateTime.of(2025, 5, 5, 12, 0, 0))
                 .location(location)
                 .capacity(50)
                 .build();

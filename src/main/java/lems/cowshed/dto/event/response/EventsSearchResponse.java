@@ -1,8 +1,10 @@
 package lems.cowshed.dto.event.response;
 
 import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,20 +20,20 @@ public class EventsSearchResponse {
         this.hasNext = hasNext;
     }
 
-    public static EventsSearchResponse of(List<Event> events, List<Event> eventFetchParticipation, List<Event> eventFetchBookmarks,
-                                          Long userId, boolean hasNext) {
+    public static EventsSearchResponse of(List<Event> events, Map<Long, List<EventParticipation>> groupedByEventIdMap,
+                                          List<Event> eventFetchBookmarks, Long userId, boolean hasNext) {
 
         Map<Long, Boolean> eventIdIsBookmarkedMap = convertMapAboutEventIdIsBookmarked(eventFetchBookmarks, userId);
-        Map<Long, Integer> eventIdParticipantsMap = convertMapAboutEventIdParticipants(eventFetchParticipation);
 
         List<EventSearchInfo> eventSearchInfoList = events.stream()
-                .map(event -> EventSearchInfo.of(
-                        event,
-                        eventIdParticipantsMap.get(event.getId()),
-                        eventIdIsBookmarkedMap.get(event.getId())
-                ))
-                .toList();
+                .map(event -> {
+                    List<EventParticipation> participants = groupedByEventIdMap.getOrDefault(event.getId(), Collections.emptyList());
 
+                    return EventSearchInfo.of(
+                            event,
+                            participants.size(),
+                            eventIdIsBookmarkedMap.get(event.getId()));
+                }).toList();
         return new EventsSearchResponse(eventSearchInfoList, hasNext);
     }
 
@@ -40,14 +42,6 @@ public class EventsSearchResponse {
                 .collect(Collectors.toMap(Event::getId,
                         event -> event.getBookmarks().stream()
                                 .anyMatch(bookmark -> bookmark.getUserId().equals(userId))
-                ));
-    }
-
-    private static Map<Long, Integer> convertMapAboutEventIdParticipants(List<Event> eventsParticipation) {
-        return eventsParticipation.stream()
-                .collect(Collectors.toMap(
-                        Event::getId,
-                        event -> event.getParticipants().size()
                 ));
     }
 }
