@@ -163,13 +163,6 @@ public class EventQueryRepository {
         return count.intValue();
     }
 
-    public List<Event> findEventFetchParticipantsIn(List<Long> eventIds) {
-        return queryFactory.selectFrom(event)
-                .leftJoin(event.participants, eventParticipation).fetchJoin()
-                .where(event.id.in(eventIds))
-                .fetch();
-    }
-
     private BooleanBuilder categoryIn(Category category) {
         return nullSafeBuilder(() -> event.category.in(category));
     }

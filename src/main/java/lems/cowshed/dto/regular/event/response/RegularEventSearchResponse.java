@@ -1,7 +1,7 @@
 package lems.cowshed.dto.regular.event.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.regular.event.RegularEvent;
 import lombok.Getter;
 
@@ -24,17 +24,19 @@ public class RegularEventSearchResponse {
         this.hasNext = hasNext;
     }
 
-    public static RegularEventSearchResponse of(List<RegularEvent> regularEventFetchEvent, List<RegularEvent> regularFetchParticipation,
-                                                List<Event> eventFetchParticipation, Long userId, boolean hasNext) {
+    public static RegularEventSearchResponse of(List<RegularEvent> regularEvents, List<RegularEvent> regularFetchParticipation,
+                                                List<EventParticipation> participants, Long userId, boolean hasNext) {
 
         Map<Long, Integer> regularIdParticipantMap = convertMapRegularIdParticipants(regularFetchParticipation);
-        Map<Long, Set<Long>> eventIdParticipantUserIdsMap = groupEventIdParticipantIds(eventFetchParticipation);
+        Map<Long, Set<Long>> eventIdParticipantUserIdsMap = groupEventIdParticipantIds(participants);
 
-        List<RegularEventSearchInfo> searchInfos = regularEventFetchEvent.stream()
-                .map(regular -> RegularEventSearchInfo.of(
-                        regular,
-                        regularIdParticipantMap.get(regular.getId()),
-                        eventIdParticipantUserIdsMap.get(regular.getEvent().getId()).contains(userId)))
+        List<RegularEventSearchInfo> searchInfos = regularEvents.stream()
+                .map(regularEvent ->
+                        RegularEventSearchInfo.of(
+                                regularEvent,
+                                regularIdParticipantMap.get(regularEvent.getId()),
+                                eventIdParticipantUserIdsMap.get(regularEvent.getEvent().getId()).contains(userId))
+                )
                 .toList();
 
         return new RegularEventSearchResponse(searchInfos, hasNext);
@@ -48,12 +50,12 @@ public class RegularEventSearchResponse {
                 ));
     }
 
-    private static Map<Long, Set<Long>> groupEventIdParticipantIds(List<Event> events) {
-        return events.stream()
+    private static Map<Long, Set<Long>> groupEventIdParticipantIds(List<EventParticipation> participants) {
+        return participants.stream()
                 .collect(Collectors.groupingBy(
-                        Event::getId, Collectors.flatMapping(
-                                event -> event.getParticipants().stream()
-                                        .map(participant -> participant.getUser().getId()),
+                        EventParticipation::getEventId,
+                        Collectors.mapping(
+                                participant -> participant.getUser().getId(),
                                 Collectors.toSet()
                         )
                 ));
