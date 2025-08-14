@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RegularEventParticipationRepository extends JpaRepository<RegularEventParticipation, Long> {
@@ -15,4 +16,6 @@ public interface RegularEventParticipationRepository extends JpaRepository<Regul
     Optional<RegularEventParticipation> findByIdAndUserId(Long id, Long userId);
 
     Optional<RegularEventParticipation> findByRegularEventIdAndUserId(Long regularEventId, Long userId);
+
+    List<RegularEventParticipation> findByRegularEventId(long regularEventId);
 }
