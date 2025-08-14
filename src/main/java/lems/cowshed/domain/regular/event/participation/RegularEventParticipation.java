@@ -1,8 +1,10 @@
 package lems.cowshed.domain.regular.event.participation;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lems.cowshed.domain.BaseEntity;
-import lems.cowshed.domain.regular.event.RegularEvent;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,33 +12,28 @@ import lombok.Getter;
 @Entity
 public class RegularEventParticipation extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    private long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "regular_event_id")
-    private RegularEvent regularEvent;
+    private long regularEventId;
 
-    protected RegularEventParticipation() {}
+    protected RegularEventParticipation() {
+    }
 
     @Builder
-    private RegularEventParticipation(Long userId) {
+    private RegularEventParticipation(long userId, long regularEventId) {
         this.userId = userId;
+        this.regularEventId = regularEventId;
     }
 
-    public static RegularEventParticipation of(Long userId, RegularEvent regularEvent){
-        RegularEventParticipation regularEventParticipation = RegularEventParticipation.builder()
+    public static RegularEventParticipation of(long userId, long regularEventId) {
+        return RegularEventParticipation.builder()
                 .userId(userId)
+                .regularEventId(regularEventId)
                 .build();
 
-        regularEventParticipation.connectRegularEvent(regularEvent);
-        return regularEventParticipation;
-    }
-
-    public void connectRegularEvent(RegularEvent regularEvent){
-        this.regularEvent = regularEvent;
-        regularEvent.getParticipations().add(this);
     }
 }
