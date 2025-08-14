@@ -17,14 +17,11 @@ public interface RegularEventRepository extends JpaRepository<RegularEvent, Long
     @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
     Optional<RegularEvent> findWithOptimisticLockById(Long regularId);
 
-    @Query("select count(rep) from RegularEventParticipation rep join rep.regularEvent re where re.id = :regularId")
+    @Query("select count(rep) from RegularEventParticipation rep join RegularEvent re on rep.regularEventId = re.id where re.id = :regularId")
     long getParticipantCount(@Param("regularId") long regularId);
 
-    @Query("select rep.userId from RegularEventParticipation rep join rep.regularEvent re where re.id = :regularId")
+    @Query("select rep.userId from RegularEventParticipation rep join RegularEvent re on rep.regularEventId = re.id where re.id = :regularId")
     List<Long> findParticipantsUserIdsByRegularId(@Param("regularId") Long regularId);
-
-    @Query("select distinct re from RegularEvent re left join fetch re.participations rep where re.id in :regularIds")
-    List<RegularEvent> findByIdInFetchParticipation(@Param("regularIds") List<Long> regularEventIds);
 
     Slice<RegularEvent> findByEventId(Long eventId, Pageable pageable);
 

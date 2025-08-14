@@ -70,7 +70,7 @@ public class RegularEventService {
         List<Long> regularEventIds = extractId(regularEvents);
         List<RegularEventParticipation> participants = regularEventParticipationRepository.findByRegularEventIdIn(regularEventIds);
 
-        return RegularEventPagingInfo.of(regularEvents, groupedById(participants), userId, pagingInfo.hasNext());
+        return RegularEventPagingInfo.of(regularEvents, groupedRegularEventId(participants), userId, pagingInfo.hasNext());
     }
 
     @Transactional
@@ -103,11 +103,13 @@ public class RegularEventService {
         List<RegularEvent> regularEvents = slice.getContent();
 
         List<Long> regularEventIds = extractId(regularEvents);
+        List<RegularEventParticipation> regularEventParticipants = regularEventParticipationRepository.findByRegularEventIdIn(regularEventIds);
+        Map<Long, List<RegularEventParticipation>> groupedRegularEventIdMap = groupedRegularEventId(regularEventParticipants);
+
         List<Long> eventIds = getEventIds(regularEvents);
         List<EventParticipation> participants = eventParticipantRepository.findByEventIdIn(eventIds);
 
-        List<RegularEvent> regularFetchParticipation = regularEventRepository.findByIdInFetchParticipation(regularEventIds);
-        return RegularEventSearchResponse.of(regularEvents, regularFetchParticipation, participants, userId, slice.hasNext());
+        return RegularEventSearchResponse.of(regularEvents, groupedRegularEventIdMap, participants, userId, slice.hasNext());
     }
 
     private List<Long> extractId(List<RegularEvent> regularEvents) {
@@ -120,7 +122,7 @@ public class RegularEventService {
         return RegularEventParticipation.of(userId, regularEvent.getId());
     }
 
-    private Map<Long, List<RegularEventParticipation>> groupedById(List<RegularEventParticipation> participants) {
+    private Map<Long, List<RegularEventParticipation>> groupedRegularEventId(List<RegularEventParticipation> participants) {
         return participants.stream()
                 .collect(Collectors.groupingBy(
                         RegularEventParticipation::getRegularEventId
