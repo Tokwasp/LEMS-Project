@@ -9,6 +9,7 @@ import lems.cowshed.domain.event.Events;
 import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.event.participation.Participants;
 import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lems.cowshed.domain.user.User;
 import lems.cowshed.dto.event.EventIdProvider;
 import lems.cowshed.dto.event.request.EventSaveRequestDto;
@@ -24,6 +25,8 @@ import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.repository.event.query.BookmarkedEventSimpleInfoQuery;
 import lems.cowshed.repository.event.query.EventQueryRepository;
 import lems.cowshed.repository.event.query.ParticipatingEventSimpleInfoQuery;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +55,8 @@ public class EventService {
     private final EventQueryRepository eventQueryRepository;
     private final BookmarkRepository bookmarkRepository;
     private final EventParticipantRepository eventParticipantRepository;
+    private final RegularEventRepository regularEventRepository;
+    private final RegularEventParticipationRepository regularEventParticipationRepository;
     private final AwsS3Util awsS3Util;
 
     public EventInfo getEvent(Long eventId, String username) {
@@ -114,11 +119,13 @@ public class EventService {
                 .map(Bookmark::getStatus)
                 .orElse(NOT_BOOKMARK);
 
-        List<RegularEvent> regularEvents = eventQueryRepository.findRegularEventsFetchParticipants(event.getId());
-        return EventWithRegularInfo.of(event, participants, regularEvents, userId, username, bookmarkStatus);
+        List<RegularEvent> regularEvents = regularEventRepository.findByEventId(event.getId());
+        List<RegularEventParticipation> regularParticipants = findRegularParticipantsFrom(regularEvents);
+
+        Map<Long, List<RegularEventParticipation>> groupedByRegularIdMap = groupedByRegularEventId(regularParticipants);
+        return EventWithRegularInfo.of(event, participants, regularEvents, groupedByRegularIdMap, userId, username, bookmarkStatus);
     }
 
-    //TODO 코드 리팩토링
     public EventsPagingResponse getEventsPaging(Pageable pageable, Long userId) {
         Slice<Event> eventsToLookFor = eventRepository.findEventsBy(pageable);
 
@@ -144,7 +151,6 @@ public class EventService {
         eventRepository.delete(event);
     }
 
-    // TODO 코드 리팩토링
     public BookmarkedEventsPagingInfo getEventsBookmarkedByUser(Pageable pageable, Long userId) {
         List<BookmarkedEventSimpleInfoQuery> bookmarkedEvents = eventQueryRepository.findBookmarkedEventsFromUser(userId, pageable);
 
@@ -155,7 +161,6 @@ public class EventService {
         return BookmarkedEventsPagingInfo.of(result);
     }
 
-    // TODO
     public ParticipatingEventsPagingInfo getEventsParticipatedInUser(Pageable pageable, Long userId) {
         List<Long> eventIds = eventQueryRepository.getEventIdsParticipatedByUser(userId, pageable);
         List<ParticipatingEventSimpleInfoQuery> queryResponse = eventQueryRepository.findEventsParticipatedByUserWithApplicants(eventIds);
@@ -196,6 +201,20 @@ public class EventService {
         return events.stream()
                 .map(EventIdProvider::getEventId)
                 .toList();
+    }
+
+    private List<RegularEventParticipation> findRegularParticipantsFrom(List<RegularEvent> regularEvents) {
+        List<Long> regularEventIds = regularEvents.stream()
+                .map(RegularEvent::getId)
+                .toList();
+        return regularEventParticipationRepository.findByRegularEventIdIn(regularEventIds);
+    }
+
+    private Map<Long, List<RegularEventParticipation>> groupedByRegularEventId(List<RegularEventParticipation> regularParticipants) {
+        return regularParticipants.stream()
+                .collect(Collectors.groupingBy(
+                        RegularEventParticipation::getRegularEventId
+                ));
     }
 
     private List<ParticipatingEventSimpleInfoQuery> updateBookmarkStatus(List<ParticipatingEventSimpleInfoQuery> events,

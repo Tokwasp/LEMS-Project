@@ -27,4 +27,6 @@ public interface RegularEventRepository extends JpaRepository<RegularEvent, Long
     List<RegularEvent> findByIdInFetchParticipation(@Param("regularIds") List<Long> regularEventIds);
 
     Slice<RegularEvent> findByEventId(Long eventId, Pageable pageable);
+
+    List<RegularEvent> findByEventId(long eventId);
 }

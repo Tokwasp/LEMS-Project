@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class RegularEventInfo {
@@ -32,12 +33,12 @@ public class RegularEventInfo {
         this.isRegularRegistrant = isRegularRegistrant;
     }
 
-    public static RegularEventInfo of(RegularEvent regularEvent, Long userId){
+    public static RegularEventInfo of(RegularEvent regularEvent, List<RegularEventParticipation> participants, Long userId){
 
         boolean isRegularRegistrant = regularEvent.getUserId().equals(userId);
 
-        Long participationId = regularEvent.getParticipations().stream()
-                .filter(rep -> rep.getUserId().equals(userId))
+        Long participationId = participants.stream()
+                .filter(rep -> rep.getUserId() == userId)
                 .map(RegularEventParticipation::getId)
                 .findFirst()
                 .orElse(null);
@@ -49,7 +50,7 @@ public class RegularEventInfo {
                 .location(regularEvent.getLocation())
                 .dateTime(regularEvent.getDateTime())
                 .capacity(regularEvent.getCapacity())
-                .applicants(regularEvent.getParticipations().size())
+                .applicants(participants.size())
                 .isRegularRegistrant(isRegularRegistrant)
                 .build();
     }

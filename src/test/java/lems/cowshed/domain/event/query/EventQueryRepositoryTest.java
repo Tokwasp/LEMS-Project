@@ -64,30 +64,6 @@ class EventQueryRepositoryTest extends IntegrationTestSupport {
         eventRepository.deleteAllInBatch();
     }
 
-    @DisplayName("정기 모임과 정기 모임 참여 정보를 함께 조회 한다.")
-    @Test
-    void findRegularEventsFetchParticipants() {
-        //given
-        User user = createUser("테스터", INTP);
-        userRepository.save(user);
-
-        Event event = createEvent("산책 모임", "테스터");
-        eventRepository.save(event);
-
-        RegularEvent regularEvent = createRegularEvent(event, "테스트 모임", "테스트 장소");
-        regularEventRepository.save(regularEvent);
-
-        RegularEventParticipation regularEventParticipation = RegularEventParticipation.of(user.getId(), regularEvent);
-        regularEventParticipationRepository.save(regularEventParticipation);
-
-        //when
-        List<RegularEvent> regularEvents = eventQueryRepository.findRegularEventsFetchParticipants(event.getId());
-
-        //then
-        assertThat(regularEvents).hasSize(1);
-        assertThat(regularEvents.get(0).getName().equals("테스트 모임"));
-    }
-
     @DisplayName("모임에 대한 정보와 참여 인원수를 조회 한다.")
     @Test
     void findEventWithApplicantUserIds() {
