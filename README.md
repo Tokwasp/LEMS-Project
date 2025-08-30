@@ -8,3 +8,37 @@
 
 ## 문제 해결
 - 모임 참가 동시성 https://heedb.tistory.com/65
+
+---
+
+## 화면 구성
+### 로그인 및 회원 가입
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/cae48d93-ff10-4986-b918-a20dedb79ab2" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/eae6bb11-9a79-413e-b527-5ddf287efeac" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/44dda79a-203d-4ffd-a7d8-a9e59ff6301e" width="200" hspace="20" />
+</p>
+
+---
+### 홈 화면
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/6bf76d23-3cdd-4eb8-a9a4-dd74a3e4fb96" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/2e908ee8-2a58-4af5-91cf-29bec5549b01" width="200" hspace="20" />
+</p>
+
+---
+### 모임 생성 및 모임 페이지
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/16960769-de53-4d66-9369-56d6e4795ba9" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/d2ee6d9c-df7f-481f-8218-9c0f57e62133" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/bf433253-a1c2-402c-b756-4c2f4ede2458" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/b02255b4-2f28-4e16-aa83-c30b9ba59e97" width="200" hspace="20" />
+</p>
+
+---
+### 마이 페이지
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/7b58644f-4a01-4df7-a2c2-964e80c175c2" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/7a0ea1e8-fe5b-440d-813b-cbcf1d810958" width="200" hspace="20" />
+  <img src="https://github.com/user-attachments/assets/c9f6886e-3203-4150-a540-84ba3bec17d8" width="200" hspace="20" />
+</p>
