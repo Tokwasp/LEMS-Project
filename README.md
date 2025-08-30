@@ -1,4 +1,4 @@
-# 소모임 어플리케이션
+## 소모임 어플리케이션
 
 ## ERD
 <img width="1930" height="882" alt="LEMS-PROJECT" src="https://github.com/user-attachments/assets/5f019856-e66f-43fb-8a85-6dc32b372149" />
