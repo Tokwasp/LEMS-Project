@@ -6,11 +6,14 @@ import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lems.cowshed.dto.regular.event.response.RegularEventInfo;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Schema(description = "모임/ 정기모임 상세")
@@ -68,11 +71,11 @@ public class EventWithRegularInfo {
     }
 
     public static EventWithRegularInfo of(Event event, List<EventParticipation> participants,
-                                          List<RegularEvent> regularEvents, Long userId,
-                                          String username, BookmarkStatus bookmarkStatus) {
+                                          List<RegularEvent> regularEvents, Map<Long, List<RegularEventParticipation>> groupedByRegularIdMap,
+                                          Long userId, String username, BookmarkStatus bookmarkStatus) {
 
         boolean isParticipated = isEventParticipatedUser(participants, userId);
-        List<RegularEventInfo> regularEventsInfo = convertToResponses(regularEvents, userId);
+        List<RegularEventInfo> regularEventsInfo = convertToResponses(regularEvents, groupedByRegularIdMap, userId);
         String accessUrl = getAccessUrl(event);
 
         return EventWithRegularInfo.builder()
@@ -94,9 +97,14 @@ public class EventWithRegularInfo {
         return event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null;
     }
 
-    private static List<RegularEventInfo> convertToResponses(List<RegularEvent> regularEvents, Long userId) {
+    private static List<RegularEventInfo> convertToResponses(List<RegularEvent> regularEvents,
+                                                             Map<Long, List<RegularEventParticipation>> groupedByRegularIdMap,
+                                                             Long userId) {
         return regularEvents.stream()
-                .map(re -> RegularEventInfo.of(re, userId))
+                .map(re -> {
+                    List<RegularEventParticipation> participants = groupedByRegularIdMap.getOrDefault(re.getId(), Collections.emptyList());
+                    return RegularEventInfo.of(re, participants, userId);
+                })
                 .toList();
     }
 

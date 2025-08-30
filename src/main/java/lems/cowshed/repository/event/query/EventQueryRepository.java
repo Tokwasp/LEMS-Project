@@ -52,16 +52,6 @@ public class EventQueryRepository {
                 .fetch();
     }
 
-    public List<RegularEvent> findRegularEventsFetchParticipants(Long eventId) {
-        return queryFactory
-                .select(regularEvent).distinct()
-                .from(regularEvent)
-                .join(regularEvent.event, event)
-                .leftJoin(regularEvent.participations, regularEventParticipation).fetchJoin()
-                .where(regularEvent.event.id.eq(eventId))
-                .fetch();
-    }
-
     public List<ParticipatingEventSimpleInfoQuery> findEventsParticipatedByUserWithApplicants(List<Long> eventIds) {
         // 회원이 참여한 모임과 참여 인원수 북마크 여부 X
         return queryFactory

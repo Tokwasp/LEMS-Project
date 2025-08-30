@@ -2,17 +2,17 @@ package lems.cowshed.service.regular.event;
 
 import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
-import lems.cowshed.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.regular.event.RegularEvent;
-import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.domain.user.Mbti;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.repository.user.UserRepository;
+import lems.cowshed.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.global.exception.BusinessException;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
+import lems.cowshed.repository.user.UserRepository;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,13 +38,13 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
     private RegularEventRepository regularEventRepository;
 
     @Autowired
+    private RegularEventParticipationRepository regularEventParticipationRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private EntityManager em;
-
-    @Autowired
-    private RegularEventParticipationRepository participationRepository;
 
     @DisplayName("정기 모임에 참여 한다.")
     @Test
@@ -61,13 +61,14 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
 
         //when
         Long savedParticipationId = regularEventParticipationService.saveParticipation(regularEvent.getId(), user.getId());
-        em.flush(); em.clear();
+        em.flush();
+        em.clear();
 
         //then
-        RegularEventParticipation findParticipation = participationRepository.findById(savedParticipationId).orElseThrow();
+        RegularEventParticipation findParticipation = regularEventParticipationRepository.findById(savedParticipationId).orElseThrow();
         assertThat(findParticipation.getUserId()).isEqualTo(user.getId());
 
-        RegularEvent findRegularEvent = findParticipation.getRegularEvent();
+        RegularEvent findRegularEvent = regularEventRepository.findById(regularEvent.getId()).orElseThrow();
         assertThat(findRegularEvent.getName()).isEqualTo("정기모임");
         assertThat(findRegularEvent.getLocation()).isEqualTo("장소");
     }
@@ -85,9 +86,8 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(user.getId(), event, "정기모임", "장소");
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation participation = createRegularEventParticipation(user.getId());
-        participation.connectRegularEvent(regularEvent);
-        participationRepository.save(participation);
+        RegularEventParticipation participation = createRegularEventParticipation(user.getId(), regularEvent.getId());
+        regularEventParticipationRepository.save(participation);
 
         //when
         assertThatThrownBy(() -> regularEventParticipationService.saveParticipation(regularEvent.getId(), user.getId()))
@@ -108,9 +108,9 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(user.getId(), event);
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent);
-        RegularEventParticipation participation2 = RegularEventParticipation.of(user2.getId(), regularEvent);
-        participationRepository.saveAll(List.of(participation, participation2));
+        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent.getId());
+        RegularEventParticipation participation2 = RegularEventParticipation.of(user2.getId(), regularEvent.getId());
+        regularEventParticipationRepository.saveAll(List.of(participation, participation2));
 
         //when
         RegularParticipantsInfo regularParticipants = regularEventParticipationService.getRegularParticipants(regularEvent.getId());
@@ -119,7 +119,7 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         assertThat(regularParticipants.getParticipantCount()).isEqualTo(2);
         assertThat(regularParticipants.getCapacity()).isEqualTo(50);
         assertThat(regularParticipants.getRegularParticipants()).hasSize(2)
-                .extracting("name","mbti")
+                .extracting("name", "mbti")
                 .containsExactlyInAnyOrder(
                         Tuple.tuple("테스터", INTP),
                         Tuple.tuple("테스터2", ISTP)
@@ -139,14 +139,14 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         RegularEvent regularEvent = createRegularEvent(user.getId(), event);
         regularEventRepository.save(regularEvent);
 
-        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent);
-        participationRepository.save(participation);
+        RegularEventParticipation participation = RegularEventParticipation.of(user.getId(), regularEvent.getId());
+        regularEventParticipationRepository.save(participation);
 
         //when
         regularEventParticipationService.deleteParticipation(participation.getId(), user.getId());
 
         //then
-        assertThat(participationRepository.findById(participation.getId())).isEmpty();
+        assertThat(regularEventParticipationRepository.findById(participation.getId())).isEmpty();
     }
 
 
@@ -157,28 +157,29 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private RegularEventParticipation createRegularEventParticipation(Long userId){
+    private RegularEventParticipation createRegularEventParticipation(Long userId, Long regularEventId) {
         return RegularEventParticipation.builder()
                 .userId(userId)
+                .regularEventId(regularEventId)
                 .build();
     }
 
-    private RegularEvent createRegularEvent(Long userId, Event event, String name, String location){
+    private RegularEvent createRegularEvent(Long userId, Event event, String name, String location) {
         return RegularEvent.builder()
                 .name(name)
                 .event(event)
-                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
                 .location(location)
                 .capacity(50)
                 .userId(userId)
                 .build();
     }
 
-    private RegularEvent createRegularEvent(Long userId, Event event){
+    private RegularEvent createRegularEvent(Long userId, Event event) {
         return RegularEvent.builder()
                 .name("정기 모임")
                 .event(event)
-                .dateTime(LocalDateTime.of(2025, 5, 2,12 ,0,0))
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
                 .location("테스트 장소")
                 .capacity(50)
                 .userId(userId)

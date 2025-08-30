@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static lems.cowshed.global.exception.Message.EVENT_NOT_FOUND;
 import static lems.cowshed.global.exception.Message.REGULAR_EVENT_NOT_FOUND;
@@ -63,10 +65,12 @@ public class RegularEventService {
 
     public RegularEventPagingInfo findPagingInfo(Long eventId, Pageable pageable, Long userId) {
         Slice<RegularEvent> pagingInfo = regularEventRepository.findByEventId(eventId, pageable);
-        List<Long> regularEventIds = getRegularEventIds(pagingInfo.getContent());
+        List<RegularEvent> regularEvents = pagingInfo.getContent();
 
-        List<RegularEvent> regularEvents = regularEventRepository.findByIdInFetchParticipation(regularEventIds);
-        return RegularEventPagingInfo.of(regularEvents, userId, pagingInfo.hasNext());
+        List<Long> regularEventIds = extractId(regularEvents);
+        List<RegularEventParticipation> participants = regularEventParticipationRepository.findByRegularEventIdIn(regularEventIds);
+
+        return RegularEventPagingInfo.of(regularEvents, groupedRegularEventId(participants), userId, pagingInfo.hasNext());
     }
 
     @Transactional
@@ -97,23 +101,32 @@ public class RegularEventService {
     public RegularEventSearchResponse search(Pageable pageable, RegularSearchCondition condition, Long userId) {
         Slice<RegularEvent> slice = regularEventQueryRepository.searchFetchEvent(pageable, condition.getName(), condition.getDate());
         List<RegularEvent> regularEvents = slice.getContent();
-        List<Long> regularEventIds = getRegularEventIds(regularEvents);
+
+        List<Long> regularEventIds = extractId(regularEvents);
+        List<RegularEventParticipation> regularEventParticipants = regularEventParticipationRepository.findByRegularEventIdIn(regularEventIds);
+        Map<Long, List<RegularEventParticipation>> groupedRegularEventIdMap = groupedRegularEventId(regularEventParticipants);
 
         List<Long> eventIds = getEventIds(regularEvents);
         List<EventParticipation> participants = eventParticipantRepository.findByEventIdIn(eventIds);
 
-        List<RegularEvent> regularFetchParticipation = regularEventRepository.findByIdInFetchParticipation(regularEventIds);
-        return RegularEventSearchResponse.of(regularEvents, regularFetchParticipation, participants, userId, slice.hasNext());
+        return RegularEventSearchResponse.of(regularEvents, groupedRegularEventIdMap, participants, userId, slice.hasNext());
     }
 
-    private List<Long> getRegularEventIds(List<RegularEvent> regularEvents) {
+    private List<Long> extractId(List<RegularEvent> regularEvents) {
         return regularEvents.stream()
                 .map(RegularEvent::getId)
                 .toList();
     }
 
     private RegularEventParticipation createRegularEventParticipation(Long userId, RegularEvent regularEvent) {
-        return RegularEventParticipation.of(userId, regularEvent);
+        return RegularEventParticipation.of(userId, regularEvent.getId());
+    }
+
+    private Map<Long, List<RegularEventParticipation>> groupedRegularEventId(List<RegularEventParticipation> participants) {
+        return participants.stream()
+                .collect(Collectors.groupingBy(
+                        RegularEventParticipation::getRegularEventId
+                ));
     }
 
     private RegularEventEditCommand createRegularEditCommand(RegularEventEditRequest request) {

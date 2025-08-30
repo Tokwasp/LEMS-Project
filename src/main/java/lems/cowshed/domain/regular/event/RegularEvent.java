@@ -3,23 +3,25 @@ package lems.cowshed.domain.regular.event;
 import jakarta.persistence.*;
 import lems.cowshed.domain.BaseEntity;
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
 import lems.cowshed.global.exception.BusinessException;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import static lems.cowshed.global.exception.Message.*;
-import static lems.cowshed.global.exception.Reason.*;
+
+import static lems.cowshed.global.exception.Message.REGULAR_EVENT_INVALID_UPDATE_CAPACITY;
+import static lems.cowshed.global.exception.Reason.REGULAR_EVENT_PARTICIPATION;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class RegularEvent extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -32,8 +34,8 @@ public class RegularEvent extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @OneToMany(mappedBy = "regularEvent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RegularEventParticipation> participations = new ArrayList<>();
+    @Version
+    private Long version;
 
     @Builder
     private RegularEvent(String name, LocalDateTime dateTime, String location,
@@ -47,7 +49,7 @@ public class RegularEvent extends BaseEntity {
     }
 
     public static RegularEvent of(String name, LocalDateTime dateTime, String location,
-                                  int capacity, Long userId, Event event){
+                                  int capacity, Long userId, Event event) {
         return RegularEvent.builder()
                 .name(name)
                 .dateTime(dateTime)
@@ -58,7 +60,7 @@ public class RegularEvent extends BaseEntity {
                 .build();
     }
 
-    public boolean isNotPossibleParticipation(long participantCount) {
+    public boolean isNotJoinAble(long participantCount) {
         return capacity <= participantCount;
     }
 
@@ -75,7 +77,7 @@ public class RegularEvent extends BaseEntity {
     }
 
     public void updateCapacity(long participantCount, int updateCapacity) {
-        if(participantCount > updateCapacity){
+        if (participantCount > updateCapacity) {
             throw new BusinessException(REGULAR_EVENT_PARTICIPATION, REGULAR_EVENT_INVALID_UPDATE_CAPACITY);
         }
         this.capacity = updateCapacity;

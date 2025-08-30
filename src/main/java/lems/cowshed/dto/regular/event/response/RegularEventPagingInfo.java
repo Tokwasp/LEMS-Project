@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class RegularEventPagingInfo {
@@ -20,9 +22,14 @@ public class RegularEventPagingInfo {
         this.hasNext = hasNext;
     }
 
-    public static RegularEventPagingInfo of(List<RegularEvent> regularEvents, Long userId, boolean hasNext){
+    public static RegularEventPagingInfo of(List<RegularEvent> regularEvents, Map<Long, List<RegularEventParticipation>> groupedIdMap,
+                                            Long userId, boolean hasNext) {
+
         List<RegularEventInfo> regularEventInfos = regularEvents.stream()
-                .map(regularEvent -> RegularEventInfo.of(regularEvent, userId))
+                .map(regularEvent -> {
+                    List<RegularEventParticipation> participants = groupedIdMap.getOrDefault(regularEvent.getId(), Collections.emptyList());
+                    return RegularEventInfo.of(regularEvent, participants, userId);
+                })
                 .toList();
 
         return RegularEventPagingInfo.builder()
@@ -55,8 +62,8 @@ public class RegularEventPagingInfo {
             this.isRegistrant = isRegistrant;
         }
 
-        private static RegularEventInfo of(RegularEvent regularEvent, Long userId){
-            Long participationId = getParticipationId(regularEvent, userId);
+        private static RegularEventInfo of(RegularEvent regularEvent, List<RegularEventParticipation> participants, Long userId) {
+            Long participationId = getParticipationId(participants, userId);
             boolean isRegistrant = regularEvent.getUserId().equals(userId);
 
             return RegularEventInfo.builder()
@@ -65,15 +72,15 @@ public class RegularEventPagingInfo {
                     .name(regularEvent.getName())
                     .dateTime(regularEvent.getDateTime())
                     .location(regularEvent.getLocation())
-                    .participantsCount(regularEvent.getParticipations().size())
+                    .participantsCount(participants.size())
                     .capacity(regularEvent.getCapacity())
                     .isRegistrant(isRegistrant)
                     .build();
         }
 
-        private static Long getParticipationId(RegularEvent regularEvent, Long userId) {
-            return regularEvent.getParticipations().stream()
-                    .filter(p -> p.getUserId().equals(userId))
+        private static Long getParticipationId(List<RegularEventParticipation> participants, Long userId) {
+            return participants.stream()
+                    .filter(p -> p.getUserId() == (userId))
                     .map(RegularEventParticipation::getId)
                     .findFirst()
                     .orElse(null);

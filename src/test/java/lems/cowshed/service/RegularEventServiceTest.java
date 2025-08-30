@@ -58,12 +58,15 @@ class RegularEventServiceTest extends IntegrationTestSupport {
     private EntityManager em;
 
     @Autowired
-    private RegularEventParticipationRepository participationRepository;
+    private RegularEventParticipationRepository regularEventParticipationRepository;
 
     @DisplayName("정기 모임을 등록 한다.")
     @Test
     void saveRegularEvent() {
         //given
+        User user = createUser("테스터", INTP);
+        userRepository.save(user);
+
         Event event = createEvent("테스터", "테스트 모임");
         eventRepository.save(event);
 
@@ -75,7 +78,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .build();
 
         //when
-        Long regularEventId = regularEventService.saveRegularEvent(request, event.getId(), null);
+        Long regularEventId = regularEventService.saveRegularEvent(request, event.getId(), user.getId());
 
         //then
         RegularEvent regularEvent = regularEventRepository.findById(regularEventId).orElseThrow();
@@ -105,7 +108,7 @@ class RegularEventServiceTest extends IntegrationTestSupport {
         regularEventService.saveRegularEvent(request, event.getId(), user.getId());
 
         //then
-        List<RegularEventParticipation> participants = participationRepository.findAll();
+        List<RegularEventParticipation> participants = regularEventParticipationRepository.findAll();
         assertThat(participants).hasSize(1);
     }
 
@@ -216,10 +219,10 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         Long userId = 1L;
         RegularEvent regularEvent = createRegularEvent(userId, event, "정기 모임", "장소");
-
-        RegularEventParticipation participation = createParticipation(userId);
-        participation.connectRegularEvent(regularEvent);
         regularEventRepository.save(regularEvent);
+
+        RegularEventParticipation participation = createParticipation(userId, regularEvent.getId());
+        regularEventParticipationRepository.save(participation);
 
         //when
         PageRequest request = PageRequest.of(0, 2);
@@ -245,10 +248,10 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         Long differentUserId = 1L;
         RegularEvent regularEvent = createRegularEvent(differentUserId, event, "정기 모임", "장소");
-
-        RegularEventParticipation participation = createParticipation(differentUserId);
-        participation.connectRegularEvent(regularEvent);
         regularEventRepository.save(regularEvent);
+
+        RegularEventParticipation participation = createParticipation(differentUserId, regularEvent.getId());
+        regularEventParticipationRepository.save(participation);
 
         //when
         Long myUserId = 2L;
@@ -275,13 +278,14 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         Long myUserId = 1L;
         RegularEvent regularEvent = createRegularEvent(myUserId, event, "정기 모임", "장소");
-        RegularEventParticipation participation = createParticipation(myUserId);
-        participation.connectRegularEvent(regularEvent);
+        regularEventRepository.save(regularEvent);
+
+        RegularEventParticipation participation = createParticipation(myUserId, regularEvent.getId());
+        regularEventParticipationRepository.save(participation);
 
         Long differentUserId = 2L;
-        RegularEventParticipation participation2 = createParticipation(differentUserId);
-        participation2.connectRegularEvent(regularEvent);
-        regularEventRepository.save(regularEvent);
+        RegularEventParticipation participation2 = createParticipation(differentUserId, regularEvent.getId());
+        regularEventParticipationRepository.save(participation2);
 
         //when
         PageRequest request = PageRequest.of(0, 2);
@@ -307,15 +311,17 @@ class RegularEventServiceTest extends IntegrationTestSupport {
 
         Long myUserId = 1L;
         RegularEvent regularEvent = createRegularEvent(myUserId, event, "정기 모임", "장소");
-        RegularEventParticipation participation = createParticipation(myUserId);
-        participation.connectRegularEvent(regularEvent);
-        regularEventRepository.save(regularEvent);
 
         Long differUserId = 2L;
         RegularEvent regularEvent2 = createRegularEvent(differUserId, event, "정기 모임2", "장소2");
-        RegularEventParticipation participation2 = createParticipation(differUserId);
-        participation2.connectRegularEvent(regularEvent2);
-        regularEventRepository.save(regularEvent2);
+
+        regularEventRepository.saveAll(List.of(regularEvent, regularEvent2));
+
+        RegularEventParticipation participation = createParticipation(myUserId, regularEvent.getId());
+        regularEventParticipationRepository.save(participation);
+
+        RegularEventParticipation participation2 = createParticipation(differUserId, regularEvent2.getId());
+        regularEventParticipationRepository.save(participation2);
 
         //when
         PageRequest pageRequest = PageRequest.of(0, 2);
@@ -389,9 +395,10 @@ class RegularEventServiceTest extends IntegrationTestSupport {
                 .containsExactly(Tuple.tuple("정기 모임", "게임", true));
     }
 
-    private RegularEventParticipation createParticipation(Long userId) {
+    private RegularEventParticipation createParticipation(Long userId, Long regularEventId) {
         return RegularEventParticipation.builder()
                 .userId(userId)
+                .regularEventId(regularEventId)
                 .build();
     }
 
