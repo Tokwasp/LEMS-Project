@@ -6,6 +6,13 @@
 
 ---
 
+## 🛠️ 기술 스택
+- **Backend**: Java, Spring Boot, JPA  
+- **Database**: H2 (테스트), MySQL (운영)
+- **Auth**: JWT  
+- **Infra**: AWS EC2, RDS, S3
+
+---
 ## 🗄️ ERD
 <img width="1930" height="882" alt="LEMS-PROJECT" src="https://github.com/user-attachments/assets/5f019856-e66f-43fb-8a85-6dc32b372149" />
 
@@ -15,7 +22,6 @@
 ![server-architecture](https://github.com/user-attachments/assets/69cdd4c8-4aa1-4902-8636-6e8af23429e3)
 
 ---
-
 ## ⚙️ 문제 해결
 - 모임 참가 시 **동시성 문제** 해결  
   참고: [heedb 블로그](https://heedb.tistory.com/65)
