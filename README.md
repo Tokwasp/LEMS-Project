@@ -48,12 +48,12 @@
 ---
 
 ### 👥 모임 생성 및 모임 페이지
-<p align="left">
-  <img src="https://github.com/user-attachments/assets/16960769-de53-4d66-9369-56d6e4795ba9" width="200" hspace="20" />
-  <img src="https://github.com/user-attachments/assets/d2ee6d9c-df7f-481f-8218-9c0f57e62133" width="200" hspace="20" />
-  <img src="https://github.com/user-attachments/assets/bf433253-a1c2-402c-b756-4c2f4ede2458" width="200" hspace="20" />
-  <img src="https://github.com/user-attachments/assets/b02255b4-2f28-4e16-aa83-c30b9ba59e97" width="200" hspace="20" />
-</p>
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; justify-items: center;">
+  <img src="https://github.com/user-attachments/assets/16960769-de53-4d66-9369-56d6e4795ba9" width="200" />
+  <img src="https://github.com/user-attachments/assets/d2ee6d9c-df7f-481f-8218-9c0f57e62133" width="200" />
+  <img src="https://github.com/user-attachments/assets/bf433253-a1c2-402c-b756-4c2f4ede2458" width="200" />
+  <img src="https://github.com/user-attachments/assets/b02255b4-2f28-4e16-aa83-c30b9ba59e97" width="200" />
+</div>
 
 ---
 
