@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import lems.cowshed.dto.Enum;
-import lems.cowshed.domain.UploadFile;
+import lems.cowshed.domain.image.UploadFile;
 import lems.cowshed.domain.event.Category;
 import lems.cowshed.domain.event.Event;
 import lombok.*;

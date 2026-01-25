@@ -43,9 +43,7 @@ public class EventInfo {
         this.accessUrl = accessUrl;
     }
 
-    public static EventInfo of(Event event, int participantCount) {
-        String accessUrl = getAccessUrl(event);
-
+    public static EventInfo of(Event event, int participantCount, String accessUrl) {
         return EventInfo.builder()
                 .eventId(event.getId())
                 .name(event.getName())
@@ -55,9 +53,5 @@ public class EventInfo {
                 .capacity(event.getCapacity())
                 .applicants(participantCount)
                 .build();
-    }
-
-    private static String getAccessUrl(Event event) {
-        return event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null;
     }
 }

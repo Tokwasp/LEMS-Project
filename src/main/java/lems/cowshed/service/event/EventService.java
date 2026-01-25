@@ -1,7 +1,8 @@
 package lems.cowshed.service.event;
 
 import lems.cowshed.config.aws.AwsS3Util;
-import lems.cowshed.domain.UploadFile;
+import lems.cowshed.domain.image.ImageType;
+import lems.cowshed.domain.image.UploadFile;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
@@ -69,7 +70,8 @@ public class EventService {
             throw new BusinessException(EVENT_AUTHOR, EVENT_NOT_REGISTERED_BY_USER);
         }
 
-        return EventInfo.of(event, participants.size());
+        String accessUrl = awsS3Util.getAccessUrl(event.getUploadFile());
+        return EventInfo.of(event, participants.size(), accessUrl);
     }
 
     @Transactional
@@ -77,7 +79,7 @@ public class EventService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(USER_NAME, USER_NOT_FOUND));
 
-        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile());
+        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile(), ImageType.PRIVATE);
         Event event = requestDto.toEntity(username, uploadFile);
         eventRepository.save(event);
 
@@ -91,7 +93,7 @@ public class EventService {
         Event event = eventRepository.findByIdAndAuthor(eventId, username)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        UploadFile uploadFile = awsS3Util.uploadFile(request.getFile());
+        UploadFile uploadFile = awsS3Util.uploadFile(request.getFile(), ImageType.PUBLIC);
 
         List<EventParticipation> participants = eventParticipantRepository.findByEventIdIn(List.of(event.getId()));
         event.modify(

@@ -49,7 +49,7 @@ public class MyPageParticipatedEventsInfo {
             this.name = event.getName();
             this.content = event.getContent().length() > 20 ? content.substring(0, 20) : event.getContent();
             this.category = event.getCategory().getDescription();
-            this.accessUrl = event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null;
+            this.accessUrl = event.getUploadFile() != null ? event.getUploadFile().getRoute() : null;
             this.applicantCount = applicantCount;
         }
 
