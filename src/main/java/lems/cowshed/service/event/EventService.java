@@ -79,7 +79,7 @@ public class EventService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(USER_NAME, USER_NOT_FOUND));
 
-        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile(), ImageType.PRIVATE);
+        UploadFile uploadFile = awsS3Util.uploadFile(requestDto.getFile(), ImageType.PUBLIC);
         Event event = requestDto.toEntity(username, uploadFile);
         eventRepository.save(event);
 
