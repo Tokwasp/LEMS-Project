@@ -42,7 +42,7 @@ public class RegularEventSearchInfo {
                 .eventId(event.getId())
                 .regularId(regular.getId())
                 .category(event.getCategory().getDescription())
-                .accessURL(event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null)
+                .accessURL(event.getUploadFile() != null ? event.getUploadFile().getRoute() : null)
                 .name(regular.getName())
                 .dateTime(regular.getDateTime())
                 .capacity(regular.getCapacity())

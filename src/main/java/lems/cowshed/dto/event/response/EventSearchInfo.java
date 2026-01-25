@@ -58,7 +58,7 @@ public class EventSearchInfo {
                 .content(event.getContent())
                 .category(event.getCategory().getDescription())
                 .capacity(event.getCapacity())
-                .accessUrl(event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null)
+                .accessUrl(event.getUploadFile() != null ? event.getUploadFile().getRoute() : null)
                 .applicants(participantCount)
                 .bookmarkStatus(isBookmarked ? BOOKMARK : NOT_BOOKMARK)
                 .build();

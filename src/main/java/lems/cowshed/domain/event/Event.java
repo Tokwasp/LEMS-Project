@@ -3,7 +3,7 @@ package lems.cowshed.domain.event;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import lems.cowshed.domain.BaseEntity;
-import lems.cowshed.domain.UploadFile;
+import lems.cowshed.domain.image.UploadFile;
 import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.global.exception.BusinessException;
 import lombok.AccessLevel;

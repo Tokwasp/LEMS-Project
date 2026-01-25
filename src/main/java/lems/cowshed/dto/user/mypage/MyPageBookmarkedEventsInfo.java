@@ -48,7 +48,7 @@ public class MyPageBookmarkedEventsInfo {
             this.name = event.getName();
             this.category = event.getCategory().getDescription();
             this.content = event.getContent().length() > 30 ? event.getContent().substring(0, 30) : event.getContent();
-            this.accessUrl = event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null;
+            this.accessUrl = event.getUploadFile() != null ? event.getUploadFile().getRoute() : null;
             this.applicantCount = applicantCount;
         }
 

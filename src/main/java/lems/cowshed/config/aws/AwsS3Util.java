@@ -1,6 +1,7 @@
 package lems.cowshed.config.aws;
 
-import lems.cowshed.domain.UploadFile;
+import lems.cowshed.domain.image.ImageType;
+import lems.cowshed.domain.image.UploadFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,41 +15,30 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Component
 public class AwsS3Util {
     @Value("${spring.application.bucket.name}")
     private String bucket;
+
+    @Value("${spring.cloud.aws.region.static}")
+    private String region;
+
     private final S3Client s3Client;
 
     public AwsS3Util(S3Client s3Client) {
         this.s3Client = s3Client;
     }
 
-    public List<UploadFile> uploadFiles(List<MultipartFile> multipartFiles) throws IOException {
-        if (multipartFiles.isEmpty()) {
-            return List.of();
-        }
-
-        List<UploadFile> uploadFileList = new ArrayList<>();
-        for (MultipartFile multipartFile : multipartFiles) {
-            uploadFileList.add(uploadFile(multipartFile));
-        }
-        return uploadFileList;
-    }
-
-    public UploadFile uploadFile(MultipartFile file) throws IOException {
+    public UploadFile uploadFile(MultipartFile file, ImageType imageType) throws IOException {
         if (file == null || file.isEmpty()) {
             return null;
         }
 
         String originalFilename = file.getOriginalFilename();
         String storeFileName = crateStoreFileName(originalFilename);
-        String ext = extractExt(originalFilename);
-        String route = "images/" + storeFileName + "." + ext;
+        String route = imageType.getPrefix() + storeFileName;
 
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -64,8 +54,22 @@ public class AwsS3Util {
                 )
         );
 
-        String accessUrl = getPublicUrl(route);
-        return new UploadFile(originalFilename, storeFileName, accessUrl);
+        return new UploadFile(originalFilename, storeFileName, route, imageType);
+    }
+
+    public String getAccessUrl(UploadFile file){
+        if(file == null){
+            return null;
+        }
+
+        if(file.isPublic()){
+            return getPublicUrl(file.getRoute());
+        }
+
+        if(file.isPrivate()){
+            return getPrivateUrl(file.getRoute());
+        }
+        return null;
     }
 
     private String crateStoreFileName(String originalFilename) {
@@ -80,6 +84,10 @@ public class AwsS3Util {
     }
 
     private String getPublicUrl(String key) {
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + key;
+    }
+
+    private String getPrivateUrl(String key) {
         S3Presigner preSigner = S3Presigner.builder()
                 .region(Region.AP_NORTHEAST_2)
                 .credentialsProvider(DefaultCredentialsProvider.create())

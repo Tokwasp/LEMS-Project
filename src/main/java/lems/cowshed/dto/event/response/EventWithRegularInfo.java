@@ -94,7 +94,7 @@ public class EventWithRegularInfo {
     }
 
     private static String getAccessUrl(Event event) {
-        return event.getUploadFile() != null ? event.getUploadFile().getAccessUrl() : null;
+        return event.getUploadFile() != null ? event.getUploadFile().getRoute() : null;
     }
 
     private static List<RegularEventInfo> convertToResponses(List<RegularEvent> regularEvents,
