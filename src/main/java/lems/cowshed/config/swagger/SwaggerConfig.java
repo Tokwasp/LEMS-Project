@@ -54,6 +54,8 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(info)
+                .addServersItem(new Server().url("/"))
+                .addServersItem(new Server().url("https://lems-project.link").description("운영 서버"))
                 .servers(List.of(devServer, prodServer));
     }
 
