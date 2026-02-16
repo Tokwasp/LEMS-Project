@@ -10,7 +10,8 @@
 - **Backend**: Java, Spring Boot, JPA  
 - **Database**: H2 (테스트), MySQL (운영)
 - **Auth**: JWT  
-- **Infra**: AWS EC2, RDS, S3
+- **Infra**: AWS EC2, RDS, S3, Route 53, Nginx
+- **Monitoring**: Prometheus, Grafana
 
 ---
 ## 🗄️ ERD
@@ -19,11 +20,12 @@
 ---
 
 ## 🏗️ 서버 아키텍처
-![server-architecture](https://github.com/user-attachments/assets/69cdd4c8-4aa1-4902-8636-6e8af23429e3)
+<img width="2261" height="1761" alt="제목 없는 다이어그램 drawio" src="https://github.com/user-attachments/assets/8ead842c-aea2-4466-9e03-a7617b23feef" />
+
 
 ---
 ## ⚙️ 문제 해결
-- 모임 참가 시 **동시성 문제** 해결  
+- 모임 참가 **동시성 문제** 해결  
   참고: [heedb 블로그](https://heedb.tistory.com/65)
 
 ---
