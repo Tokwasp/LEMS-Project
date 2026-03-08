@@ -1,13 +1,13 @@
 package lems.cowshed.service.event;
 
 import lems.cowshed.domain.event.Event;
-import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.domain.event.participation.EventParticipation;
 import lems.cowshed.domain.user.User;
-import lems.cowshed.repository.user.UserRepository;
-import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.global.exception.BusinessException;
 import lems.cowshed.global.exception.NotFoundException;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
+import lems.cowshed.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
