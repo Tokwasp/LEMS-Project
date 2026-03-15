@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -40,14 +41,15 @@ class EventParticipationFacadeTest extends IntegrationTestSupport {
     @Disabled
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @DisplayName("3명 정원인 모임에 3명이 동시 참여할 때 실패 시 재시도가 수행된다.")
+    @DisplayName("100명 정원인 모임에 1만명이 동시 참여할 때 실패 시 재시도가 수행된다.")
     void saveEventParticipation_ShouldRetry_WhenOptimisticLockExceptionOccurs() throws InterruptedException {
         //given
-        int taskCount = 3;
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        int taskCount = 10000;
+        int capacity = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
         CountDownLatch countDownLatch = new CountDownLatch(taskCount);
 
-        Event findEvent = eventRepository.save(createEvent("테스터", "테스트 모임", 3));
+        Event findEvent = eventRepository.save(createEvent("테스터", "테스트 모임", capacity));
 
         List<User> users = Stream
                 .generate(() -> {
@@ -58,11 +60,15 @@ class EventParticipationFacadeTest extends IntegrationTestSupport {
                 .limit(taskCount)
                 .toList();
 
+        AtomicInteger BusinessExceptionCount = new AtomicInteger(0);
+
         //when
         for (User user : users) {
             executorService.submit(() -> {
                 try {
                     eventParticipationFacade.saveEventParticipation(findEvent.getId(), user.getId());
+                } catch (Exception e) {
+                    BusinessExceptionCount.incrementAndGet();
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -73,7 +79,7 @@ class EventParticipationFacadeTest extends IntegrationTestSupport {
 
         // then
         long participants = eventParticipantRepository.getParticipationCountById(findEvent.getId());
-        assertThat(participants).isEqualTo(3);
+        assertThat(participants).isEqualTo(100);
     }
 
     @Disabled
