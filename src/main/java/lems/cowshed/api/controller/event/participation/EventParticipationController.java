@@ -23,7 +23,7 @@ public class EventParticipationController implements EventParticipationSpecifica
 
     @DeleteMapping
     public CommonResponse<Void> deleteEventParticipation(@PathVariable("event-id") Long eventId,
-                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails){
+                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         eventParticipationService.deleteEventParticipation(eventId, customUserDetails.getUserId());
         return CommonResponse.success();
     }

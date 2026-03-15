@@ -34,8 +34,7 @@ public class RegularEvent extends BaseEntity {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @Version
-    private Long version;
+    private long participantCount;
 
     @Builder
     private RegularEvent(String name, LocalDateTime dateTime, String location,
@@ -46,6 +45,7 @@ public class RegularEvent extends BaseEntity {
         this.capacity = capacity;
         this.event = event;
         this.userId = userId;
+        this.participantCount = 0;
     }
 
     public static RegularEvent of(String name, LocalDateTime dateTime, String location,

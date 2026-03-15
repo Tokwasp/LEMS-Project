@@ -35,12 +35,12 @@ public class RegularEventParticipationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        RegularEvent regularEvent = regularEventRepository.findWithOptimisticLockById(regularId)
+        RegularEvent regularEvent = regularEventRepository.findById(regularId)
                 .orElseThrow(() -> new NotFoundException(REGULAR_EVENT_ID, REGULAR_EVENT_NOT_FOUND));
 
-        long participantCount = regularEventRepository.getParticipantCount(regularEvent.getId());
+        boolean isNotSuccess = regularEventRepository.increaseParticipantCount(regularEvent.getId()) == 0;
 
-        if (regularEvent.isNotJoinAble(participantCount)) {
+        if (isNotSuccess) {
             throw new BusinessException(REGULAR_EVENT_PARTICIPATION, REGULAR_EVENT_NOT_POSSIBLE_PARTICIPATION);
         }
 

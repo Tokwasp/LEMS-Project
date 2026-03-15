@@ -14,12 +14,19 @@ import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.repository.user.UserRepository;
 import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 import static lems.cowshed.domain.user.Mbti.INTP;
 import static lems.cowshed.domain.user.Mbti.ISTP;
@@ -72,6 +79,48 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         assertThat(findRegularEvent.getName()).isEqualTo("정기모임");
         assertThat(findRegularEvent.getLocation()).isEqualTo("장소");
     }
+
+    @Disabled
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @DisplayName("3명 정원인 정기 모임에 3명이 동시에 참여 요청을 보내면 모두 성공한다.")
+    void shouldIncreaseParticipantCount_WhenMultipleUsersJoinConcurrently() throws InterruptedException {
+        //given
+        int taskCount = 3;
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        CountDownLatch countDownLatch = new CountDownLatch(taskCount);
+
+        Event event = eventRepository.save(createEvent("테스터", "테스트 모임", 3));
+
+        List<User> users = Stream
+                .generate(() -> {
+                    User user = createUser("테스터", "testEmail");
+                    userRepository.save(user);
+                    return user;
+                })
+                .limit(taskCount)
+                .toList();
+
+        RegularEvent regularEvent = regularEventRepository.save(createRegularEvent(users.get(0).getId(), event, 3));
+
+        //when
+        for (User user : users) {
+            executorService.submit(() -> {
+                try {
+                    regularEventParticipationService.saveParticipation(regularEvent.getId(), user.getId());
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+        executorService.shutdown();
+
+        // then
+        long participants = regularEventParticipationRepository.getParticipantCountByRegularId(regularEvent.getId());
+        assertThat(participants).isEqualTo(3);
+    }
+
 
     @DisplayName("정기 모임에 참여 할때 이미 참여한 모임 이라면 예외가 발생 한다.")
     @Test
@@ -149,11 +198,18 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
         assertThat(regularEventParticipationRepository.findById(participation.getId())).isEmpty();
     }
 
-
     private Event createEvent(String author, String name) {
         return Event.builder()
                 .name(name)
                 .author(author)
+                .build();
+    }
+
+    private Event createEvent(String author, String name, int capacity) {
+        return Event.builder()
+                .name(name)
+                .author(author)
+                .capacity(capacity)
                 .build();
     }
 
@@ -182,6 +238,17 @@ class RegularEventParticipationServiceTest extends IntegrationTestSupport {
                 .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
                 .location("테스트 장소")
                 .capacity(50)
+                .userId(userId)
+                .build();
+    }
+
+    private RegularEvent createRegularEvent(Long userId, Event event, int capacity) {
+        return RegularEvent.builder()
+                .name("정기 모임")
+                .event(event)
+                .dateTime(LocalDateTime.of(2025, 5, 2, 12, 0, 0))
+                .location("테스트 장소")
+                .capacity(capacity)
                 .userId(userId)
                 .build();
     }
