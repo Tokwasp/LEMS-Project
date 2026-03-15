@@ -41,8 +41,7 @@ public class Event extends BaseEntity {
     @Embedded
     private UploadFile uploadFile;
 
-    @Version
-    private long version;
+    private long participantCount;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();
@@ -56,6 +55,7 @@ public class Event extends BaseEntity {
         this.content = content;
         this.capacity = capacity;
         this.uploadFile = uploadFile;
+        this.participantCount = 0;
     }
 
     public void modify(String name, int capacity, String content,

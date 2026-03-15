@@ -31,12 +31,12 @@ public class EventParticipationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(USER_ID, USER_NOT_FOUND));
 
-        Event event = eventRepository.finByIdWithOptimisticLock(eventId)
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
-        long participantCount = eventParticipantRepository.getParticipationCountById(event.getId());
+        boolean isNotSuccess = eventRepository.incrementParticipantCount(event.getId()) == 0;
 
-        if (isNotParticipateToEvent(event, participantCount)) {
+        if (isNotSuccess) {
             throw new BusinessException(EVENT_CAPACITY, EVENT_CAPACITY_OVER);
         }
 
@@ -60,7 +60,4 @@ public class EventParticipationService {
                 });
     }
 
-    private boolean isNotParticipateToEvent(Event event, long capacity) {
-        return event.isOverCapacity(capacity);
-    }
 }

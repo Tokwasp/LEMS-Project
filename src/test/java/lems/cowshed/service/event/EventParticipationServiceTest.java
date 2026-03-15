@@ -1,5 +1,6 @@
 package lems.cowshed.service.event;
 
+import jakarta.persistence.EntityManager;
 import lems.cowshed.IntegrationTestSupport;
 import lems.cowshed.domain.event.Event;
 import lems.cowshed.domain.event.participation.EventParticipation;
@@ -28,6 +29,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class EventParticipationServiceTest extends IntegrationTestSupport {
+
+    @Autowired
+    private EntityManager em;
 
     @Autowired
     private EventParticipationService eventParticipationService;
@@ -61,15 +65,16 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
 
     @Disabled
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @DisplayName("최대 인원이 3명인 모임에 5명의 회원이 동시에 참가 하면 1명만 참여 할 수 있다.")
+    @DisplayName("최대 인원이 100명인 모임에 10000명의 회원이 동시에 참가 하면 100명이 참가한다.")
     @Test
     void saveEventParticipation_WhenFiveUsersJoin_ThenThreeParticipantsAllowed() throws Exception {
         //given
-        int taskCount = 5;
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        int taskCount = 10000;
+        int capacity = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(capacity);
         CountDownLatch countDownLatch = new CountDownLatch(taskCount);
 
-        Event findEvent = eventRepository.save(createEvent("테스터", "테스트 모임", 3));
+        Event event = eventRepository.save(createEvent("테스터", "테스트 모임", capacity));
 
         List<User> users = Stream
                 .generate(() -> {
@@ -86,7 +91,7 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         for (User user : users) {
             executorService.submit(() -> {
                 try {
-                    eventParticipationService.saveEventParticipation(findEvent.getId(), user.getId());
+                    eventParticipationService.saveEventParticipation(event.getId(), user.getId());
                 } catch (BusinessException ex) {
                     exceptionCount.incrementAndGet();
                 } finally {
@@ -98,9 +103,10 @@ class EventParticipationServiceTest extends IntegrationTestSupport {
         executorService.shutdown();
 
         // then
-        long participants = eventParticipantRepository.getParticipationCountById(findEvent.getId());
-        assertThat(participants).isEqualTo(3);
-        assertThat(exceptionCount.get()).isEqualTo(2);
+        em.clear();
+        Event findEvent = eventRepository.findById(event.getId()).orElseThrow();
+        assertThat(findEvent.getParticipantCount()).isEqualTo(100);
+        assertThat(exceptionCount.get()).isEqualTo(9900);
     }
 
     @DisplayName("회원이 참석한 모임의 참석을 해제 한다.")
