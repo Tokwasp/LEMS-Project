@@ -1,12 +1,10 @@
 package lems.cowshed.repository.event;
 
-import jakarta.persistence.LockModeType;
 import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,11 +20,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "WHERE e.id = :id AND e.participantCount < e.capacity")
     int incrementParticipantCount(@Param("id") Long id);
 
-    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
-    @Query("select e from Event e where e.id = :eventId")
-    Optional<Event> finByIdWithOptimisticLock(@Param("eventId") Long eventId);
-
     Slice<Event> findEventsBy(Pageable pageable);
+
     Event findByName(String name);
 
     Optional<Event> findByIdAndAuthor(Long eventId, String author);
