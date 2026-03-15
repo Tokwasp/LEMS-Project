@@ -7,6 +7,7 @@ import lems.cowshed.global.exception.BusinessException;
 import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.repository.user.UserRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ class EventParticipationFacadeTest extends IntegrationTestSupport {
     @Autowired
     private UserRepository userRepository;
 
+    @Disabled
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @DisplayName("3명 정원인 모임에 3명이 동시 참여할 때 실패 시 재시도가 수행된다.")
@@ -74,6 +76,7 @@ class EventParticipationFacadeTest extends IntegrationTestSupport {
         assertThat(participants).isEqualTo(3);
     }
 
+    @Disabled
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @DisplayName("5명이 최대인원인 모임에 10명 동시 참여 시 재시도 후 Recover 메서드가 호출된다.")

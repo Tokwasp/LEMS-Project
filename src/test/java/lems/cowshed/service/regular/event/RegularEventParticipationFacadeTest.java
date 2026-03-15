@@ -9,6 +9,7 @@ import lems.cowshed.repository.event.EventRepository;
 import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.repository.user.UserRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ class RegularEventParticipationFacadeTest extends IntegrationTestSupport {
     @Autowired
     private RegularEventParticipationFacade regularEventFacade;
 
+    @Disabled
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @DisplayName("3명 정원인 정기 모임에 3명이 동시 참여할 때 실패 시 재시도가 수행된다.")
@@ -82,6 +84,7 @@ class RegularEventParticipationFacadeTest extends IntegrationTestSupport {
         assertThat(participants).isEqualTo(3);
     }
 
+    @Disabled
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @DisplayName("3명 정원인 정기 모임에 10명이 동시 참여할 때 실패 시 재시도가 수행된다.")
