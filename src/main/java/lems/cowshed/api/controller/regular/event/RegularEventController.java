@@ -1,5 +1,6 @@
 package lems.cowshed.api.controller.regular.event;
 
+import io.micrometer.core.annotation.Counted;
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.domain.user.CustomUserDetails;
@@ -22,6 +23,7 @@ public class RegularEventController implements RegularEventSpecification {
 
     private final RegularEventService regularEventService;
 
+    @Counted(value = "regular.event.create", description = "정기 모임 생성")
     @PostMapping("/events/{event-id}/regular")
     public CommonResponse<Void> saveRegularEvent(@Valid @RequestBody RegularEventSaveRequest request,
                                                  @PathVariable("event-id") Long eventId,

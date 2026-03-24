@@ -1,5 +1,6 @@
 package lems.cowshed.api.controller.event;
 
+import io.micrometer.core.annotation.Counted;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.domain.user.CustomUserDetails;
 import lems.cowshed.dto.event.request.EventSaveRequestDto;
@@ -31,6 +32,7 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(response);
     }
 
+    @Counted(value = "event.create", description = "모임 생성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Long> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
