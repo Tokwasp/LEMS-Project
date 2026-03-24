@@ -1,5 +1,6 @@
 package lems.cowshed.api.controller.regular.event.participation;
 
+import io.micrometer.core.annotation.Timed;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.dto.regular.event.response.RegularParticipantsInfo;
 import lems.cowshed.domain.user.CustomUserDetails;
@@ -15,6 +16,7 @@ public class RegularEventParticipationController implements RegularEventParticip
 
     private final RegularEventParticipationService participationService;
 
+    @Timed(value = "regular.event.participate", description = "정기 모임 참여")
     @PostMapping("/{regular-id}/participation")
     public CommonResponse<Long> save(@PathVariable("regular-id") Long regularId,
                                      @AuthenticationPrincipal CustomUserDetails userDetails){

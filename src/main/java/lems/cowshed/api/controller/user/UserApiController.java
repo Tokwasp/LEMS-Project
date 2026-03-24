@@ -1,5 +1,6 @@
 package lems.cowshed.api.controller.user;
 
+import io.micrometer.core.annotation.Counted;
 import jakarta.validation.Valid;
 import lems.cowshed.api.controller.CommonResponse;
 import lems.cowshed.domain.mail.Mail;
@@ -27,6 +28,7 @@ public class UserApiController implements UserSpecification {
     private final UserService userService;
     private final MailService mailService;
 
+    @Counted(value = "user.signUp", description = "회원 가입")
     @PostMapping("/signUp")
     public CommonResponse<Void> signUp(@Valid @RequestBody UserSaveRequest request) {
         Mail mail = Mail.of(request.getEmail(), request.getCode());
@@ -38,6 +40,7 @@ public class UserApiController implements UserSpecification {
         userService.signUp(request);
         return CommonResponse.success();
     }
+
 
     @PostMapping("/login")
     public CommonResponse<Void> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
