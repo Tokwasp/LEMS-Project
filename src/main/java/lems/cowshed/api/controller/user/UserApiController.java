@@ -78,4 +78,10 @@ public class UserApiController implements UserSpecification {
         userService.deleteUser(customUserDetails.getUserId());
         return CommonResponse.success();
     }
+
+    @PostMapping("/threads-test")
+    public CommonResponse<Void> threadsTest() throws InterruptedException {
+        Thread.sleep(2000);
+        return CommonResponse.success();
+    }
 }
