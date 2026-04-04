@@ -8,10 +8,12 @@ import lems.cowshed.domain.bookmark.BookmarkStatus;
 import lems.cowshed.domain.event.Event;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
 @Schema(description = "메인 모임 리스트중 하나의 모임")
 public class EventPagingInfo implements EventIdProvider {
 
