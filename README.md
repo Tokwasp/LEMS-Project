@@ -26,8 +26,11 @@
 ---
 ## ⚙️ 문제 해결
 - 모임 참가 **동시성 문제** 해결  
-  참고: [heedb 블로그](https://heedb.tistory.com/65)
-
+  낙관적 락 적용: [heedb 블로그](https://heedb.tistory.com/65) <br>
+  원자적 업데이트 적용: [PR] (https://github.com/Tokwasp/LEMS-Project/pull/124)
+  
+- 모니터링 알림 적용 <br>
+  참고: [heedb 블로그](https://heedb.tistory.com/74)
 ---
 
 ## 📱 화면 구성
