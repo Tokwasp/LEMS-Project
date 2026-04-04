@@ -20,7 +20,7 @@
 ---
 
 ## 🏗️ 서버 아키텍처
-<img width="2383" height="1872" alt="아키텍처 drawio (1)" src="https://github.com/user-attachments/assets/ae737240-1f96-448c-9354-019e9ebabe41" />
+<img width="2842" height="1872" alt="제목 없는 다이어그램 drawio" src="https://github.com/user-attachments/assets/5b9d2f07-d78c-4817-a8dd-a6184f7c0803" />
 
 
 ---
