@@ -15,7 +15,7 @@
 
 ---
 ## 🗄️ ERD
-<img width="1930" height="882" alt="LEMS-PROJECT" src="https://github.com/user-attachments/assets/5f019856-e66f-43fb-8a85-6dc32b372149" />
+<img width="1369" height="716" alt="image" src="https://github.com/user-attachments/assets/d0bad25b-0865-4413-9ff9-85e856a0d2b7" />
 
 ---
 
