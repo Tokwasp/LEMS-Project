@@ -12,6 +12,9 @@ public enum Message {
     USERNAME_EXIST("이미 존재하는 닉네임 입니다."),
     USERNAME_OR_EMAIL_EXIST("이미 존재하는 닉네임 혹은 이메일 입니다."),
     USER_NOT_CERTIFICATION_CODE("인증 코드가 일치 하지 않습니다."),
+    USER_REFRESH_NOT_FOUND("리프래쉬 토큰을 찾지 못했습니다"),
+    USER_REFRESH_NOT_EXPIRED("리프래쉬 토큰이 만료되었습니다"),
+    USER_REFRESH_NOT_MATCH_CATEGORY("토큰 종류가 일치하지 않습니다."),
 
     MAIL_SEND_ERROR("메일 보내기 실패 하였습니다."),
     MAIL_NOT_VALID_CERTIFICATION_CODE("유효 하지 않은 검증 코드 입니다."),

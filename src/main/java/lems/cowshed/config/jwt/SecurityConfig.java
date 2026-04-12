@@ -1,5 +1,6 @@
 package lems.cowshed.config.jwt;
 
+import lems.cowshed.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -26,6 +28,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     //jwt 생성 클래스
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -76,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/signUp", "/users/login", "/users/verification/**", "/users/password-reset").permitAll()
                         .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/reissue").permitAll()
                         .anyRequest().authenticated());
 
         /*
@@ -84,10 +88,11 @@ public class SecurityConfig {
          Post 방식의 /login 요청을 받아 username, password 파라미터 처리
          AuthenticationManager 통해 자격 증명 인증 -> 성공 시 SecurityContextHolder 인증 객체를 저장 하여 세션 생성
          */
-        UsernamePasswordAuthenticationFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
+        UsernamePasswordAuthenticationFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository);
         loginFilter.setFilterProcessesUrl("/users/login");
 
         http
+                .addFilterBefore(new LogOutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class)
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         /*
