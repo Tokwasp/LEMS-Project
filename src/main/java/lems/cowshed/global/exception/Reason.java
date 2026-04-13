@@ -12,6 +12,7 @@ public enum Reason {
     USER_PASSWORD("user_password"),
     USERNAME_OR_EMAIL("usernameOrEmail"),
     USER_CERTIFICATION_CODE("user_certification_code"),
+    USER_REISSUE_FAIL("user_reissue_fail"),
 
     MAIL("mail"),
     MAIL_CERTIFICATION_CODE("mail_certification_code"),

@@ -15,7 +15,7 @@ public class JwtUtil {
 
     private final SecretKey secretKey;
 
-    public JwtUtil(@Value("${spring.jwt.secret}")String secret) {
+    public JwtUtil(@Value("${spring.jwt.secret}") String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
@@ -27,8 +27,8 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
     }
 
-    public String getUserEmail(String token){
-        return  Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
+    public String getUserEmail(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
     public Role getRole(String token) {
@@ -36,12 +36,17 @@ public class JwtUtil {
         return Role.valueOf(roleString);
     }
 
+    public String getCategory(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
+
     public Boolean isExpired(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(Long id, String username, String email, String role, Long expiredMs) {
+    public String createJwt(String category, Long id, String username, String email, String role, Long expiredMs) {
         return Jwts.builder()
+                .claim("category", category)
                 .claim("id", id)
                 .claim("username", username)
                 .claim("email", email)
