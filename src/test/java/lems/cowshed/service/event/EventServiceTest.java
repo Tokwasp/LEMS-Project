@@ -1,29 +1,31 @@
 package lems.cowshed.service.event;
 
 import lems.cowshed.IntegrationTestSupport;
+import lems.cowshed.domain.bookmark.Bookmark;
 import lems.cowshed.domain.event.Category;
+import lems.cowshed.domain.event.Event;
+import lems.cowshed.domain.event.participation.EventParticipation;
+import lems.cowshed.domain.regular.event.RegularEvent;
+import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
+import lems.cowshed.domain.user.Mbti;
+import lems.cowshed.domain.user.User;
 import lems.cowshed.dto.event.request.EventSaveRequestDto;
 import lems.cowshed.dto.event.request.EventSearchCondition;
 import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.dto.event.response.*;
 import lems.cowshed.dto.regular.event.response.RegularEventInfo;
-import lems.cowshed.domain.bookmark.Bookmark;
-import lems.cowshed.repository.bookmark.BookmarkRepository;
-import lems.cowshed.domain.event.Event;
-import lems.cowshed.repository.event.EventRepository;
-import lems.cowshed.domain.event.participation.EventParticipation;
-import lems.cowshed.domain.regular.event.RegularEvent;
-import lems.cowshed.repository.regular.event.RegularEventRepository;
-import lems.cowshed.domain.regular.event.participation.RegularEventParticipation;
-import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
-import lems.cowshed.domain.user.Mbti;
-import lems.cowshed.domain.user.User;
-import lems.cowshed.repository.user.UserRepository;
-import lems.cowshed.repository.event.participation.EventParticipantRepository;
 import lems.cowshed.global.exception.BusinessException;
 import lems.cowshed.global.exception.NotFoundException;
+import lems.cowshed.repository.bookmark.BookmarkRepository;
+import lems.cowshed.repository.event.EventRepository;
+import lems.cowshed.repository.event.participation.EventParticipantRepository;
+import lems.cowshed.repository.regular.event.RegularEventRepository;
+import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
+import lems.cowshed.repository.user.UserRepository;
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,11 +34,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static lems.cowshed.domain.bookmark.BookmarkStatus.*;
-import static lems.cowshed.domain.user.Mbti.*;
-import static org.assertj.core.api.Assertions.*;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
+import static lems.cowshed.domain.bookmark.BookmarkStatus.NOT_BOOKMARK;
+import static lems.cowshed.domain.user.Mbti.INTP;
+import static lems.cowshed.domain.user.Mbti.ISTP;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EventServiceTest extends IntegrationTestSupport {
 
@@ -351,7 +355,7 @@ class EventServiceTest extends IntegrationTestSupport {
         assertThat(regularEvents)
                 .extracting("isRegularRegistrant")
                 .containsExactlyInAnyOrder(
-                        true,false
+                        true, false
                 );
     }
 
@@ -364,7 +368,7 @@ class EventServiceTest extends IntegrationTestSupport {
 
         int userCount = 2;
 
-        for(int i = 0; i < userCount; i++){
+        for (int i = 0; i < userCount; i++) {
             User user = createUser("테스터", "testEmail");
             userRepository.save(user);
             eventParticipationService.saveEventParticipation(event.getId(), user.getId());
@@ -528,7 +532,7 @@ class EventServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         int bookmarkCount = 3;
-        for(int i = 0; i < bookmarkCount; i++){
+        for (int i = 0; i < bookmarkCount; i++) {
             Event event = createEvent(author, "테스트" + i);
             eventRepository.save(event);
 
@@ -583,9 +587,9 @@ class EventServiceTest extends IntegrationTestSupport {
         User user = createUser("테스터", "test@naver.com");
         userRepository.save(user);
 
-        Event event = createEvent("테스터", "모임" , "내용", Category.GAME);
+        Event event = createEvent("테스터", "모임", "내용", Category.GAME);
         Event event2 = createEvent("테스터", "모임2", "내용2", Category.HOBBY);
-        eventRepository.saveAll(List.of(event,event2));
+        eventRepository.saveAll(List.of(event, event2));
 
         EventSearchCondition searchCondition = createSearchCondition(null, null);
 
@@ -616,7 +620,7 @@ class EventServiceTest extends IntegrationTestSupport {
         String searchKeyword = "검색";
         Event event = createEvent("테스터", "모임 " + searchKeyword, "내용", Category.GAME);
         Event event2 = createEvent("테스터", "모임", "내용", Category.HOBBY);
-        eventRepository.saveAll(List.of(event,event2));
+        eventRepository.saveAll(List.of(event, event2));
 
         EventSearchCondition searchCondition = createSearchCondition(searchKeyword, null);
 
@@ -644,7 +648,7 @@ class EventServiceTest extends IntegrationTestSupport {
         Category searchCategory = Category.HOBBY;
         Event event = createEvent("테스터", "모임", "내용", Category.GAME);
         Event event2 = createEvent("테스터", "모임2", "내용2", Category.HOBBY);
-        eventRepository.saveAll(List.of(event,event2));
+        eventRepository.saveAll(List.of(event, event2));
 
         EventSearchCondition searchCondition = createSearchCondition(null, searchCategory);
 
@@ -673,9 +677,9 @@ class EventServiceTest extends IntegrationTestSupport {
         Category searchCategory = Category.PET;
         Event event = createEvent("테스터", "모임 " + searchKeyword, "내용", Category.GAME);
 
-        Event event2 = createEvent("테스터", "모임2" , "내용 " + searchKeyword, searchCategory);
+        Event event2 = createEvent("테스터", "모임2", "내용 " + searchKeyword, searchCategory);
         Event event3 = createEvent("테스터", "모임3", "내용", searchCategory);
-        eventRepository.saveAll(List.of(event,event2, event3));
+        eventRepository.saveAll(List.of(event, event2, event3));
 
         EventSearchCondition searchCondition = createSearchCondition(searchKeyword, searchCategory);
 
@@ -766,7 +770,7 @@ class EventServiceTest extends IntegrationTestSupport {
                 );
     }
 
-    private static EventSearchCondition createSearchCondition(String content, Category category){
+    private static EventSearchCondition createSearchCondition(String content, Category category) {
         return EventSearchCondition.builder()
                 .content(content)
                 .category(category)
@@ -780,7 +784,7 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private static Event createEvent(String author, String name, String content, Category category){
+    private static Event createEvent(String author, String name, String content, Category category) {
         return Event.builder()
                 .name(name)
                 .author(author)
@@ -833,7 +837,7 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private RegularEvent createRegularEvent(Event event, String name, String location, Long userId){
+    private RegularEvent createRegularEvent(Event event, String name, String location, Long userId) {
         return RegularEvent.builder()
                 .event(event)
                 .name(name)
@@ -843,7 +847,7 @@ class EventServiceTest extends IntegrationTestSupport {
                 .build();
     }
 
-    private RegularEventParticipation createRegularParticipation(Long userId, RegularEvent regularEvent){
+    private RegularEventParticipation createRegularParticipation(Long userId, RegularEvent regularEvent) {
         return RegularEventParticipation.of(userId, regularEvent.getId());
     }
 }
