@@ -9,8 +9,6 @@ import lems.cowshed.dto.event.request.EventUpdateRequestDto;
 import lems.cowshed.dto.event.response.*;
 import lems.cowshed.service.event.EventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -34,7 +32,6 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(response);
     }
 
-    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     @Counted(value = "event.create", description = "모임 생성")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<Long> saveEvent(@ModelAttribute @Validated EventSaveRequestDto requestDto,
@@ -43,7 +40,6 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(eventId);
     }
 
-    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     @PatchMapping("/{event-id}")
     public CommonResponse<Void> editEvent(@PathVariable("event-id") Long eventId,
                                           @ModelAttribute @Validated EventUpdateRequestDto requestDto,
@@ -58,7 +54,6 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(participantsInfo);
     }
 
-    @Cacheable(value = "eventFirstPage", key = "'page0'", condition = "#pageable.pageNumber == 0")
     @GetMapping
     public CommonResponse<EventsPagingResponse> getEventsPaging(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -101,7 +96,6 @@ public class EventController implements EventSpecification {
         return CommonResponse.success(count);
     }
 
-    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     @DeleteMapping("/{event-id}")
     public CommonResponse<Void> deleteEvent(@PathVariable("event-id") Long eventId,
                                             @AuthenticationPrincipal CustomUserDetails customUserDetails) {

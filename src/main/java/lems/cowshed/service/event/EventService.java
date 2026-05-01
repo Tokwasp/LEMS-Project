@@ -30,7 +30,11 @@ import lems.cowshed.repository.regular.event.RegularEventRepository;
 import lems.cowshed.repository.regular.event.participation.RegularEventParticipationRepository;
 import lems.cowshed.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +43,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static lems.cowshed.domain.bookmark.BookmarkStatus.BOOKMARK;
@@ -59,6 +64,8 @@ public class EventService {
     private final RegularEventRepository regularEventRepository;
     private final RegularEventParticipationRepository regularEventParticipationRepository;
     private final AwsS3Util awsS3Util;
+    private final CacheManager cacheManager;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public EventInfo getEvent(Long eventId, String username) {
         Event event = eventRepository.findById(eventId)
@@ -75,6 +82,7 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     public Long saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(USER_NAME, USER_NOT_FOUND));
@@ -89,6 +97,7 @@ public class EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     public void editEvent(Long eventId, EventUpdateRequestDto request, String username) throws IOException {
         Event event = eventRepository.findByIdAndAuthor(eventId, username)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
@@ -129,23 +138,28 @@ public class EventService {
     }
 
     public EventsPagingResponse getEventsPaging(Pageable pageable, Long userId) {
-        Slice<Event> eventsToLookFor = eventRepository.findEventsBy(pageable);
+        if (pageable.getPageNumber() != 0) {
+            return fetchEventsPagingFromDb(pageable, userId);
+        }
 
-        List<Event> content = eventsToLookFor.getContent();
-        Events events = Events.of(content);
-        List<Long> eventIds = events.extractIds();
+        Cache cache = cacheManager.getCache("eventFirstPage");
+        Cache.ValueWrapper cached = cache.get("page0");
+        Long remainingTtlMs = redisTemplate.getExpire("eventFirstPage::page0", TimeUnit.MILLISECONDS);
 
-        List<EventParticipation> participatedEvent = eventParticipantRepository.findEventParticipationByEventIdIn(eventIds);
-        Participants participants = Participants.of(participatedEvent);
-        Map<Long, Long> participantsCountByGroupId = participants.findNumberOfParticipants();
+        if (cached != null && isCacheAlive(remainingTtlMs)) {
+            if (isNotPerTarget(remainingTtlMs)) {
+                return (EventsPagingResponse) cached.get();
+            }
+            redisTemplate.expire("eventFirstPage::page0", 1, TimeUnit.MINUTES);
+        }
 
-        Set<Long> userBookmarkedEventIds = eventRepository.findEventIdsBookmarkedByUser(userId, eventIds, BOOKMARK);
-        List<EventPagingInfo> result = createEventSimpleInfo(content, participantsCountByGroupId, userBookmarkedEventIds);
-
-        return EventsPagingResponse.of(result, eventsToLookFor.isLast());
+        EventsPagingResponse result = fetchEventsPagingFromDb(pageable, userId);
+        cache.put("page0", result);
+        return result;
     }
 
     @Transactional
+    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     public void deleteEvent(Long eventId, String username) {
         Event event = eventRepository.findByIdAndAuthor(eventId, username).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
@@ -191,6 +205,33 @@ public class EventService {
 
     public int searchEventsCount(EventSearchCondition condition) {
         return eventQueryRepository.searchCount(condition.getContent(), condition.getCategory());
+    }
+
+    private boolean isCacheAlive(Long remainingTtlMs) {
+        return remainingTtlMs != null && remainingTtlMs > 0;
+    }
+
+    private boolean isNotPerTarget(Long remainingTtlMs) {
+        double beta = 1.0;
+        double deltaMs = 4000.0;
+        return Math.random() >= Math.exp(-(double) remainingTtlMs / (deltaMs * beta));
+    }
+
+    private EventsPagingResponse fetchEventsPagingFromDb(Pageable pageable, Long userId) {
+        Slice<Event> eventsToLookFor = eventRepository.findEventsBy(pageable);
+
+        List<Event> content = eventsToLookFor.getContent();
+        Events events = Events.of(content);
+        List<Long> eventIds = events.extractIds();
+
+        List<EventParticipation> participatedEvent = eventParticipantRepository.findEventParticipationByEventIdIn(eventIds);
+        Participants participants = Participants.of(participatedEvent);
+        Map<Long, Long> participantsCountByGroupId = participants.findNumberOfParticipants();
+
+        Set<Long> userBookmarkedEventIds = eventRepository.findEventIdsBookmarkedByUser(userId, eventIds, BOOKMARK);
+        List<EventPagingInfo> result = createEventSimpleInfo(content, participantsCountByGroupId, userBookmarkedEventIds);
+
+        return EventsPagingResponse.of(result, eventsToLookFor.isLast());
     }
 
     private List<Long> getEventsId(List<Event> events) {
