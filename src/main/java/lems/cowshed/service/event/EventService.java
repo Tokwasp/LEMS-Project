@@ -32,12 +32,13 @@ import lems.cowshed.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -67,6 +68,9 @@ public class EventService {
     private final CacheManager cacheManager;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private static final String FIRST_PAGE_CACHE_KEY = "eventFirstPage::page0";
+    private static final long INVALIDATION_CAP_SECONDS = 5L;
+
     public EventInfo getEvent(Long eventId, String username) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
@@ -82,7 +86,6 @@ public class EventService {
     }
 
     @Transactional
-    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     public Long saveEvent(EventSaveRequestDto requestDto, String username) throws IOException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(USER_NAME, USER_NOT_FOUND));
@@ -93,11 +96,11 @@ public class EventService {
 
         EventParticipation participation = EventParticipation.of(user, event.getId());
         eventParticipantRepository.save(participation);
+        capFirstPageCacheTtl();
         return event.getId();
     }
 
     @Transactional
-    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     public void editEvent(Long eventId, EventUpdateRequestDto request, String username) throws IOException {
         Event event = eventRepository.findByIdAndAuthor(eventId, username)
                 .orElseThrow(() -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
@@ -113,6 +116,7 @@ public class EventService {
                 uploadFile,
                 participants.size()
         );
+        capFirstPageCacheTtl();
     }
 
     public EventParticipantsInfo getEventParticipants(Long eventId) {
@@ -144,13 +148,13 @@ public class EventService {
 
         Cache cache = cacheManager.getCache("eventFirstPage");
         Cache.ValueWrapper cached = cache.get("page0");
-        Long remainingTtlMs = redisTemplate.getExpire("eventFirstPage::page0", TimeUnit.MILLISECONDS);
+        Long remainingTtlMs = redisTemplate.getExpire(FIRST_PAGE_CACHE_KEY, TimeUnit.MILLISECONDS);
 
         if (cached != null && isCacheAlive(remainingTtlMs)) {
             if (isNotPerTarget(remainingTtlMs)) {
                 return (EventsPagingResponse) cached.get();
             }
-            redisTemplate.expire("eventFirstPage::page0", 1, TimeUnit.MINUTES);
+            redisTemplate.expire(FIRST_PAGE_CACHE_KEY, 1, TimeUnit.MINUTES);
         }
 
         EventsPagingResponse result = fetchEventsPagingFromDb(pageable, userId);
@@ -159,12 +163,12 @@ public class EventService {
     }
 
     @Transactional
-    @CacheEvict(value = "eventFirstPage", key = "'page0'")
     public void deleteEvent(Long eventId, String username) {
         Event event = eventRepository.findByIdAndAuthor(eventId, username).orElseThrow(
                 () -> new NotFoundException(EVENT_ID, EVENT_NOT_FOUND));
 
         eventRepository.delete(event);
+        capFirstPageCacheTtl();
     }
 
     public BookmarkedEventsPagingInfo getEventsBookmarkedByUser(Pageable pageable, Long userId) {
@@ -211,9 +215,35 @@ public class EventService {
         return remainingTtlMs != null && remainingTtlMs > 0;
     }
 
+    /**
+     * 모임 생성/수정/삭제 시 첫 페이지 캐시를 완전 삭제하지 않고 남은 TTL을 짧게 줄인다(cap).
+     * 키를 남겨 두어 PER이 동작할 값을 유지하므로, 하드 미스로 인한 스탬피드 없이 PER이 cap 구간
+     * 안에서 한 번 부드럽게 재계산하도록 유도한다. 트랜잭션 커밋 이후 실행해, 다른 스레드의 PER
+     * 재계산이 커밋 전 옛 데이터를 fresh로 다시 캐싱하는 것을 막는다.
+     */
+    private void capFirstPageCacheTtl() {
+        Runnable cap = () -> {
+            Long remainingTtlSeconds = redisTemplate.getExpire(FIRST_PAGE_CACHE_KEY, TimeUnit.SECONDS);
+            if (remainingTtlSeconds != null && remainingTtlSeconds > INVALIDATION_CAP_SECONDS) {
+                redisTemplate.expire(FIRST_PAGE_CACHE_KEY, INVALIDATION_CAP_SECONDS, TimeUnit.SECONDS);
+            }
+        };
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    cap.run();
+                }
+            });
+        } else {
+            cap.run();
+        }
+    }
+
     private boolean isNotPerTarget(Long remainingTtlMs) {
         double beta = 1.0;
-        double deltaMs = 4000.0;
+        double deltaMs = 7000.0;
         return Math.random() >= Math.exp(-(double) remainingTtlMs / (deltaMs * beta));
     }
 
